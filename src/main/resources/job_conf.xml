@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--全局配置 -->
+<conf>
+	<globalSettings>
+		<threadPoolSize>30</threadPoolSize>
+		<timeout>3000</timeout>
+		<reportProcess>true</reportProcess>
+	</globalSettings>
+
+	<!--作业配置 -->
+	<jobs>
+		<job>
+			<name>testjob</name>
+			<storage>
+				<type>localfile</type>
+				<dir>/</dir>
+				<format>json</format>
+			</storage>
+			<threadNum>2</threadNum>
+			<!-- job运行时效，-1表示直到爬完全部，60表示一个小时后job自动结束 -->
+			<timeout>-1</timeout>
+			<seeds>http://www.66e.cc</seeds>
+			http://www.66e.cc/bd/20130501/24595.htm
+			<urlFilters>
+				<urlFileter value="http://www\.66e\.cc/\[a-zA-Z]+/\d{4}?/\d{2}/\w[^_]+\.html"/>
+				<urlFileter value="http://travel\.163\.com\.cn/\d{2}/\d{4}/\d{2}/\w[^_]+\.html"/>
+			</urlFilters>
+			<selects>
+				<!-- 选择抓取的网页类容 -->
+				<select name="title" value="#title" />
+				<select name="subTitle" value=".subTitle" />
+			</selects>
+		</job>
+	</jobs>
+</conf>

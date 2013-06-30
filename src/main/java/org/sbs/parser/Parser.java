@@ -154,7 +154,6 @@ public class Parser extends Configurable {
 
 		page.setParseData(parseData);
 		return true;
-
 	}
 
 }

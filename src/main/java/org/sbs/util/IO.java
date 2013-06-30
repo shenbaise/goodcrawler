@@ -49,7 +49,7 @@ public class IO {
 	
 	public static void writeBytesToFile(byte[] bytes, String destination) {
 		try {
-			FileChannel fc = new FileOutputStream(destination).getChannel();
+			FileChannel fc = new FileOutputStream(destination,true).getChannel();
 			fc.write(ByteBuffer.wrap(bytes));
 			fc.close();
 		} catch (Exception e) {
