@@ -15,56 +15,23 @@
  * limitations under the License.
  */
 
-package org.sbs.parser;
+package org.sbs.goodcrawler.job;
 
+public class TextParseData implements ParseData {
 
-import java.util.List;
+	private String textContent;
 
-import org.sbs.url.WebURL;
-
-public class HtmlParseData implements ParseData {
-
-	private String html;
-	private String text;
-	private String title;
-
-	private List<WebURL> outgoingUrls;
-
-	public String getHtml() {
-		return html;
+	public String getTextContent() {
+		return textContent;
 	}
 
-	public void setHtml(String html) {
-		this.html = html;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public List<WebURL> getOutgoingUrls() {
-		return outgoingUrls;
-	}
-
-	public void setOutgoingUrls(List<WebURL> outgoingUrls) {
-		this.outgoingUrls = outgoingUrls;
+	public void setTextContent(String textContent) {
+		this.textContent = textContent;
 	}
 	
 	@Override
 	public String toString() {
-		return text;
+		return textContent;
 	}
-
+	
 }

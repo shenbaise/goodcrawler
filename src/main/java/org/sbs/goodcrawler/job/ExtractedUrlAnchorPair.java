@@ -1,4 +1,4 @@
-package org.sbs.parser;
+package org.sbs.goodcrawler.job;
 
 public class ExtractedUrlAnchorPair {
 

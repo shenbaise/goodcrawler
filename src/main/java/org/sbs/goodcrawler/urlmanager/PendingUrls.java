@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.conf.GlobalConstants;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
+import org.sbs.goodcrawler.exception.QueueException;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -36,7 +37,6 @@ public class PendingUrls {
 	private Log log = LogFactory.getLog(this.getClass());
 	private static BlockingQueue<WebURL> Queue = null;
 	private static PendingUrls instance = null;
-	
 	/**
 	 * 总URL个数，每爬到一个+1
 	 */
@@ -53,11 +53,16 @@ public class PendingUrls {
 	 * 依据job配置被忽略的链接个数
 	 */
 	private AtomicLong ignored = new AtomicLong(0);
-	
+	/**
+	 * 构造函数
+	 */
 	private PendingUrls(){
 		init();
 	}
-	
+	/**
+	 * @return
+	 * @desc 返回队列实例
+	 */
 	public static PendingUrls getInstance(){
 		if(null==instance){
 			instance = new PendingUrls();
@@ -76,7 +81,7 @@ public class PendingUrls {
 	 * @param url
 	 * @desc 加入一个待处理的URL，Url总数+1
 	 */
-	public void addUrl(WebURL url){
+	public void addUrl(WebURL url) throws QueueException{
 		try {
 			if(null != url){
 				Queue.put(url);
@@ -84,7 +89,7 @@ public class PendingUrls {
 			}
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());
-			e.printStackTrace();
+			throw new QueueException("待处理链接队列加入操作中断");
 		}
 	}
 	
@@ -92,52 +97,84 @@ public class PendingUrls {
 	 * @return
 	 * @desc 返回一个将要处理的URL
 	 */
-	public WebURL getUrl(){
+	public WebURL getUrl() throws QueueException{
 		try {
 			return Queue.take();
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());
-			e.printStackTrace();
+			throw new QueueException("待处理链接队列取出操作中断");
 		}
-		return null;
 	}
-	
+	/**
+	 * @param c
+	 * @return
+	 * @desc 抓取成功连接数+c
+	 */
 	public long processedSuccess(long c){
 		return success.addAndGet(c);
 	}
-	
+	/**
+	 * @return
+	 * @desc 抓取成功连接数+1
+	 */
 	public long processedSuccess(){
 		return success.incrementAndGet();
 	}
-	
+	/**
+	 * @param c
+	 * @return
+	 * @desc 抓取失败连接数+c
+	 */
 	public int processedFailure(int c){
 		return failure.addAndGet(c);
 	}
-	
+	/**
+	 * @return
+	 * @desc 抓取失败链接数+1
+	 */
 	public int processedFailure(){
 		return failure.incrementAndGet();
 	}
-	
+	/**
+	 * @return
+	 * @desc 返回总链接数
+	 */
 	public long urlCount(){
 		return urlCount.get();
 	}
-	
+	/**
+	 * @return
+	 * @desc 返回成功抓取链接数
+	 */
 	public long success(){
 		return success.get();
 	}
-	
+	/**
+	 * @return
+	 * @desc 返回抓取失败链接数
+	 */
 	public int failure(){
 		return failure.get();
 	}
-	
+	/**
+	 * @param c
+	 * @return
+	 * @desc 被忽略链接数+c
+	 */
 	public long processedIgnored(long c){
 		return ignored.addAndGet(c);
 	}
-	
+	/**
+	 * @return
+	 * @desc 被忽略链接数+1
+	 */
 	public long processedIgnored(){
 		return ignored.incrementAndGet();
 	}
-	
+	/**
+	 * @return
+	 * @desc 被忽略链接个数
+	 */
 	public long ignored(){
 		return ignored.get();
 	}

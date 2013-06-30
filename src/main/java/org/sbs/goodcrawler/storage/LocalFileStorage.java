@@ -17,23 +17,25 @@
  */
 package org.sbs.goodcrawler.storage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sbs.goodcrawler.storage.PendingStore.Store;
+
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29
  * 本地文件系统存储实现
  */
-public class LocalFileStorage implements GoodStorage {
-	
-	private Log log = LogFactory.getLog(this.getClass());
-	
-	@Override
-	public StorageResult store(Object... object) {
-		
-		return null;
+public class LocalFileStorage extends Storage {
+
+	public LocalFileStorage(Store store) {
+		super(store);
 	}
 
-
+	@Override
+	public StoreResult store() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }
+

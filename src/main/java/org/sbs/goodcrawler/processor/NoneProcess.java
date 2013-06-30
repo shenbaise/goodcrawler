@@ -17,7 +17,7 @@
  */
 package org.sbs.goodcrawler.processor;
 
-import org.sbs.crawler.Page;
+import org.sbs.goodcrawler.job.Page;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)

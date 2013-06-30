@@ -24,10 +24,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.http.HttpStatus;
-import org.sbs.crawler.Page;
-import org.sbs.fetcher.PageFetchResult;
-import org.sbs.fetcher.PageFetcher;
-import org.sbs.url.WebURL;
+import org.sbs.goodcrawler.fetcher.PageFetchResult;
+import org.sbs.goodcrawler.fetcher.PageFetcher;
+import org.sbs.goodcrawler.job.Page;
+import org.sbs.goodcrawler.urlmanager.WebURL;
 import org.sbs.util.Util;
 
 

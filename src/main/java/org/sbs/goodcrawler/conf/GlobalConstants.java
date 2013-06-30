@@ -40,6 +40,10 @@ public class GlobalConstants {
 	 */
 	public static String failedPagesQueueSize = "failed.pages.queue.size";
 	/**
+	 * 等待存储的提取信息队列大小
+	 */
+	public static String pendingStoreMessgeQueueSize = "pending.store.pages.queue.size";
+	/**
 	 * （解析或者收取）失败页面备份文件路径
 	 */
 	public static String failedPagesBackupPath = "failed.pages.backup.path";

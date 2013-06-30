@@ -1,4 +1,5 @@
 /**
+ * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,12 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.sbs.goodcrawler.job;
 
-package org.sbs.parser;
+import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 
-public interface ParseData {
-
-	@Override
-    public String toString();
+/**
+ * @author shenbaise(shenbaise@outlook.com)
+ * @param <V>
+ * @date 2013-6-30
+ * job
+ */
+public abstract class Job implements Runnable{
+	protected JobConfiguration conf;
 	
+	public Job(JobConfiguration conf) {
+		super();
+		this.conf = conf;
+	}
 }

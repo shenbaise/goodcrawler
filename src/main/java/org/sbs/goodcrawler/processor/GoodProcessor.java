@@ -17,7 +17,8 @@
  */
 package org.sbs.goodcrawler.processor;
 
-import org.sbs.crawler.Page;
+import org.sbs.goodcrawler.exception.QueueException;
+import org.sbs.goodcrawler.job.Page;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -39,8 +40,14 @@ public abstract class GoodProcessor {
 	public void process(){
 		Page page = null;
 		while(true){
-			while(null!=(page=pages.getPage())){
-				handle(page);
+			try {
+				while(null!=(page=pages.getPage())){
+					handle(page);
+				}
+			} catch (QueueException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+				// log.erro(e.getMessage());
 			}
 		}
 	}

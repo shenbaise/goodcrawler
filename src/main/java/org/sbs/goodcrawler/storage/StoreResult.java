@@ -1,4 +1,5 @@
 /**
+ * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,24 +15,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.sbs.goodcrawler.storage;
 
-package org.sbs.parser;
-
-public class TextParseData implements ParseData {
-
-	private String textContent;
-
-	public String getTextContent() {
-		return textContent;
-	}
-
-	public void setTextContent(String textContent) {
-		this.textContent = textContent;
+/**
+ * @author shenbaise(shenbaise@outlook.com)
+ * @date 2013-6-29
+ * 存储结果
+ */
+public class StoreResult {
+	
+	public boolean success ;
+	public String messge;
+	
+	public StoreResult(){}
+	
+	public StoreResult(boolean success, String messge) {
+		super();
+		this.success = success;
+		this.messge = messge;
 	}
 	
-	@Override
-	public String toString() {
-		return textContent;
+	public boolean isSuccess() {
+		return success;
+	}
+	public void setSuccess(boolean success) {
+		this.success = success;
+	}
+	public String getMessge() {
+		return messge;
+	}
+	public void setMessge(String messge) {
+		this.messge = messge;
 	}
 	
 }

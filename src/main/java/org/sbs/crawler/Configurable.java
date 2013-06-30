@@ -17,21 +17,21 @@
 
 package org.sbs.crawler;
 
+import org.sbs.goodcrawler.conf.Configuration;
+
 /**
- * Several core components of crawler4j extend this class
- * to make them configurable.
- *
- * @author Yasser Ganjisaffar <lastname at gmail dot com>
+ * @author shenbaise(shenbaise@outlook.com)
+ * @date 2013-6-30
  */
 public abstract class Configurable {
 
-	protected CrawlConfig config;
+	protected Configuration config;
 	
-	protected Configurable(CrawlConfig config) {
+	protected Configurable(Configuration config) {
 		this.config = config;
 	}
 	
-	public CrawlConfig getConfig() {
+	public Configuration getConfig() {
 		return config;
 	}
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.sbs.parser;
+package org.sbs.goodcrawler.job;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -32,9 +32,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.crawler.Page;
 import org.sbs.goodcrawler.conf.GlobalConstants;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
+import org.sbs.goodcrawler.exception.QueueException;
+import org.sbs.goodcrawler.job.Page;
 import org.sbs.util.DateTimeUtil;
 
 /**
@@ -102,14 +103,17 @@ public class PendingPages {
 	 * @param page
 	 * @desc
 	 */
-	public void addPage(Page page){
-		try {
-			if(page!=null){
+	public void addPage(Page page) throws QueueException{
+		if(page!=null){
+			try {
 				Queue.put(page);
-				count.incrementAndGet();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+				// log.erro(e.getMessage());
+				throw new QueueException("待处理页面加入操作中断");
 			}
-		} catch (Exception e) {
-			log.error(e.getMessage());
+			count.incrementAndGet();
 		}
 	}
 	/**
@@ -117,15 +121,17 @@ public class PendingPages {
 	 * @return
 	 * @desc
 	 */
-	public Page getPage(){
+	public Page getPage() throws QueueException{
 		try {
-			Queue.take();
-		} catch (Exception e) {
-			log.error(e.getMessage());
+			return Queue.take();
+		} catch (InterruptedException e) {
+			throw new QueueException("待处理页面队列取出操作中断");
 		}
-		return null;
 	}
-	
+	/**
+	 * @param page
+	 * @desc 添加一个处理失败的页面
+	 */
 	public void addFailedPage(Page page){
 		try {
 			if(null!=page){
@@ -136,9 +142,12 @@ public class PendingPages {
 			// ..
 		}
 	}
-	
+	/**
+	 * @author shenbaise(shenbaise@outlook.com)
+	 * @date 2013-6-30
+	 * 备份失败页面
+	 */
 	private class BackupFailedPages implements Runnable{
-		
 		@Override
 		public void run() {
 			Page page ;

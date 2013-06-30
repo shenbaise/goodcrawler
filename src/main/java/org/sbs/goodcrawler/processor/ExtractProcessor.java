@@ -23,8 +23,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.sbs.crawler.Page;
-import org.sbs.goodcrawler.urlmanager.BloomFilter;
+import org.sbs.goodcrawler.exception.QueueException;
+import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
 import org.sbs.goodcrawler.urlmanager.WebURL;
@@ -66,6 +66,7 @@ public class ExtractProcessor extends GoodProcessor {
 				
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
+			} catch (QueueException e) {
 			}
 		}
 		return null;

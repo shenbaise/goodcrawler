@@ -17,35 +17,24 @@
  */
 package org.sbs.goodcrawler.storage;
 
+import org.sbs.goodcrawler.storage.PendingStore;
+import org.sbs.goodcrawler.storage.PendingStore.Store;
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29
- * 存储结果
+ * 爬虫的存储接口
  */
-public class StorageResult {
+public abstract class Storage {
 	
-	public boolean success ;
-	public String messge;
+	public Store store;
 	
-	public StorageResult(){}
-	
-	public StorageResult(boolean success, String messge) {
-		super();
-		this.success = success;
-		this.messge = messge;
+	public Storage(Store store){
+		this.store = store;
 	}
-	
-	public boolean isSuccess() {
-		return success;
-	}
-	public void setSuccess(boolean success) {
-		this.success = success;
-	}
-	public String getMessge() {
-		return messge;
-	}
-	public void setMessge(String messge) {
-		this.messge = messge;
-	}
-	
+	/**
+	 * @param object
+	 * @return
+	 * @desc 爬取内容后的存储接口
+	 */
+	public abstract StoreResult store();
 }

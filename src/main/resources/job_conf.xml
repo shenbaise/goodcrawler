@@ -10,15 +10,9 @@
 	<!--作业配置 -->
 	<jobs>
 		<job>
-			<name>testjob</name>
-			<storage>
-				<type>localfile</type>
-				<dir>/</dir>
-				<format>json</format>
-			</storage>
+			<name>goodJob</name>
+			<storage>elasticSearch</storage>
 			<threadNum>2</threadNum>
-			<!-- job运行时效，-1表示直到爬完全部，60表示一个小时后job自动结束 -->
-			<timeout>-1</timeout>
 			<seeds>http://www.66e.cc</seeds>
 			http://www.66e.cc/bd/20130501/24595.htm
 			<urlFilters>
@@ -31,5 +25,50 @@
 				<select name="subTitle" value=".subTitle" />
 			</selects>
 		</job>
+		
+		<job>
+			<name>testJob</name>
+			<storage>localFile</storage>
+			<agent>Kindle</agent>
+			<threadNum>2</threadNum>
+			<delayBetweenRequests>100</delayBetweenRequests>
+			<maxDepthOfCrawling>-1</maxDepthOfCrawling>
+			<maxOutgoingLinksToFollow>1000</maxOutgoingLinksToFollow>
+			<fetchBinaryContent>true</fetchBinaryContent>
+			<fileSuffix>gif,jpg,png,zip,rar,aiv,mtk</fileSuffix>
+			<https>true</https>
+			<onlyDomain>true</onlyDomain>
+			
+			<connection>
+				<socketTimeoutMilliseconds>10000</socketTimeoutMilliseconds>
+				<connectionTimeout>10000</connectionTimeout>
+				<maxTotalConnections>120</maxTotalConnections>
+				<maxConnectionsPerHost>100</maxConnectionsPerHost>
+				<maxDownloadSizePerPage>1048576</maxDownloadSizePerPage>
+			</connection>
+			
+			<proxy>
+				<proxyHost></proxyHost>
+				<proxyPort></proxyPort>
+				<proxyUsername></proxyUsername>
+				<proxyPassword></proxyPassword>
+			</proxy>
+			
+			<!-- job运行时效，-1表示直到爬完全部，60表示一个小时后job自动结束 -->
+			<timeout>-1</timeout>
+			<seeds>
+				<seed>http://www.66e.cc</seed>
+			</seeds>
+			<urlFilters>
+				<urlFileter value="http://www\.66e\.cc/\[a-zA-Z]+/\d{4}?/\d{2}/\w[^_]+\.html"/>
+				<urlFileter value="http://travel\.163\.com\.cn/\d{2}/\d{4}/\d{2}/\w[^_]+\.html"/>
+			</urlFilters>
+			<selects>
+				<!-- 选择抓取的网页类容 -->
+				<select name="title" value="#title" />
+				<select name="subTitle" value=".subTitle" />
+			</selects>
+		</job>
+		
 	</jobs>
 </conf>

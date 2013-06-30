@@ -1,5 +1,4 @@
 /**
- * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,24 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.sbs.goodcrawler.job;
 
-/**
- * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-6-30
- * 任务管理类
- */
-public class JobManager {
-	
-	
-	
-	/**
-	 * @param args
-	 * @desc 
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 
+
+public class HtmlParseData implements ParseData {
+
+	private String html;
+	private String text;
+	private String title;
+
+	public String getHtml() {
+		return html;
+	}
+
+	public void setHtml(String html) {
+		this.html = html;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	@Override
+	public String toString() {
+		return text;
 	}
 
 }

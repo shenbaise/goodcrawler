@@ -18,6 +18,9 @@
 package org.sbs.crawler;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 import org.sbs.fetcher.CustomFetchStatus;
@@ -25,14 +28,12 @@ import org.sbs.fetcher.PageFetchResult;
 import org.sbs.fetcher.PageFetcher;
 import org.sbs.frontier.DocIDServer;
 import org.sbs.frontier.Frontier;
-import org.sbs.parser.HtmlParseData;
-import org.sbs.parser.ParseData;
-import org.sbs.parser.Parser;
+import org.sbs.goodcrawler.job.HtmlParseData;
+import org.sbs.goodcrawler.job.Page;
+import org.sbs.goodcrawler.job.ParseData;
+import org.sbs.goodcrawler.job.Parser;
+import org.sbs.goodcrawler.urlmanager.WebURL;
 import org.sbs.robotstxt.RobotstxtServer;
-import org.sbs.url.WebURL;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * WebCrawler class in the Runnable class that is executed by each crawler

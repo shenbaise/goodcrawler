@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-package org.sbs.parser;
+package org.sbs.goodcrawler.job;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.tika.metadata.DublinCore;
@@ -30,10 +28,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.html.HtmlParser;
 import org.sbs.crawler.Configurable;
-import org.sbs.crawler.CrawlConfig;
-import org.sbs.crawler.Page;
-import org.sbs.url.URLCanonicalizer;
-import org.sbs.url.WebURL;
+import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 import org.sbs.util.Util;
 
 
@@ -46,8 +41,8 @@ public class Parser extends Configurable {
 
 	private HtmlParser htmlParser;
 	private ParseContext parseContext;
-
-	public Parser(CrawlConfig config) {
+	private JobConfiguration conf = (JobConfiguration)config;
+	public Parser(JobConfiguration config) {
 		super(config);
 		htmlParser = new HtmlParser();
 		parseContext = new ParseContext();
@@ -56,7 +51,7 @@ public class Parser extends Configurable {
 	public boolean parse(Page page, String contextURL) {
 
 		if (Util.hasBinaryContent(page.getContentType())) {
-			if (!config.isIncludeBinaryContentInCrawling()) {
+			if (!conf.isFetchBinaryContent()) {
 				return false;
 			}
 
@@ -105,41 +100,10 @@ public class Parser extends Configurable {
 		parseData.setText(contentHandler.getBodyText().trim());
 		parseData.setTitle(metadata.get(DublinCore.TITLE));
 
-		List<WebURL> outgoingUrls = new ArrayList<>();
-
 		String baseURL = contentHandler.getBaseUrl();
 		if (baseURL != null) {
 			contextURL = baseURL;
 		}
-
-		int urlCount = 0;
-		for (ExtractedUrlAnchorPair urlAnchorPair : contentHandler.getOutgoingUrls()) {
-			String href = urlAnchorPair.getHref();
-			href = href.trim();
-			if (href.length() == 0) {
-				continue;
-			}
-			String hrefWithoutProtocol = href.toLowerCase();
-			if (href.startsWith("http://")) {
-				hrefWithoutProtocol = href.substring(7);
-			}
-			if (!hrefWithoutProtocol.contains("javascript:") && !hrefWithoutProtocol.contains("mailto:")
-					&& !hrefWithoutProtocol.contains("@")) {
-				String url = URLCanonicalizer.getCanonicalURL(href, contextURL);
-				if (url != null) {
-					WebURL webURL = new WebURL();
-					webURL.setURL(url);
-					webURL.setAnchor(urlAnchorPair.getAnchor());
-					outgoingUrls.add(webURL);
-					urlCount++;
-					if (urlCount > config.getMaxOutgoingLinksToFollow()) {
-						break;
-					}
-				}
-			}
-		}
-
-		parseData.setOutgoingUrls(outgoingUrls);
 
 		try {
 			if (page.getContentCharset() == null) {

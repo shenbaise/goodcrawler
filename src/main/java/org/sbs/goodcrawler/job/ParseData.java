@@ -1,5 +1,4 @@
 /**
- * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,21 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.storage;
 
-/**
- * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-6-29
- * 爬虫的存储接口
- */
-public interface GoodStorage {
-	
-	/**
-	 * @param object
-	 * @return
-	 * @desc 爬取内容后的存储接口
-	 */
-	public StorageResult store(Object... object);
-	
+package org.sbs.goodcrawler.job;
+
+public interface ParseData {
+
+	@Override
+    public String toString();
 	
 }
