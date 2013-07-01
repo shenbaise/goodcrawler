@@ -15,15 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.job;
+package org.sbs.goodcrawler.conf.jobconf;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import javax.naming.ConfigurationException;
-
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +36,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.storage.StorageType;
 
 /**
@@ -45,6 +50,7 @@ public class JobConfigurationManager {
 	/**
 	 * @param configFile
 	 * @return
+	 * @throws ConfigurationException 
 	 * @desc 从配置文件中加载任务配置，一个job对应一个jobConfiguration
 	 */
 	public List<JobConfiguration> loadJobConfigurations(File configFile) throws ConfigurationException{
@@ -52,35 +58,61 @@ public class JobConfigurationManager {
 		try {
 			Document doc = Jsoup.parse(configFile, "utf-8");
 			Elements jobs = doc.select("job");
-			String temp = "";
+			String tem = "";
+			String field = "";
 			for(Element e : jobs){
-				System.out.println(e.select("name").text());
-				System.out.println(e.select("storage type").text());
-				System.out.println(e.select("urlFilters urlFileter").val());
 				JobConfiguration conf = new JobConfiguration();
-				
-				conf.setJobName(e.select("name").text())
-				.setStorageType(getStorageType(e.select("storage").text()))
-				.setAgent(e.select("agent").text());
-				
-				temp = e.select("threadNum").text();
-				if(StringUtils.isNotBlank(temp))
-					conf.setThreadNum(Integer.parseInt(temp));
-				temp = e.select("delayBetweenRequests").text();
-				if(StringUtils.isNotBlank(temp))
-					conf.setDelayBetweenRequests(Integer.parseInt(temp));
-					;
-//				.setAgent(agent)
-//				.setst
-//				.setAgent(e.select("storage type").text());
+				Map<?, ?> m = BeanUtils.describe(conf);
+				Iterator<?>  iterator = m.keySet().iterator();
+				// 普通属性
+				while (iterator.hasNext()) {
+					field = (String) iterator.next();
+					// seeds，urlFilterReg，selects单独处理
+					if(field.equals("seeds") || "urlFilterReg".equals(field) 
+							|| "selects".equals(field) || "storageType".equals(field))
+						continue;
+					if(StringUtils.isNotBlank((tem=e.select(field).text()))){
+						BeanUtils.copyProperty(conf, field, ConvertUtils.convert(tem, PropertyUtils.getPropertyDescriptor(conf, field).getPropertyType()));
+					}
+				}
+				// 种子
+				Elements elements = e.select("seeds");
+				List<String> seeds = new ArrayList<>();
+				for(Element element:elements){
+					seeds.add(element.select("seed").text());
+				}
+				conf.setSeeds(seeds);
+				// Url正则
+				elements = e.select("urlFilters urlFileter");
+				List<String> urlFilters = new ArrayList<>();
+				for(int i=0,n=elements.size();i<n;i++){
+					urlFilters.add(elements.get(i).val());
+				}
+				conf.setUrlFilterReg(urlFilters);
+				// 提取器
+				elements = e.select("selects select");
+				Map<String, String> selects = new HashMap<String, String>();
+				for(int i=0,n=elements.size();i<n;i++){
+					selects.put(elements.get(i).attr("name"), elements.get(i).attr("value"));
+				}
+				conf.setSelects(selects);
+				// 存储类型
+				conf.setStorageType(getStorageType(e.select("storageType").text()));
 				list.add(conf);
 			}
 		} catch (IOException e) {
 			 log.fatal(e.getMessage());
 			 throw new ConfigurationException("配置文件中存在错误，详细错误请查看日志");
+		} catch (IllegalAccessException e) {
+			 log.error(e.getMessage());
+		} catch (InvocationTargetException e) {
+			 log.error(e.getMessage());
+		} catch (NoSuchMethodException e) {
+			 log.error(e.getMessage());
 		}
 		return list;
 	}
+	
 	
 	/**
 	 * @param storageType
@@ -110,13 +142,13 @@ public class JobConfigurationManager {
 	 * @desc 
 	 */
 	public static void main(String[] args) throws ConfigurationException {
-//		JobConfigurationManager manager = new JobConfigurationManager();
-//		List<JobConfiguration> jobs =  manager.loadJobConfigurations(
-//				new File("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml"));
-//		for(JobConfiguration job :jobs){
-////			System.out.println(job.toString());
-//		}
-		System.out.println(StorageType.Hbase.name());
+		JobConfigurationManager manager = new JobConfigurationManager();
+		List<JobConfiguration> jobs =  manager.loadJobConfigurations(
+				new File("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml"));
+		for(JobConfiguration job :jobs){
+			System.out.println(job.toString());
+		}
+//		System.out.println(StorageType.Hbase.name());
 	}
 
 }

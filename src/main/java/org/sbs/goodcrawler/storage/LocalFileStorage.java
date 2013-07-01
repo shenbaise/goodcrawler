@@ -17,7 +17,7 @@
  */
 package org.sbs.goodcrawler.storage;
 
-import org.sbs.goodcrawler.storage.PendingStore.Store;
+import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 
 
 /**
@@ -27,7 +27,7 @@ import org.sbs.goodcrawler.storage.PendingStore.Store;
  */
 public class LocalFileStorage extends Storage {
 
-	public LocalFileStorage(Store store) {
+	public LocalFileStorage(ExtractedPage store) {
 		super(store);
 	}
 

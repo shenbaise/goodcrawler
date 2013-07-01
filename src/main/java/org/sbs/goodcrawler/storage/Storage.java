@@ -17,8 +17,7 @@
  */
 package org.sbs.goodcrawler.storage;
 
-import org.sbs.goodcrawler.storage.PendingStore;
-import org.sbs.goodcrawler.storage.PendingStore.Store;
+import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29
@@ -26,9 +25,9 @@ import org.sbs.goodcrawler.storage.PendingStore.Store;
  */
 public abstract class Storage {
 	
-	public Store store;
+	public ExtractedPage store;
 	
-	public Storage(Store store){
+	public Storage(ExtractedPage store){
 		this.store = store;
 	}
 	/**

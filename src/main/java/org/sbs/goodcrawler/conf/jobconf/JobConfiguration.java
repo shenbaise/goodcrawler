@@ -37,7 +37,7 @@ public class JobConfiguration extends Configuration {
 	/**
 	 * job名称
 	 */
-	private String jobName;
+	private String name;
 	/**
 	 * 存储类型
 	 */
@@ -141,212 +141,189 @@ public class JobConfiguration extends Configuration {
 		return this;
 	}
 
-	public String getJobName() {
-		return jobName;
+	public String getName() {
+		return name;
 	}
 
-	public JobConfiguration setJobName(String jobName) {
-		this.jobName = jobName;
-		return this;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public StorageType getStorageType() {
 		return storageType;
 	}
 
-	public JobConfiguration setStorageType(StorageType storageType) {
+	public void setStorageType(StorageType storageType) {
 		this.storageType = storageType;
-		return this;
 	}
 
 	public int getThreadNum() {
 		return threadNum;
 	}
 
-	public JobConfiguration setThreadNum(int threadNum) {
+	public void setThreadNum(int threadNum) {
 		this.threadNum = threadNum;
-		return this;
 	}
 
 	public int getSocketTimeoutMilliseconds() {
 		return socketTimeoutMilliseconds;
 	}
 
-	public JobConfiguration setSocketTimeoutMilliseconds(
+	public void setSocketTimeoutMilliseconds(
 			int socketTimeoutMilliseconds) {
 		this.socketTimeoutMilliseconds = socketTimeoutMilliseconds;
-		return this;
 	}
 
 	public int getConnectionTimeout() {
 		return connectionTimeout;
 	}
 
-	public JobConfiguration setConnectionTimeout(int connectionTimeout) {
+	public void setConnectionTimeout(int connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
-		return this;
 	}
 
 	public String getAgent() {
 		return agent;
 	}
 
-	public JobConfiguration setAgent(String agent) {
+	public void setAgent(String agent) {
 		this.agent = agent;
-		return this;
 	}
 
 	public boolean isHttps() {
 		return https;
 	}
 
-	public JobConfiguration setHttps(boolean https) {
+	public void setHttps(boolean https) {
 		this.https = https;
-		return this;
 	}
 
 	public int getMaxTotalConnections() {
 		return maxTotalConnections;
 	}
 
-	public JobConfiguration setMaxTotalConnections(int maxTotalConnections) {
+	public void setMaxTotalConnections(int maxTotalConnections) {
 		this.maxTotalConnections = maxTotalConnections;
-		return this;
 	}
 
 	public int getMaxConnectionsPerHost() {
 		return maxConnectionsPerHost;
 	}
 
-	public JobConfiguration setMaxConnectionsPerHost(int maxConnectionsPerHost) {
+	public void setMaxConnectionsPerHost(int maxConnectionsPerHost) {
 		this.maxConnectionsPerHost = maxConnectionsPerHost;
-		return this;
 	}
 
 	public int getMaxDownloadSizePerPage() {
 		return maxDownloadSizePerPage;
 	}
 
-	public JobConfiguration setMaxDownloadSizePerPage(int maxDownloadSizePerPage) {
+	public void setMaxDownloadSizePerPage(int maxDownloadSizePerPage) {
 		this.maxDownloadSizePerPage = maxDownloadSizePerPage;
-		return this;
 	}
 
 	public String getProxyHost() {
 		return proxyHost;
 	}
 
-	public JobConfiguration setProxyHost(String proxyHost) {
+	public void setProxyHost(String proxyHost) {
 		this.proxyHost = proxyHost;
-		return this;
 	}
 
 	public int getProxyPort() {
 		return proxyPort;
 	}
 
-	public JobConfiguration setProxyPort(int proxyPort) {
+	public void setProxyPort(int proxyPort) {
 		this.proxyPort = proxyPort;
-		return this;
 	}
 
 	public String getProxyUsername() {
 		return proxyUsername;
 	}
 
-	public JobConfiguration setProxyUsername(String proxyUsername) {
+	public void setProxyUsername(String proxyUsername) {
 		this.proxyUsername = proxyUsername;
-		return this;
 	}
 
 	public String getProxyPassword() {
 		return proxyPassword;
 	}
 
-	public JobConfiguration setProxyPassword(String proxyPassword) {
+	public void setProxyPassword(String proxyPassword) {
 		this.proxyPassword = proxyPassword;
-		return this;
 	}
 
 	public List<String> getSeeds() {
 		return seeds;
 	}
 
-	public JobConfiguration setSeeds(List<String> seeds) {
+	public void setSeeds(List<String> seeds) {
 		this.seeds = seeds;
-		return this;
 	}
 
 	public List<String> getUrlFilterReg() {
 		return urlFilterReg;
 	}
 
-	public JobConfiguration setUrlFilterReg(List<String> urlFilterReg) {
+	public void setUrlFilterReg(List<String> urlFilterReg) {
 		this.urlFilterReg = urlFilterReg;
-		return this;
 	}
 
 	public Map<String, String> getSelects() {
 		return selects;
 	}
 
-	public JobConfiguration setSelects(Map<String, String> selects) {
+	public void setSelects(Map<String, String> selects) {
 		this.selects = selects;
-		return this;
 	}
 
 	public int getDelayBetweenRequests() {
 		return delayBetweenRequests;
 	}
 
-	public JobConfiguration setDelayBetweenRequests(int delayBetweenRequests) {
+	public void setDelayBetweenRequests(int delayBetweenRequests) {
 		this.delayBetweenRequests = delayBetweenRequests;
-		return this;
 	}
 
 	public int getMaxDepthOfCrawling() {
 		return maxDepthOfCrawling;
 	}
 
-	public JobConfiguration setMaxDepthOfCrawling(int maxDepthOfCrawling) {
+	public void setMaxDepthOfCrawling(int maxDepthOfCrawling) {
 		this.maxDepthOfCrawling = maxDepthOfCrawling;
-		return this;
 	}
 
 	public boolean isFetchBinaryContent() {
 		return fetchBinaryContent;
 	}
 
-	public JobConfiguration setFetchBinaryContent(boolean fetchBinaryContent) {
+	public void setFetchBinaryContent(boolean fetchBinaryContent) {
 		this.fetchBinaryContent = fetchBinaryContent;
-		return this;
 	}
 
 	public String getFileSuffix() {
 		return fileSuffix;
 	}
 
-	public JobConfiguration setFileSuffix(String fileSuffix) {
+	public void setFileSuffix(String fileSuffix) {
 		this.fileSuffix = fileSuffix;
-		return this;
 	}
 	
 	public int getMaxOutgoingLinksToFollow() {
 		return maxOutgoingLinksToFollow;
 	}
 
-	public JobConfiguration setMaxOutgoingLinksToFollow(int maxOutgoingLinksToFollow) {
+	public void setMaxOutgoingLinksToFollow(int maxOutgoingLinksToFollow) {
 		this.maxOutgoingLinksToFollow = maxOutgoingLinksToFollow;
-		return this;
 	}
 	
 	public boolean isOnlyDomain() {
 		return onlyDomain;
 	}
 
-	public JobConfiguration setOnlyDomain(boolean onlyDomain) {
+	public void setOnlyDomain(boolean onlyDomain) {
 		this.onlyDomain = onlyDomain;
-		return this;
 	}
 
 	@Override
@@ -354,50 +331,54 @@ public class JobConfiguration extends Configuration {
 		StringBuilder builder = new StringBuilder();
 		builder.append("JobConfiguration [log=");
 		builder.append(log);
-		builder.append("\n jobName=");
-		builder.append(jobName);
-		builder.append("\n storageType=");
+		builder.append(", name=");
+		builder.append(name);
+		builder.append(", storageType=");
 		builder.append(storageType);
-		builder.append("\n threadNum=");
+		builder.append(", threadNum=");
 		builder.append(threadNum);
-		builder.append("\n socketTimeoutMilliseconds=");
+		builder.append(", socketTimeoutMilliseconds=");
 		builder.append(socketTimeoutMilliseconds);
-		builder.append("\n connectionTimeout=");
+		builder.append(", connectionTimeout=");
 		builder.append(connectionTimeout);
-		builder.append("\n delayBetweenRequests=");
+		builder.append(", delayBetweenRequests=");
 		builder.append(delayBetweenRequests);
-		builder.append("\n maxDepthOfCrawling=");
+		builder.append(", maxDepthOfCrawling=");
 		builder.append(maxDepthOfCrawling);
-		builder.append("\n fetchBinaryContent=");
+		builder.append(", maxOutgoingLinksToFollow=");
+		builder.append(maxOutgoingLinksToFollow);
+		builder.append(", fetchBinaryContent=");
 		builder.append(fetchBinaryContent);
-		builder.append("\n fileSuffix=");
+		builder.append(", fileSuffix=");
 		builder.append(fileSuffix);
-		builder.append("\n agent=");
+		builder.append(", agent=");
 		builder.append(agent);
-		builder.append("\n https=");
+		builder.append(", https=");
 		builder.append(https);
-		builder.append("\n maxTotalConnections=");
+		builder.append(", onlyDomain=");
+		builder.append(onlyDomain);
+		builder.append(", maxTotalConnections=");
 		builder.append(maxTotalConnections);
-		builder.append("\n maxConnectionsPerHost=");
+		builder.append(", maxConnectionsPerHost=");
 		builder.append(maxConnectionsPerHost);
-		builder.append("\n maxDownloadSizePerPage=");
+		builder.append(", maxDownloadSizePerPage=");
 		builder.append(maxDownloadSizePerPage);
-		builder.append("\n proxyHost=");
+		builder.append(", proxyHost=");
 		builder.append(proxyHost);
-		builder.append("\n proxyPort=");
+		builder.append(", proxyPort=");
 		builder.append(proxyPort);
-		builder.append("\n proxyUsername=");
+		builder.append(", proxyUsername=");
 		builder.append(proxyUsername);
-		builder.append("\n proxyPassword=");
+		builder.append(", proxyPassword=");
 		builder.append(proxyPassword);
-		builder.append("\n seeds=");
+		builder.append(", seeds=");
 		builder.append(seeds);
-		builder.append("\n urlFilterReg=");
+		builder.append(", urlFilterReg=");
 		builder.append(urlFilterReg);
-		builder.append("\n selects=");
+		builder.append(", selects=");
 		builder.append(selects);
 		builder.append("]");
 		return builder.toString();
 	}
-	
+
 }
