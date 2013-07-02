@@ -11,10 +11,11 @@
 	<jobs>
 		<job>
 			<name>goodJob</name>
-			<storage>elasticSearch</storage>
+			<storageType>elasticSearch</storageType>
 			<threadNum>2</threadNum>
-			<seeds>http://www.66e.cc</seeds>
-			http://www.66e.cc/bd/20130501/24595.htm
+			<seeds>
+				<seed>http://www.66e.cc</seed>
+			</seeds>
 			<urlFilters>
 				<urlFileter value="http://www\.66e\.cc/\[a-zA-Z]+/\d{4}?/\d{2}/\w[^_]+\.html"/>
 				<urlFileter value="http://travel\.163\.com\.cn/\d{2}/\d{4}/\d{2}/\w[^_]+\.html"/>
@@ -28,7 +29,7 @@
 		
 		<job>
 			<name>testJob</name>
-			<storage>localFile</storage>
+			<storageType>localFile</storageType>
 			<agent>Kindle</agent>
 			<threadNum>2</threadNum>
 			<delayBetweenRequests>100</delayBetweenRequests>

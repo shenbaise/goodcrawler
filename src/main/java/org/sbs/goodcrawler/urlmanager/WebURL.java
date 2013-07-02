@@ -33,7 +33,7 @@ public class WebURL implements Serializable {
 
 	@PrimaryKey
 	private String url;
-
+	private String jobName;
 	private int docid;
 	private int parentDocid;
 	private String parentUrl;
@@ -198,6 +198,14 @@ public class WebURL implements Serializable {
 
 	public void setPriority(byte priority) {
 		this.priority = priority;
-	}	
+	}
 
+	public String getJobName() {
+		return jobName;
+	}
+
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
+	
 }
