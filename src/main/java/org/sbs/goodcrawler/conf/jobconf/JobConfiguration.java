@@ -87,6 +87,10 @@ public class JobConfiguration extends Configuration {
 	 */
 	private boolean onlyDomain = true;
 	/**
+	 * 是否遵循robots协议
+	 */
+	private boolean robots = true;
+	/**
 	 * 最大连接数
 	 */
 	private int maxTotalConnections = 100;
@@ -325,6 +329,14 @@ public class JobConfiguration extends Configuration {
 	public void setOnlyDomain(boolean onlyDomain) {
 		this.onlyDomain = onlyDomain;
 	}
+	
+	public boolean isRobots() {
+		return robots;
+	}
+
+	public void setRobots(boolean robots) {
+		this.robots = robots;
+	}
 
 	@Override
 	public String toString() {
@@ -357,6 +369,8 @@ public class JobConfiguration extends Configuration {
 		builder.append(https);
 		builder.append(", onlyDomain=");
 		builder.append(onlyDomain);
+		builder.append(", robots=");
+		builder.append(robots);
 		builder.append(", maxTotalConnections=");
 		builder.append(maxTotalConnections);
 		builder.append(", maxConnectionsPerHost=");
@@ -380,5 +394,4 @@ public class JobConfiguration extends Configuration {
 		builder.append("]");
 		return builder.toString();
 	}
-
 }

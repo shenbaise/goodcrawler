@@ -37,7 +37,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ConfigurationException;
+import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.storage.StorageType;
+import org.sbs.goodcrawler.urlmanager.PendingUrls;
+import org.sbs.goodcrawler.urlmanager.WebURL;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -75,7 +78,7 @@ public class JobConfigurationManager {
 						BeanUtils.copyProperty(conf, field, ConvertUtils.convert(tem, PropertyUtils.getPropertyDescriptor(conf, field).getPropertyType()));
 					}
 				}
-				// 种子
+				// 种子&把种子插入队列
 				Elements elements = e.select("seeds");
 				List<String> seeds = new ArrayList<>();
 				for(Element element:elements){
@@ -83,7 +86,10 @@ public class JobConfigurationManager {
 					seeds.add(s);
 					WebURL seed = new WebURL();
 					seed.setURL(s);
-					PendingUrls.getInstance().add(seed);
+					try {
+						PendingUrls.getInstance().addUrl(seed);
+					} catch (QueueException e1) {
+					}
 				}
 				conf.setSeeds(seeds);
 				// Url正则
