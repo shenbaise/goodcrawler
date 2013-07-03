@@ -17,19 +17,13 @@
  */
 package org.sbs.goodcrawler.extractor;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sbs.crawler.Worker;
 import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
-import org.sbs.goodcrawler.exception.QueueException;
+import org.sbs.goodcrawler.fetcher.PendingPages;
 import org.sbs.goodcrawler.job.Page;
-import org.sbs.goodcrawler.processor.PendingPages;
 import org.sbs.goodcrawler.storage.PendingStore;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
-import org.sbs.goodcrawler.urlmanager.WebURL;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -37,7 +31,6 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  */
 public abstract class ExtractWorker extends Worker {
 
-	private Log log = LogFactory.getLog(this.getClass());
 
 	protected PendingUrls pendingUrls = PendingUrls.getInstance();
 	protected PendingPages pendingPages = PendingPages.getInstace();
@@ -65,16 +58,14 @@ public abstract class ExtractWorker extends Worker {
 	 */
 	public abstract void onIgnored(Page page);
 
-	public abstract List<WebURL> getPendingFetchUrls(Page page);
-
-	public abstract ExtractedPage extract(Page page);
+	public abstract ExtractedPage<?, ?> doExtract(Page page);
 
 	public void work(Page page) {
 		// 提取信息
-		ExtractedPage ep = extract(page);
+		ExtractedPage<?, ?> ep = doExtract(page);
 		// 回馈结果
 		if (null != ep && null != ep.getResult()){
-			switch (extract(page).getResult()) {
+			switch (doExtract(page).getResult()) {
 			case ignored:
 				onIgnored(page);
 				break;
@@ -86,14 +77,6 @@ public abstract class ExtractWorker extends Worker {
 				break;
 			default:
 				break;
-			}
-			List<WebURL> webURLs = getPendingFetchUrls(page);
-			for(WebURL url : webURLs){
-				try {
-					pendingUrls.addUrl(url);
-				} catch (QueueException e) {
-					 log.error(e.getMessage());
-				}
 			}
 		}
 	}

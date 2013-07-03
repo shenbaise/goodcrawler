@@ -17,9 +17,20 @@
  */
 package org.sbs.goodcrawler.extractor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.fetcher.FetchWorker;
 import org.sbs.goodcrawler.job.Page;
+import org.sbs.goodcrawler.storage.PendingStore;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
+import org.sbs.goodcrawler.urlmanager.PendingUrls;
+import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.robotstxt.RobotstxtServer;
+import org.sbs.util.UrlUtils;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -29,23 +40,90 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 public abstract class Extractor {
 	public JobConfiguration conf = null;
 	PendingUrls pendingUrls = PendingUrls.getInstance();
+	PendingStore pendingStore = PendingStore.getInstance();
 	BloomfilterHelper bloomfilterHelper = BloomfilterHelper.getInstance();
-	List<Pattern> patterns = new ArrayList<>();
+	List<Pattern> urlFilters = new ArrayList<>();
 	List<String> domains = new ArrayList<>();
+	UrlUtils urlUtils = new UrlUtils();
+	protected RobotstxtServer robotstxtServer;
 
+	/**
+	 * @param conf
+	 * 构造函数
+	 */
 	public Extractor(JobConfiguration conf){
 		this.conf = conf;
+		// url 过滤器
 		List<String> regs = conf.getUrlFilterReg();
 		for(String reg:regs){
 			Pattern p = Pattern.compile(reg);
-			patterns.add(p);
+			urlFilters.add(p);
 		}
+		// job爬取的域名
 		List<String> list = conf.getSeeds();
 		for(String seed:list){
-			domains.add(getDomain(seed));
+			domains.add(urlUtils.getDomain(seed));
+		}
+		robotstxtServer = FetchWorker.robotstxtServer;
+	}
+	/**
+	 * @param url
+	 * @return
+	 * @desc 配置的正则
+	 */
+	private boolean regFilter(String url){
+		for(Pattern p : urlFilters){
+			if(p.matcher(url).matches())
+				return true;
+		}
+		return false;
+	}
+	/**
+	 * @param url
+	 * @return
+	 * @desc 根据域名
+	 */
+	private boolean domainFilter(String url){
+		if(conf.isOnlyDomain()){
+			for(String domain:domains){
+				if(url.contains(domain))
+					return true;
+			}
+			return false;
+		}else {
+			return true;
 		}
 	}
-	
+	/**
+	 * @param url
+	 * @return
+	 * @desc bloomFilter 过滤
+	 */
+	private boolean bloomFilter(String url){
+		return !bloomfilterHelper.exist(url);
+	}
+	/**
+	 * @param url
+	 * @return
+	 * @desc robotstxt 过滤
+	 */
+	private boolean robotsFilter(String url){
+		if(conf.isRobots()){
+			WebURL webURL = new WebURL();
+			webURL.setURL(url);
+			return robotstxtServer.allows(webURL);
+		}else {
+			return true;
+		}
+	}
+	/**
+	 * @param url
+	 * @return
+	 * @desc 根据配置过滤Url
+	 */
+	public boolean filterUrls(String url){
+		return regFilter(url) && domainFilter(url) && robotsFilter(url) && bloomFilter(url);
+	}
 	/**
 	 * @param page
 	 * @return

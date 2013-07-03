@@ -17,11 +17,12 @@
  */
 package org.sbs.goodcrawler.extractor;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -30,8 +31,6 @@ import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 
 /**
@@ -41,70 +40,60 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  */
 public class DefaultExtractor extends Extractor {
 	
-	PendingUrls pendingUrls = PendingUrls.getInstance();
-	BloomfilterHelper bloomfilterHelper = BloomfilterHelper.getInstance();
+	private Log log = LogFactory.getLog(this.getClass());
 	
 	public DefaultExtractor(JobConfiguration conf) {
 		super(conf);
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.sbs.goodcrawler.extractor.Extractor#extract(org.sbs.goodcrawler.job.Page)
-	 */
+
 	@Override
-	public ExtractedPage<?, ?> extract(Page page) {
+	public ExtractedPage<String, String> onExtract(Page page) {
 		if(null!=page){
-			try {
-				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()));
-				// 获取所有Url并加入Url队列
-				Elements links = doc.getElementsByTag("a");
-				List<String> regs = conf.getUrlFilterReg();
-				List<Pattern> patterns = new ArrayList<>();
-				for(String reg:regs){
-					Pattern p = Pattern.compile(reg);
-					patterns.add(p);
-				}
-				boolean b = true;
-				for (Element link : links) {
-				  String linkHref = link.attr("href");
-//				  String linkText = link.text();
-				  // 检测重复
-				  if(bloomfilterHelper.exist(linkHref))
-					  continue;
-				  // 正则过滤
-				  for(Pattern pattern : patterns){
-					  if(!pattern.matcher(linkHref).matches()){
-						  b = false;
-						  break;
-					  }
-				  }
-				  if(!b){
-					  continue;
-				  }
-				  // 域名过滤 
-				  // robots过滤
-				  
-				  WebURL webURL = new WebURL();
-				  webURL.setURL(linkHref);
-				  webURL.setParentUrl(page.getWebURL().getURL());
-				  this.pendingUrls.addUrl(webURL);
-				}
-				
-				
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			} catch (QueueException e) {
+			Document doc = Jsoup.parse(page.getContentCharset(), urlUtils.getBaseUrl(page.getWebURL().getURL())); 
+			// 提取Url，放入待抓取Url队列
+			Elements links = doc.getElementsByTag("a"); 
+	        if (!links.isEmpty()) { 
+	            for (Element link : links) { 
+	                String linkHref = link.absUrl("href"); 
+	                if(filterUrls(linkHref)){
+	                	WebURL url = new WebURL();
+	                	url.setURL(linkHref);
+	                	url.setJobName(conf.getName());
+	                	try {
+							pendingUrls.addUrl(url);
+						} catch (QueueException e) {
+							 log.error(e.getMessage());
+						}
+	                }
+	            }
+	        }
+	        // 抽取信息
+			Map<String, String> selects = conf.getSelects();
+			ExtractedPage<String,String> epage = pendingStore.new ExtractedPage<String, String>();
+			epage.setUrl(page.getWebURL());
+			HashMap<String, String> result = new HashMap<>();
+			for(Entry<String,String> entry:selects.entrySet()){
+				result.put(entry.getKey(),doc.select(entry.getValue()).text());
 			}
+			epage.setMessages((HashMap<String, String>) result);
+			try {
+				pendingStore.addUrl(epage);
+			} catch (QueueException e) {
+				 log.error(e.getMessage());
+			}
+			return epage;
 		}
 		return null;
 	}
 
-	/**
-	 * @param args
-	 * @desc 
-	 */
-	public static void main(String[] args) {
+	@Override
+	public ExtractedPage<?, ?> beforeExtract(Page page) {
+		return null;
+	}
 
+	@Override
+	public ExtractedPage<?, ?> afterExtract(Page page) {
+		return null;
 	}
 
 }
