@@ -15,35 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.fetcher;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
-
 /**
  * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-7-2
- * 这是个工头
+ * @date 2013-7-3
  */
-public class FetchForeman {
-	
-	public static void start(JobConfiguration conf){
-		int threadNum = conf.getThreadNum();
-		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-		PageFetcher fetcher = new PageFetcher(conf);
-		for(int i=0;i<threadNum;i++){
-			executor.submit(new DefaultFetchWorker(conf,fetcher));
-		}
-	}
-	
-	/**
-	 * @param args
-	 * @desc 
-	 */
-	public static void main(String[] args) {
-
-	}
-
-}
+package org.sbs.goodcrawler.bootstrap;
