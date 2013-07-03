@@ -79,7 +79,11 @@ public class JobConfigurationManager {
 				Elements elements = e.select("seeds");
 				List<String> seeds = new ArrayList<>();
 				for(Element element:elements){
-					seeds.add(element.select("seed").text());
+					String s = element.select("seed").text();
+					seeds.add(s);
+					WebURL seed = new WebURL();
+					seed.setURL(s);
+					PendingUrls.getInstance().add(seed);
 				}
 				conf.setSeeds(seeds);
 				// Url正则
