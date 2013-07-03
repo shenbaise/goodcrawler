@@ -26,9 +26,10 @@ import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.job.Parser;
-import org.sbs.goodcrawler.processor.PendingPages;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
 import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.robotstxt.RobotstxtConfig;
+import org.sbs.robotstxt.RobotstxtServer;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -37,17 +38,57 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  */
 public abstract class FetchWorker extends Worker {
 	private Log log = LogFactory.getLog(this.getClass());
+	/**
+	 * url队列
+	 */
 	protected PendingUrls pendingUrls = PendingUrls.getInstance();
+	/**
+	 * Page队列
+	 */
 	protected PendingPages pendingPages = PendingPages.getInstace();
+	/**
+	 * 爬取器
+	 */
 	protected PageFetcher fetcher;
+	/**
+	 * job配置
+	 */
 	protected JobConfiguration conf;
+	/**
+	 * 解析器
+	 */
 	protected Parser parser;
-	
+	/**
+	 * robots
+	 */
+	public static RobotstxtServer robotstxtServer;
+	/**
+	 * @param conf
+	 * 构造函数，未提供爬取器，需通过setFetcher方法设置Fetcher
+	 */
 	public FetchWorker(JobConfiguration conf){
 		this.conf = conf;
 		parser = new Parser(conf);
+		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+		robotstxtConfig.setCacheSize(1000);
+		robotstxtConfig.setEnabled(conf.isRobots());
+		robotstxtConfig.setUserAgentName(conf.getAgent());
+		robotstxtServer = new RobotstxtServer(robotstxtConfig, fetcher);
 	}
-	
+	/**
+	 * @param conf
+	 * @param fetcher 推荐使用的构造函数
+	 */
+	public FetchWorker(JobConfiguration conf,PageFetcher fetcher){
+		this.fetcher = fetcher;
+		this.conf = conf;
+		parser = new Parser(conf);
+		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
+		robotstxtConfig.setCacheSize(1000);
+		robotstxtConfig.setEnabled(conf.isRobots());
+		robotstxtConfig.setUserAgentName(conf.getAgent());
+		robotstxtServer = new RobotstxtServer(robotstxtConfig, fetcher);
+	}
 	public FetchWorker setFetcher(final PageFetcher fetcher){
 		this.fetcher = fetcher;
 		return this;
@@ -64,7 +105,10 @@ public abstract class FetchWorker extends Worker {
 	 * @desc 忽略工作
 	 */
 	public abstract void onIgnored(WebURL url);
-	
+	/**
+	 * @param url
+	 * @desc 爬网页
+	 */
 	public void fetchPage(WebURL url){
 		PageFetchResult result = null;
 		if(null!=null && StringUtils.isNotBlank(url.getURL())){
