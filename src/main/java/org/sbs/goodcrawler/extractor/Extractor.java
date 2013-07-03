@@ -28,8 +28,22 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
  */
 public abstract class Extractor {
 	public JobConfiguration conf = null;
+	PendingUrls pendingUrls = PendingUrls.getInstance();
+	BloomfilterHelper bloomfilterHelper = BloomfilterHelper.getInstance();
+	List<Pattern> patterns = new ArrayList<>();
+	List<String> domains = new ArrayList<>();
+
 	public Extractor(JobConfiguration conf){
 		this.conf = conf;
+		List<String> regs = conf.getUrlFilterReg();
+		for(String reg:regs){
+			Pattern p = Pattern.compile(reg);
+			patterns.add(p);
+		}
+		List<String> list = conf.getSeeds();
+		for(String seed:list){
+			domains.add(getDomain(seed));
+		}
 	}
 	
 	/**
@@ -37,7 +51,20 @@ public abstract class Extractor {
 	 * @return
 	 * @desc 信息抽取方法
 	 */
-	public abstract ExtractedPage<?, ?> extract(Page page);
+	public abstract ExtractedPage<?, ?> onExtract(Page page);
+
+	/**
+	 * @param page
+	 * @return
+	 * @desc 前（需要搜集本页的url，将符合要求的url加入等待队列）
+	 */
+	public abstract ExtractedPage<?, ?> beforeExtract(Page page);
 	
+	/**
+	 * @param page
+	 * @return
+	 * @desc 后（对抽取的信息做进一步加工？或者别的操作）
+	 */
+	public abstract ExtractedPage<?, ?> afterExtract(Page page);
 	
 }
