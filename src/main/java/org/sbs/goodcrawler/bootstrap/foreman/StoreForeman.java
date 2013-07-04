@@ -15,57 +15,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.bootstrap;
+package org.sbs.goodcrawler.bootstrap.foreman;
 
-import java.io.File;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.bootstrap.foreman.ExtractForeman;
-import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
-import org.sbs.goodcrawler.bootstrap.foreman.StoreForeman;
+import org.sbs.goodcrawler.conf.GlobalConstants;
+import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
-import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
-import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.fetcher.DefaultFetchWorker;
-import org.sbs.goodcrawler.fetcher.FetchWorker;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
+import org.sbs.goodcrawler.storage.DefaultStoreWorker;
+import org.sbs.goodcrawler.storage.LocalFileStorage;
+import org.sbs.goodcrawler.storage.Storage;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-7-3
- * bootstrap
+ * @date 2013-7-4
+ * 存储工头
  */
-public class BootStrap {
-	private Log log = LogFactory.getLog(this.getClass());
-	/**
-	 * @desc 启动咯
-	 */
-	public void start(){
-		
+public class StoreForeman {
+
+	public StoreForeman() {
 	}
+	
+	public static void start(JobConfiguration conf){
+		int threadNum = (int) (conf.getThreadNum() * 0.3);
+		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
+		Storage storage = new LocalFileStorage(PropertyConfigurationHelper.getInstance().getString(GlobalConstants.failedPagesBackupPath, ""), conf.getName());
+		for(int i=0;i<threadNum;i++){
+			executor.submit(new DefaultStoreWorker(conf,storage));
+		}
+	}
+
 	/**
 	 * @param args
 	 * @desc 
 	 */
 	public static void main(String[] args) {
-		JobConfigurationManager manager = new JobConfigurationManager();
-		List<JobConfiguration> jobs;
-		try {
-			jobs = manager.loadJobConfigurations(
-					new File("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml"));
-			for(JobConfiguration conf:jobs){
-				// fetch
-				FetchForeman.start(conf);
-				// extract
-				ExtractForeman.start(conf);
-				// store
-				StoreForeman.start(conf);
-			}
-		} catch (ConfigurationException e) {
-			 e.getMessage();
-		}
+
 	}
 
 }
