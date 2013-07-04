@@ -23,17 +23,26 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
  * @date 2013-6-29
  * 爬虫的存储接口
  */
-public abstract class Storage {
+public abstract class Storage<V, T> {
 	
-	public ExtractedPage store;
-	
-	public Storage(ExtractedPage store){
-		this.store = store;
+	public Storage(){
 	}
 	/**
 	 * @param object
 	 * @return
-	 * @desc 爬取内容后的存储接口
+	 * @desc 存储前
 	 */
-	public abstract StoreResult store();
+	public abstract StoreResult beforeStore();
+	/**
+	 * @param page
+	 * @return
+	 * @desc 存储时
+	 */
+	public abstract StoreResult onStore(ExtractedPage<V, T> page);
+	/**
+	 * @param page
+	 * @return
+	 * @desc 存储后
+	 */
+	public abstract StoreResult afterStore(ExtractedPage<V, T> page);
 }

@@ -24,28 +24,34 @@ package org.sbs.goodcrawler.storage;
  */
 public class StoreResult {
 	
-	public boolean success ;
+	public Status status ;
 	public String messge;
 	
 	public StoreResult(){}
 	
-	public StoreResult(boolean success, String messge) {
+	public StoreResult(Status status, String messge) {
 		super();
-		this.success = success;
+		this.status = status;
 		this.messge = messge;
 	}
 	
-	public boolean isSuccess() {
-		return success;
+	public Status getStatus() {
+		return status;
 	}
-	public void setSuccess(boolean success) {
-		this.success = success;
+
+	public void setStatus(Status status) {
+		this.status = status;
 	}
+
 	public String getMessge() {
 		return messge;
 	}
+
 	public void setMessge(String messge) {
 		this.messge = messge;
 	}
-	
+
+	public enum Status {
+		success,failed,ignored
+	}
 }

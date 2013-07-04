@@ -61,7 +61,7 @@ public class PendingStore {
 		Queue = new ArrayBlockingQueue<>(PropertyConfigurationHelper.getInstance().getInt(GlobalConstants.pendingStoreMessgeQueueSize, 2000));
 	}
 	
-	public void addUrl(ExtractedPage<?, ?> store) throws QueueException{
+	public void addExtracedPage(ExtractedPage<?, ?> store) throws QueueException{
 		try {
 			if(null != store){
 				Queue.put(store);
@@ -76,7 +76,7 @@ public class PendingStore {
 	 * @return
 	 * @desc 返回一个将要处理的URL
 	 */
-	public ExtractedPage<?, ?> getUrl() throws QueueException{
+	public ExtractedPage getExtractedPage() throws QueueException{
 		try {
 			return Queue.take();
 		} catch (InterruptedException e) {

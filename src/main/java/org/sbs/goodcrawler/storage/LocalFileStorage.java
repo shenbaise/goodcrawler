@@ -17,7 +17,17 @@
  */
 package org.sbs.goodcrawler.storage;
 
+import java.io.File;
+import java.io.IOException;
+
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.storage.StoreResult.Status;
 
 
 /**
@@ -25,15 +35,46 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
  * @date 2013-6-29
  * 本地文件系统存储实现
  */
+@SuppressWarnings("rawtypes")
 public class LocalFileStorage extends Storage {
-
-	public LocalFileStorage(ExtractedPage store) {
-		super(store);
+	
+	private Log log = LogFactory.getLog(this.getClass());
+	public String storeDir;
+	String jobName;
+	File storeFile;
+	public LocalFileStorage(String storeDir,String jobName){
+		this.storeDir = storeDir;
+		this.jobName = jobName;
+		File dir = new File(this.storeDir + File.separator + this.jobName);
+		System.out.println(dir.getAbsolutePath());
+		if(!dir.exists()){
+			dir.mkdirs();
+			storeFile = new File(dir.getAbsolutePath(), jobName+".txt");
+		}
+	}
+	
+	@Override
+	public StoreResult beforeStore() {
+		return null;
 	}
 
 	@Override
-	public StoreResult store() {
-		// TODO Auto-generated method stub
+	public StoreResult onStore(ExtractedPage page) {
+		StoreResult storeResult = new StoreResult();
+		JSONObject json = JSONObject.fromObject(page.getMessages(), new JsonConfig());
+		try {
+			FileUtils.writeStringToFile(storeFile, json.toString(),"utf-8");
+			storeResult.setStatus(Status.failed);
+		} catch (IOException e) {
+			 log.error(e.getMessage());
+			 storeResult.setMessge(e.getMessage());
+			 storeResult.setStatus(Status.failed);
+		}
+		return storeResult;
+	}
+
+	@Override
+	public StoreResult afterStore(ExtractedPage page) {
 		return null;
 	}
 	

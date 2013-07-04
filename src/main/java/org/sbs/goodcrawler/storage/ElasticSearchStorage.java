@@ -26,17 +26,20 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
  */
 public class ElasticSearchStorage extends Storage {
 
-	public ElasticSearchStorage(ExtractedPage store) {
-		super(store);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.sbs.goodcrawler.storage.Storage#store()
-	 */
 	@Override
-	public StoreResult store() {
-		// TODO Auto-generated method stub
+	public StoreResult beforeStore() {
 		return null;
 	}
+
+	@Override
+	public StoreResult onStore(ExtractedPage page) {
+		return null;
+	}
+
+	@Override
+	public StoreResult afterStore(ExtractedPage page) {
+		return null;
+	}
+
 	
 }
