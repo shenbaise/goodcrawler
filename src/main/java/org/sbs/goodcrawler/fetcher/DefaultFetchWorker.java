@@ -69,12 +69,33 @@ public class DefaultFetchWorker extends FetchWorker {
 	
 	@Override
 	public void run() {
+		int c = 0;
 		WebURL url ;
+		String s = "";
 		try {
-			while(null!=(url=pendingUrls.getUrl())){
-				fetchPage(url);
+			while(true){
+				while(null!=(url=pendingUrls.getUrl())){
+					s = url.getURL();
+					if(s.contains(".rmvb")
+							||s.contains("ftp")
+							||s.contains(".aiv")
+							||s.contains(".mtk")
+							||s.contains(".rm")){
+						pendingUrls.processedIgnored();
+						
+						continue;
+					}
+					fetchPage(url);
+					c++;
+					if(c>1000){
+						c=0;
+						Thread.sleep(2000L);
+					}
+				}
 			}
 		} catch (QueueException e) {
+			 log.error(e.getMessage());
+		} catch (InterruptedException e) {
 			 log.error(e.getMessage());
 		}
 	}

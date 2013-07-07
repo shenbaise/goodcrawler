@@ -128,6 +128,9 @@ public class PendingPages {
 			throw new QueueException("待处理页面队列取出操作中断");
 		}
 	}
+	public boolean isEmpty(){
+		return Queue.isEmpty();
+	}
 	/**
 	 * @param page
 	 * @desc 添加一个处理失败的页面
@@ -174,6 +177,13 @@ public class PendingPages {
 		}
 	}
 	
+	
+	public String pendingStatus(){
+		StringBuilder sb = new StringBuilder(32);
+		sb.append("队列中等待处理的Page有").append(Queue.size()).append("个，失败")
+		.append(failure.get()).append("个").append(Queue.isEmpty());
+		return sb.toString();
+	}
 	
 	/**
 	 * @param args

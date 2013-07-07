@@ -111,7 +111,7 @@ public abstract class FetchWorker extends Worker {
 	 */
 	public void fetchPage(WebURL url){
 		PageFetchResult result = null;
-		if(null!=null && StringUtils.isNotBlank(url.getURL())){
+		if(null!=url && StringUtils.isNotBlank(url.getURL())){
 			result = fetcher.fetchHeader(url);
 			// 获取状态
 			int statusCode = result.getStatusCode();
