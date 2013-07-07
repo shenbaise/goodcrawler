@@ -39,18 +39,26 @@ public class DefaultExtractWorker extends ExtractWorker {
 	@Override
 	public void run() {
 		Page page ;
-		try {
-			while(null!=(page=pendingPages.getPage())){
-				work(page);
+		while(true){
+			try {
+				while(!pendingPages.isEmpty()){
+					page=pendingPages.getPage();
+					work(page);
+				}
+				Thread.sleep(3000);
+			} catch (QueueException e) {
+				 log.error(e.getMessage());
+				 e.printStackTrace();
+			} catch (InterruptedException e) {
+				 log.error(e.getMessage());
 			}
-		} catch (QueueException e) {
-			 log.error(e.getMessage());
 		}
 	}
 
 	@Override
-	public void onSuccessed() {
+	public void onSuccessed(Page page) {
 		// ok
+		page = null;
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 import org.sbs.goodcrawler.fetcher.FetchWorker;
 import org.sbs.goodcrawler.job.Page;
@@ -39,13 +40,14 @@ import org.sbs.util.UrlUtils;
  */
 public abstract class Extractor {
 	public JobConfiguration conf = null;
-	PendingUrls pendingUrls = PendingUrls.getInstance();
-	PendingStore pendingStore = PendingStore.getInstance();
-	BloomfilterHelper bloomfilterHelper = BloomfilterHelper.getInstance();
-	List<Pattern> urlFilters = new ArrayList<>();
-	List<String> domains = new ArrayList<>();
-	UrlUtils urlUtils = new UrlUtils();
+	public PendingUrls pendingUrls = PendingUrls.getInstance();
+	public PendingStore pendingStore = PendingStore.getInstance();
+	public BloomfilterHelper bloomfilterHelper = BloomfilterHelper.getInstance();
+	public List<Pattern> urlFilters = new ArrayList<>();
+	public List<String> domains = new ArrayList<>();
+	public UrlUtils urlUtils = new UrlUtils();
 	protected RobotstxtServer robotstxtServer;
+	public String[] fileSuffix ;
 
 	/**
 	 * @param conf
@@ -65,6 +67,11 @@ public abstract class Extractor {
 			domains.add(urlUtils.getDomain(seed));
 		}
 		robotstxtServer = FetchWorker.robotstxtServer;
+		
+		String fs = conf.getFileSuffix();
+		if(StringUtils.isNotBlank(fs)){
+			fileSuffix = fs.split(",");
+		}
 	}
 	/**
 	 * @param url
@@ -72,6 +79,8 @@ public abstract class Extractor {
 	 * @desc 配置的正则
 	 */
 	private boolean regFilter(String url){
+		if(null==urlFilters || urlFilters.size()==0)
+			return true;
 		for(Pattern p : urlFilters){
 			if(p.matcher(url).matches())
 				return true;
@@ -116,13 +125,46 @@ public abstract class Extractor {
 			return true;
 		}
 	}
+	
+	public boolean isSuffix(String url){
+		for(String s :fileSuffix){
+			if(url.endsWith(s)){
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * @param url
+	 * @return
+	 * @desc 文件后缀过滤
+	 */
+	public boolean fileSuffixFilter(String url){
+		for(String s :fileSuffix){
+			if(url.endsWith(s)){
+				;
+			}
+		}
+		if(conf.isFetchBinaryContent()){
+			for(String s :fileSuffix){
+				return url.endsWith(s);
+			}
+		}else {
+			for(String s :fileSuffix){
+				return url.endsWith(s);
+			}
+		}
+		return true;
+	}
 	/**
 	 * @param url
 	 * @return
 	 * @desc 根据配置过滤Url
 	 */
 	public boolean filterUrls(String url){
-		return regFilter(url) && domainFilter(url) && robotsFilter(url) && bloomFilter(url);
+		return regFilter(url) && domainFilter(url) 
+//				&& robotsFilter(url)
+				&& bloomFilter(url);
 	}
 	/**
 	 * @param page

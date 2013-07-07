@@ -46,7 +46,7 @@ public abstract class ExtractWorker extends Worker {
 	/**
 	 * @desc 工作成功
 	 */
-	public abstract void onSuccessed();
+	public abstract void onSuccessed(Page page);
 
 	/**
 	 * @desc 工作失败
@@ -65,12 +65,12 @@ public abstract class ExtractWorker extends Worker {
 		ExtractedPage<?, ?> ep = doExtract(page);
 		// 回馈结果
 		if (null != ep && null != ep.getResult()){
-			switch (doExtract(page).getResult()) {
+			switch (ep.getResult()) {
 			case ignored:
 				onIgnored(page);
 				break;
 			case success:
-				onSuccessed();
+				onSuccessed(page);
 				break;
 			case failed:
 				onFailed(page);

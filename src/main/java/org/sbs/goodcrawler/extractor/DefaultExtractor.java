@@ -17,6 +17,7 @@
  */
 package org.sbs.goodcrawler.extractor;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,40 +49,46 @@ public class DefaultExtractor extends Extractor {
 
 	@Override
 	public ExtractedPage<String, String> onExtract(Page page) {
+		
 		if(null!=page){
-			Document doc = Jsoup.parse(page.getContentCharset(), urlUtils.getBaseUrl(page.getWebURL().getURL())); 
-			// 提取Url，放入待抓取Url队列
-			Elements links = doc.getElementsByTag("a"); 
-	        if (!links.isEmpty()) { 
-	            for (Element link : links) { 
-	                String linkHref = link.absUrl("href"); 
-	                if(filterUrls(linkHref)){
-	                	WebURL url = new WebURL();
-	                	url.setURL(linkHref);
-	                	url.setJobName(conf.getName());
-	                	try {
-							pendingUrls.addUrl(url);
-						} catch (QueueException e) {
-							 log.error(e.getMessage());
-						}
-	                }
-	            }
-	        }
-	        // 抽取信息
-			Map<String, String> selects = conf.getSelects();
-			ExtractedPage<String,String> epage = pendingStore.new ExtractedPage<String, String>();
-			epage.setUrl(page.getWebURL());
-			HashMap<String, String> result = new HashMap<>();
-			for(Entry<String,String> entry:selects.entrySet()){
-				result.put(entry.getKey(),doc.select(entry.getValue()).text());
-			}
-			epage.setMessages((HashMap<String, String>) result);
 			try {
-				pendingStore.addUrl(epage);
-			} catch (QueueException e) {
+				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
+				
+				// 提取Url，放入待抓取Url队列
+				Elements links = doc.getElementsByTag("a"); 
+		        if (!links.isEmpty()) { 
+		            for (Element link : links) { 
+		                String linkHref = link.absUrl("href"); 
+		                if(filterUrls(linkHref)){
+		                	WebURL url = new WebURL();
+		                	url.setURL(linkHref);
+		                	url.setJobName(conf.getName());
+		                	try {
+								pendingUrls.addUrl(url);
+							} catch (QueueException e) {
+								 log.error(e.getMessage());
+							}
+		                }
+		            }
+		        }
+		        // 抽取信息
+				Map<String, String> selects = conf.getSelects();
+				ExtractedPage<String,String> epage = pendingStore.new ExtractedPage<String, String>();
+				epage.setUrl(page.getWebURL());
+				HashMap<String, String> result = new HashMap<>();
+				for(Entry<String,String> entry:selects.entrySet()){
+					result.put(entry.getKey(),doc.select(entry.getValue()).html());
+				}
+				epage.setMessages((HashMap<String, String>) result);
+				try {
+					pendingStore.addExtracedPage(epage);
+				} catch (QueueException e) {
+					 log.error(e.getMessage());
+				}
+				return epage;
+			} catch (UnsupportedEncodingException e) {
 				 log.error(e.getMessage());
-			}
-			return epage;
+			} 
 		}
 		return null;
 	}
