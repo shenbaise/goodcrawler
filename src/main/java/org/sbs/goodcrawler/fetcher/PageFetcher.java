@@ -174,9 +174,11 @@ public class PageFetcher extends Configurable {
 						fetchResult.setStatusCode(statusCode);
 						return fetchResult;
 					}
-					logger.info("Failed: " + response.getStatusLine().toString() + ", while fetching " + toFetchURL);
+					logger.info("Failed: " + response.getStatusLine().toString() + ",# while fetching " + toFetchURL);
 				}
 				fetchResult.setStatusCode(response.getStatusLine().getStatusCode());
+				// 关闭链接
+				response.getEntity().getContent().close();
 				return fetchResult;
 			}
 
@@ -209,9 +211,7 @@ public class PageFetcher extends Configurable {
 
 				fetchResult.setStatusCode(HttpStatus.SC_OK);
 				return fetchResult;
-
 			}
-			
 			get.abort();
 			
 		} catch (IOException e) {
