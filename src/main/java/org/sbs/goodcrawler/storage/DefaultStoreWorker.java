@@ -43,12 +43,15 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	public void run() {
 		ExtractedPage page ;
 		System.out.println( " store ..");
-		try {
-			while(null!=(page = pendingStore.getExtractedPage())){
-				work(page);
+		while(true) {
+			try {
+				while(!pendingStore.isEmpty()){
+					page = pendingStore.getExtractedPage();
+					work(page);
+				}
+			} catch (QueueException e) {
+				 log.error(e.getMessage());
 			}
-		} catch (QueueException e) {
-			 log.error(e.getMessage());
 		}
 	}
 

@@ -51,6 +51,9 @@ public class LocalFileStorage extends Storage {
 			dir.mkdirs();
 			storeFile = new File(dir.getAbsolutePath(), jobName+".txt");
 		}
+		if(null==storeFile){
+			storeFile = new File(dir.getAbsolutePath(), jobName+".txt");
+		}
 	}
 	
 	@Override
@@ -63,7 +66,7 @@ public class LocalFileStorage extends Storage {
 		StoreResult storeResult = new StoreResult();
 		JSONObject json = JSONObject.fromObject(page.getMessages(), new JsonConfig());
 		try {
-			FileUtils.writeStringToFile(storeFile, json.toString(),"utf-8");
+			FileUtils.writeStringToFile(storeFile, json.toString()+"\n\n","utf-8",true);
 			storeResult.setStatus(Status.failed);
 		} catch (IOException e) {
 			 log.error(e.getMessage());

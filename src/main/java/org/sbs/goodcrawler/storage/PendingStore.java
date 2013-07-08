@@ -76,14 +76,27 @@ public class PendingStore {
 	 * @return
 	 * @desc 返回一个将要处理的URL
 	 */
+	@SuppressWarnings("rawtypes")
 	public ExtractedPage getExtractedPage() throws QueueException{
 		try {
 			return Queue.take();
 		} catch (InterruptedException e) {
+			log.info("take page error");
 			log.error(e.getMessage());
 			throw new QueueException("待处理存储信息队列取出操作中断");
 		}
 	}
+	
+	public boolean isEmpty(){
+		return Queue.isEmpty();
+	}
+	
+	public String pendingStatus(){
+		StringBuilder sb = new StringBuilder(32);
+		sb.append("队列中等待处理的Store有").append(Queue.size()).append("个");
+		return sb.toString();
+	}
+	
 	/**
 	 * @author shenbaise(shenbaise@outlook.com)
 	 * @date 2013-7-2

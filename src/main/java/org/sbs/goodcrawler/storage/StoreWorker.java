@@ -65,7 +65,7 @@ public abstract class StoreWorker<V, T> extends Worker{
 	
 	public void work(ExtractedPage<V, T> page) {
 		StoreResult result = store(page);
-		if (null != result){
+		if (null != result && null!=result.status){
 			switch (result.status) {
 			case ignored:
 				onIgnored(page);
