@@ -55,7 +55,7 @@ public class DefaultFetchWorker extends FetchWorker {
 	 */
 	@Override
 	public void onFailed(WebURL url) {
-		log.info("一个页面抓取失败:"+url.getURL());
+//		log.info("一个页面抓取失败:"+url.getURL());
 		pendingUrls.processedFailure();
 	}
 
@@ -64,7 +64,7 @@ public class DefaultFetchWorker extends FetchWorker {
 	 */
 	@Override
 	public void onIgnored(WebURL url) {
-		log.info("一个页面大小超过限制，已被忽略："+url.getURL());
+//		log.info("一个页面大小超过限制，已被忽略："+url.getURL());
 	}
 	
 	@Override
@@ -87,7 +87,7 @@ public class DefaultFetchWorker extends FetchWorker {
 					}
 					fetchPage(url);
 					c++;
-					if(c>1000){
+					if(c>10000){
 						c=0;
 						Thread.sleep(2000L);
 					}
