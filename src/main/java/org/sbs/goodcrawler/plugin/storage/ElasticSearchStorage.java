@@ -35,7 +35,13 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 public class ElasticSearchStorage extends Storage {
 	
 //	ExBulk bulk = new ExBulk();	
+	public String index = "";
 	Client client = EsClient.getClient();
+	
+	public ElasticSearchStorage(String index){
+		this.index = index;
+	}
+	
 	@Override
 	public StoreResult beforeStore() {
 		return null;
@@ -53,7 +59,7 @@ public class ElasticSearchStorage extends Storage {
 			// 处理Result
 			HashMap<String, String> data = page.getMessages();
 			
-			EsClient.index("movie", "movie", data);
+			EsClient.index(index, "movie", data);
 			return storeResult;
 		} catch (Exception e) {
 			e.printStackTrace();
