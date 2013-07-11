@@ -2,36 +2,38 @@
 <!--全局配置 -->
 <conf>
 	<globalSettings>
-		<threadPoolSize>30</threadPoolSize>
-		<timeout>3000</timeout>
+		<threadPoolSize>50</threadPoolSize>
+		<timeout>10000</timeout>
 		<reportProcess>true</reportProcess>
 	</globalSettings>
 
 	<!--作业配置 -->
 	<jobs>
+		<!-- 
 		<job>
 			<name>goodJob</name>
 			<storageType>elasticSearch</storageType>
-			<threadNum>2</threadNum>
+			<threadNum>10</threadNum>
 			<seeds>
-				<seed>http://www.66e.cc</seed>
+				<seed>http://www.66e.cc/</seed>
 			</seeds>
 			<urlFilters>
+			
 				<urlFileter value="http://www\.66e\.cc/\[a-zA-Z]+/\d{4}?/\d{2}/\w[^_]+\.html"/>
 				<urlFileter value="http://travel\.163\.com\.cn/\d{2}/\d{4}/\d{2}/\w[^_]+\.html"/>
+			 
 			</urlFilters>
 			<selects>
-				<!-- 选择抓取的网页类容 -->
-				<select name="title" value="#title" />
-				<select name="subTitle" value=".subTitle" />
+				
+				<select name="content" value="p" />
 			</selects>
 		</job>
-		
+		 -->
 		<job>
-			<name>testJob</name>
+			<name>dytt8</name>
 			<storageType>localFile</storageType>
 			<agent>Kindle</agent>
-			<threadNum>2</threadNum>
+			<threadNum>10</threadNum>
 			<delayBetweenRequests>100</delayBetweenRequests>
 			<maxDepthOfCrawling>-1</maxDepthOfCrawling>
 			<maxOutgoingLinksToFollow>1000</maxOutgoingLinksToFollow>
@@ -42,7 +44,7 @@
 			
 			<connection>
 				<socketTimeoutMilliseconds>10000</socketTimeoutMilliseconds>
-				<connectionTimeout>10000</connectionTimeout>
+				<connectionTimeout>2000</connectionTimeout>
 				<maxTotalConnections>120</maxTotalConnections>
 				<maxConnectionsPerHost>100</maxConnectionsPerHost>
 				<maxDownloadSizePerPage>1048576</maxDownloadSizePerPage>
@@ -58,16 +60,25 @@
 			<!-- job运行时效，-1表示直到爬完全部，60表示一个小时后job自动结束 -->
 			<timeout>-1</timeout>
 			<seeds>
-				<seed>http://www.66e.cc</seed>
+				<!--  
+				<seed>http://www.66ys.cc/</seed>
+				-->
+				<seed>http://www.dytt8.net/</seed>
 			</seeds>
 			<urlFilters>
+				<!-- 
 				<urlFileter value="http://www\.66e\.cc/\[a-zA-Z]+/\d{4}?/\d{2}/\w[^_]+\.html"/>
 				<urlFileter value="http://travel\.163\.com\.cn/\d{2}/\d{4}/\d{2}/\w[^_]+\.html"/>
+				 -->
 			</urlFilters>
 			<selects>
-				<!-- 选择抓取的网页类容 -->
-				<select name="title" value="#title" />
-				<select name="subTitle" value=".subTitle" />
+				<!-- 
+				<select name="movie" value="h1" />
+				<select name="type" value="h2" />
+				<select name="content" value="#Zoom" />
+				 -->
+				<select name="content" value="#Zoom" />
+				 
 			</selects>
 		</job>
 		
