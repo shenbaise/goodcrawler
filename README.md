@@ -11,7 +11,8 @@ goodcrawler(web crawler) 网络爬虫
 		然后爬到的页面在在page队列中，由抽取工人（extractWorker）从队列中取出并抽取信息。
 		接着，抽取或者提炼出来的信息会被放入store队列中再由存储工人（storeWorker）负责存储。
 		当然这些都是可扩展的，目前实现了66影视的提取器。本地文件系统的存储器、elasticsearch的存储器。。。
-		### 后期还会实现hdfs的存储器、mongodb的存储器等等。
+		这一切的工作都是多线程的，所以效率很高。
+### 后期还会实现hdfs的存储器、mongodb的存储器等等。
 如何抽取内容？
 -----------------
 		goodcrawler的默认抽取器使用Jsoup对页面进行解析，对于页面结构设计良好的网页，只需要在配置文件中填上需要抽取的元素的
@@ -20,18 +21,13 @@ goodcrawler(web crawler) 网络爬虫
 -----------------
 #### conf.properties文件
 ....
-#\u5F85\u5904\u7406URL\u961F\u5217\u5927\u5C0F
 pending.urls.queue.size=10000
-#\u5F85\u5904\u7406\u7684\u9875\u9762\u961F\u5217\u5927\u5C0F
 pending.pages.queue.size=5000
-#\u5904\u7406\u5931\u8D25\u7684\u9875\u9762\u961F\u5217\u5927\u5C0F
 failed.pages.queue.size=5000
-#\u89E3\u6790\u5931\u8D25\u9875\u9762\u5907\u4EFD\u8DEF\u5F84
 pending.store.pages.queue.size=20000
 failed.pages.backup.path=./failed-pages/
-#\u662F\u5426\u5FFD\u7565\u9519\u8BEF\u7684\u6216\u8005\u89E3\u6790\u5931\u8D25\u7684\u9875\u9762
 ignore.failed.pages=true
-....
+
 	这个文件主要配置全局信息，队列大小等
 #### job_conf.xml文件
 ...xml
@@ -92,14 +88,14 @@ ignore.failed.pages=true
 		
 	</jobs>
 </conf>
-...
+
 
 每一个job元素代表一个抓取工程，不同的job相互独立。
 如何使用
 ----------------------
 
-就这么简单！！！
-...java
+# 就这么简单！！！
+....java
 public static void main(String[] args) {
 	JobConfigurationManager manager = new JobConfigurationManager();
 	List<JobConfiguration> jobs;
