@@ -17,16 +17,7 @@
 
 package org.sbs.goodcrawler.job;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
 import org.apache.log4j.Logger;
-import org.apache.tika.metadata.DublinCore;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.html.HtmlParser;
 import org.sbs.crawler.Configurable;
 import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 import org.sbs.util.Util;
@@ -39,13 +30,9 @@ public class Parser extends Configurable {
 
 	protected static final Logger logger = Logger.getLogger(Parser.class.getName());
 
-	private HtmlParser htmlParser;
-	private ParseContext parseContext;
 	private JobConfiguration conf = (JobConfiguration)config;
 	public Parser(JobConfiguration config) {
 		super(config);
-		htmlParser = new HtmlParser();
-		parseContext = new ParseContext();
 	}
 
 	public boolean parse(Page page, String contextURL) {
@@ -73,50 +60,6 @@ public class Parser extends Configurable {
 			}
 			return false;
 		}
-
-		Metadata metadata = new Metadata();
-		HtmlContentHandler contentHandler = new HtmlContentHandler();
-		InputStream inputStream = null;
-		try {
-			inputStream = new ByteArrayInputStream(page.getContentData());
-			htmlParser.parse(inputStream, contentHandler, metadata, parseContext);
-		} catch (Exception e) {
-			logger.error(e.getMessage() + ", while parsing: " + page.getWebURL().getURL());
-		} finally {
-			try {
-				if (inputStream != null) {
-					inputStream.close();
-				}
-			} catch (IOException e) {
-				logger.error(e.getMessage() + ", while parsing: " + page.getWebURL().getURL());
-			}
-		}
-
-		if (page.getContentCharset() == null) {
-			page.setContentCharset(metadata.get("Content-Encoding"));
-		}
-
-		HtmlParseData parseData = new HtmlParseData();
-		parseData.setText(contentHandler.getBodyText().trim());
-		parseData.setTitle(metadata.get(DublinCore.TITLE));
-
-		String baseURL = contentHandler.getBaseUrl();
-		if (baseURL != null) {
-			contextURL = baseURL;
-		}
-
-		try {
-			if (page.getContentCharset() == null) {
-				parseData.setHtml(new String(page.getContentData()));
-			} else {
-				parseData.setHtml(new String(page.getContentData(), page.getContentCharset()));
-			}
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			return false;
-		}
-
-		page.setParseData(parseData);
 		return true;
 	}
 

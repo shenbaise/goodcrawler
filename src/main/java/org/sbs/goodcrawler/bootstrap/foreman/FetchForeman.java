@@ -31,10 +31,11 @@ import org.sbs.goodcrawler.fetcher.PageFetcher;
  */
 public class FetchForeman {
 	
-	public static void start(JobConfiguration conf){
+	public static void start(JobConfiguration conf,PageFetcher fetcher){
 		int threadNum = (int) (conf.getThreadNum() * 0.4);
+		threadNum = 2;
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-		PageFetcher fetcher = new PageFetcher(conf);
+//		PageFetcher fetcher = new PageFetcher(conf);
 		for(int i=0;i<threadNum;i++){
 			executor.submit(new DefaultFetchWorker(conf,fetcher));
 		}

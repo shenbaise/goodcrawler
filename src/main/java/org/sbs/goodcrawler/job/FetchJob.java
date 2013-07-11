@@ -26,7 +26,7 @@ import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.fetcher.CustomFetchStatus;
 import org.sbs.goodcrawler.fetcher.PageFetchResult;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
-import org.sbs.goodcrawler.processor.PendingPages;
+import org.sbs.goodcrawler.fetcher.PendingPages;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 

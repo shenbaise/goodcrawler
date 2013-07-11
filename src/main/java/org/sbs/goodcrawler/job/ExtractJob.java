@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.processor.PendingPages;
+import org.sbs.goodcrawler.fetcher.PendingPages;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)

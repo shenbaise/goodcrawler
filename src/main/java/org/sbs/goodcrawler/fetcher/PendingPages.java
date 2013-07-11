@@ -25,6 +25,7 @@ import java.nio.channels.FileChannel;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,9 +88,9 @@ public class PendingPages {
 	
 	private void init(){
 		ignoreFailedPage = Boolean.getBoolean(config.getString(GlobalConstants.ignoreFailedPages, "true"));
-		Queue = new ArrayBlockingQueue<>(config.getInt(GlobalConstants.pendingPagesQueueSize, 2000));
+		Queue = new LinkedBlockingDeque<Page>(config.getInt(GlobalConstants.pendingPagesQueueSize, 2000));
 		if(!ignoreFailedPage){
-			failedQueue = new ArrayBlockingQueue<>(config.getInt(GlobalConstants.failedPagesQueueSize, 2000));
+			failedQueue = new LinkedBlockingDeque<Page>(config.getInt(GlobalConstants.failedPagesQueueSize, 2000));
 			// 执行备份
 			BackupFailedPages backup = new BackupFailedPages();
 			Thread failedPagesBackupThread = new Thread(backup, "failed-pages-backup-thread");

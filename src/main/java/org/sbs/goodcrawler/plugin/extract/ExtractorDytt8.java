@@ -59,21 +59,26 @@ public class ExtractorDytt8 extends Extractor {
 	public ExtractedPage<?, ?> onExtract(Page page) {
 		if(null!=page){
 			try {
-				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
 				
+				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
+				if(null!=page.getWebURL().getURL()&&page.getWebURL().getURL().contains("game/"))
+					return null;
 				// 提取Url，放入待抓取Url队列
 				Elements links = doc.getElementsByTag("a"); 
 		        if (!links.isEmpty()) { 
 		            for (Element link : links) { 
 		                String linkHref = link.absUrl("href"); 
-		                if(filterUrls(linkHref)){
-		                	WebURL url = new WebURL();
-		                	url.setURL(linkHref);
-		                	url.setJobName(conf.getName());
+		                if(StringUtils.isNotBlank(linkHref) && filterUrls(linkHref)){
 		                	try {
+		                		WebURL url = new WebURL();
+		                		
+			                	url.setURL(linkHref);
+			                	url.setJobName(conf.getName());
 								pendingUrls.addUrl(url);
 							} catch (QueueException e) {
 								 log.error(e.getMessage());
+							} catch (Exception e) {
+								log.error(e.getMessage());
 							}
 		                }
 		            }
@@ -99,9 +104,8 @@ public class ExtractorDytt8 extends Extractor {
 				}
 				result.put("url", page.getWebURL().getURL());
 				for(Entry<String,String> entry:selects.entrySet()){
-//					result.put(entry.getKey(),doc.select(entry.getValue()).html());
 					Elements elements = doc.select(entry.getValue());
-					if(elements.size()==0)
+					if(elements.isEmpty())
 						return null;
 					else {
 						if("content".equals(entry.getKey())){
@@ -197,7 +201,6 @@ public class ExtractorDytt8 extends Extractor {
 				return epage;
 			} catch (UnsupportedEncodingException e) {
 				 log.error(e.getMessage());
-				 
 			} 
 		}
 		return null;

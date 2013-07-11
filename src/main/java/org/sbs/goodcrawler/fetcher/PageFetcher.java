@@ -174,7 +174,7 @@ public class PageFetcher extends Configurable {
 						fetchResult.setStatusCode(statusCode);
 						return fetchResult;
 					}
-//					logger.info("Failed: " + response.getStatusLine().toString() + ",# while fetching " + toFetchURL);
+					logger.info("Failed: " + response.getStatusLine().toString() + ", while fetching " + toFetchURL);
 				}
 				fetchResult.setStatusCode(response.getStatusLine().getStatusCode());
 				// 关闭链接
@@ -215,8 +215,8 @@ public class PageFetcher extends Configurable {
 			get.abort();
 			
 		} catch (IOException e) {
-//			logger.error("Fatal transport error: " + e.getMessage() + " while fetching " + toFetchURL
-//					+ " (link found in doc #" + webUrl.getParentDocid() + ")");
+			logger.error("Fatal transport error: " + e.getMessage() + " while fetching " + toFetchURL
+					+ " (link found in doc #" + webUrl.getParentDocid() + ")");
 			fetchResult.setStatusCode(CustomFetchStatus.FatalTransportError);
 			return fetchResult;
 		} catch (IllegalStateException e) {

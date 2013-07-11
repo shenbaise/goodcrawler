@@ -105,6 +105,9 @@ public class PendingUrls {
 			throw new QueueException("待处理链接队列取出操作中断");
 		}
 	}
+	public boolean isEmpty(){
+		return Queue.isEmpty();
+	}
 	/**
 	 * @param c
 	 * @return
@@ -182,7 +185,7 @@ public class PendingUrls {
 	public String pendingStatus(){
 		StringBuilder sb = new StringBuilder(32);
 		sb.append("队列中等待处理的URL有").append(Queue.size()).append("个，")
-		.append("截至目前共爬到").append(urlCount).append("个链接。\n已成功处理")
+		.append("截至目前共爬到").append(urlCount).append("个链接。已成功处理")
 		.append(success.get()).append("个，失败").append(failure.get()).append("个")
 		.append("忽略").append(ignored()).append("个");
 		return sb.toString();

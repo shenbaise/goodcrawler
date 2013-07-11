@@ -19,19 +19,15 @@ package org.sbs.goodcrawler.urlmanager;
 
 import java.io.Serializable;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
 
 /**
  * @author Yasser Ganjisaffar <lastname at gmail dot com>
  */
 
-@Entity
 public class WebURL implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@PrimaryKey
 	private String url;
 	private String jobName;
 	private int docid;
@@ -87,32 +83,42 @@ public class WebURL implements Serializable {
 	}
 
 	public void setURL(String url) {
-		this.url = url;
+		try {
+			this.url = url;
 
-		int domainStartIdx = url.indexOf("//") + 2;
-		int domainEndIdx = url.indexOf('/', domainStartIdx);
-		domain = url.substring(domainStartIdx, domainEndIdx);
-		subDomain = "";
-		String[] parts = domain.split("\\.");
-		if (parts.length > 2) {
-			domain = parts[parts.length - 2] + "." + parts[parts.length - 1];
-			int limit = 2;
-			if (TLDList.getInstance().contains(domain)) {
-				domain = parts[parts.length - 3] + "." + domain;
-				limit = 3;
+			int domainStartIdx = url.indexOf("//") + 2;
+			if(domainStartIdx<0){
+				domainStartIdx = 0 ;
 			}
-			for (int i = 0; i < parts.length - limit; i++) {
-				if (subDomain.length() > 0) {
-					subDomain += ".";
+			int domainEndIdx = url.indexOf('/', domainStartIdx);
+			if(domainEndIdx<domainStartIdx)
+				domainEndIdx = url.length();
+			domain = url.substring(domainStartIdx, domainEndIdx);
+			subDomain = "";
+			String[] parts = domain.split("\\.");
+			if (parts.length > 2) {
+				domain = parts[parts.length - 2] + "." + parts[parts.length - 1];
+				int limit = 2;
+				if (TLDList.getInstance().contains(domain)) {
+					domain = parts[parts.length - 3] + "." + domain;
+					limit = 3;
 				}
-				subDomain += parts[i];
+				for (int i = 0; i < parts.length - limit; i++) {
+					if (subDomain.length() > 0) {
+						subDomain += ".";
+					}
+					subDomain += parts[i];
+				}
 			}
+			path = url.substring(domainEndIdx);
+			int pathEndIdx = path.indexOf('?');
+			if (pathEndIdx >= 0) {
+				path = path.substring(0, pathEndIdx);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		path = url.substring(domainEndIdx);
-		int pathEndIdx = path.indexOf('?');
-		if (pathEndIdx >= 0) {
-			path = path.substring(0, pathEndIdx);
-		}
+		
 	}
 
 	/**

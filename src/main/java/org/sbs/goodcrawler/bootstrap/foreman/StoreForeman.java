@@ -39,10 +39,11 @@ public class StoreForeman {
 	public StoreForeman() {
 	}
 	
-	public static void start(JobConfiguration conf){
+	public static void start(JobConfiguration conf,Storage storage){
 		int threadNum = (int) (conf.getThreadNum() * 0.3);
+		threadNum = 1;
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-		Storage storage = new LocalFileStorage(PropertyConfigurationHelper.getInstance().getString(GlobalConstants.failedPagesBackupPath, ""), conf.getName());
+//		Storage storage = new LocalFileStorage(PropertyConfigurationHelper.getInstance().getString(GlobalConstants.failedPagesBackupPath, ""), conf.getName());
 		for(int i=0;i<threadNum;i++){
 			executor.submit(new DefaultStoreWorker(conf,storage));
 		}

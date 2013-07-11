@@ -41,17 +41,13 @@ public class DefaultExtractWorker extends ExtractWorker {
 		Page page ;
 		while(true){
 			try {
-				while(!pendingPages.isEmpty()){
-					page=pendingPages.getPage();
+				while(null!=(page=pendingPages.getPage())){
 					work(page);
 				}
-				Thread.sleep(3000);
 			} catch (QueueException e) {
 				 log.error(e.getMessage());
 				 e.printStackTrace();
-			} catch (InterruptedException e) {
-				 log.error(e.getMessage());
-			}
+			} 
 		}
 	}
 

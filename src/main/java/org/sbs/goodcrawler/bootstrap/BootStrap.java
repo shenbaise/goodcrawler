@@ -28,9 +28,16 @@ import org.sbs.goodcrawler.bootstrap.foreman.StoreForeman;
 import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
 import org.sbs.goodcrawler.exception.ConfigurationException;
+import org.sbs.goodcrawler.extractor.DefaultExtractWorker;
 import org.sbs.goodcrawler.fetcher.DefaultFetchWorker;
 import org.sbs.goodcrawler.fetcher.FetchWorker;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
+import org.sbs.goodcrawler.fetcher.PendingPages;
+import org.sbs.goodcrawler.plugin.extract.Extractor66ys;
+import org.sbs.goodcrawler.plugin.extract.ExtractorDytt8;
+import org.sbs.goodcrawler.plugin.storage.ElasticSearchStorage;
+import org.sbs.goodcrawler.storage.PendingStore;
+import org.sbs.goodcrawler.urlmanager.PendingUrls;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -51,21 +58,46 @@ public class BootStrap {
 	 */
 	public static void main(String[] args) {
 		JobConfigurationManager manager = new JobConfigurationManager();
-		List<JobConfiguration> jobs;
+		List<JobConfiguration> jobs = null;
 		try {
 			jobs = manager.loadJobConfigurations(
 					new File("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml"));
 			for(JobConfiguration conf:jobs){
 				// fetch
-				FetchForeman.start(conf);
+				FetchForeman.start(conf,new PageFetcher(conf));
 				// extract
-				ExtractForeman.start(conf);
+				// 66sy
+//				ExtractForeman.start(conf,new Extractor66ys(conf));
+				// dytt8
+				ExtractForeman.start(conf,new ExtractorDytt8(conf));
 				// store
-				StoreForeman.start(conf);
+				StoreForeman.start(conf,new ElasticSearchStorage(conf.getName()));
 			}
 		} catch (ConfigurationException e) {
 			 e.getMessage();
 		}
+		
+		
+		Runnable runnable = new Runnable() {
+			PendingUrls pendingUrls = PendingUrls.getInstance();
+			PendingPages pendingPages = PendingPages.getInstace();
+			PendingStore pendingStore = PendingStore.getInstance();
+			@Override
+			public void run() {
+				while(true){
+					try {
+						Thread.sleep(10000L);
+					} catch (InterruptedException e) {
+					}
+					System.out.println(pendingUrls.pendingStatus());
+					System.out.println(pendingPages.pendingStatus());
+					System.out.println(pendingStore.pendingStatus());
+				}
+			}
+		};
+		
+		Thread monitor = new Thread(runnable,"QueueMonitor");
+		monitor.start();
 	}
 
 }

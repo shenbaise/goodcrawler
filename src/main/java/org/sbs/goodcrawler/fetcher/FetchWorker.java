@@ -127,12 +127,13 @@ public abstract class FetchWorker extends Worker {
 				if (!result.fetchContent(page)) {
 //					pendingUrls.processedFailure();
 					onFailed(url);
+					return;
 				}
 				if (!parser.parse(page, url.getURL())) {
 //					pendingUrls.processedFailure();
 					onFailed(url);
+					return;
 				}
-				// 
 				try {
 					pendingPages.addPage(page);
 				} catch (QueueException e) {

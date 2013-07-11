@@ -15,36 +15,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.bootstrap.foreman;
+package org.sbs.util;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
-import org.sbs.goodcrawler.extractor.DefaultExtractWorker;
-import org.sbs.goodcrawler.extractor.DefaultExtractor;
-import org.sbs.goodcrawler.extractor.Extractor;
-import org.sbs.goodcrawler.plugin.extract.Extractor66ys;
-import org.sbs.goodcrawler.plugin.extract.ExtractorDytt8;
+import net.sf.json.JSONObject;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-7-3
- * 提取工工头
+ * @date 2013-7-4
+ * json工具
  */
-public class ExtractForeman {
-	
-	public static void start(JobConfiguration conf,Extractor extractor){
-		int threadNum = (int) (conf.getThreadNum() * 0.3);
-		threadNum = 6;
-		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-//		Extractor extractor1 = new Extractor66ys(conf);
-		for(int i=0;i<threadNum;i++){
-			executor.submit(new DefaultExtractWorker(conf,new ExtractorDytt8(conf)));
-		}
-		
-	}
+public class JsonUtil {
 
+	/**
+	 * 构造函数
+	 */
+	public JsonUtil() {
+	}
+	
+	public static JSONObject generate(List<?> list) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("totalProperty", list.size());
+        map.put("root", list);
+        return JSONObject.fromObject(map);
+    }
+   
+    public static JSONObject javabean2json(Object object) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("success", true);
+        map.put("data", object);
+        return JSONObject.fromObject(map);
+    }
+   
+    public static JSONObject objectcollect2json(List<?> list, String total) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("totalProperty", total);
+        map.put("root", list);
+        return JSONObject.fromObject(map);
+    }
+    
 	/**
 	 * @param args
 	 * @desc 

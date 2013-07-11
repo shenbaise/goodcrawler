@@ -82,15 +82,14 @@ public class DefaultFetchWorker extends FetchWorker {
 							||s.contains(".mtk")
 							||s.contains(".rm")){
 						pendingUrls.processedIgnored();
-						
 						continue;
 					}
-					fetchPage(url);
-					c++;
-					if(c>10000){
-						c=0;
-						Thread.sleep(2000L);
-					}
+						fetchPage(url);
+						c++;
+						if(c>10000){
+							c=0;
+							Thread.sleep(2000L);
+						}
 				}
 			}
 		} catch (QueueException e) {

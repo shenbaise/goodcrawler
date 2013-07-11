@@ -18,6 +18,8 @@
 package org.sbs.goodcrawler.job;
 
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -32,7 +34,8 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  * @author Yasser Ganjisaffar <lastname at gmail dot com>
  */
 public class Page {
-
+	
+	protected Pattern p = Pattern.compile("(?<=charset=)(.+)(?=\")");
     /**
      * The URL of this page.
      */
@@ -101,14 +104,35 @@ public class Page {
 		if (encoding != null) {
 			contentEncoding = encoding.getValue();
 		}
-
+		
 		Charset charset = ContentType.getOrDefault(entity).getCharset();
 		if (charset != null) {
 			contentCharset = charset.displayName();	
 		}
-
+		
 		contentData = EntityUtils.toByteArray(entity);
+		// head中没有charset则从meta标签中取
+		if(null==contentCharset || ""==contentCharset){
+			int length=contentData.length;
+			if(length>2048){
+				length = 2048;
+			}
+			String html = new String(contentData, 0, 2048);
+			contentCharset = matchCharset(html.toLowerCase());
+		}
 	}
+	
+	/**
+	 * @param content
+	 * @return
+	 * @desc 通过正则取出页面中meta的charset
+	 */
+	public String matchCharset(String content) {  
+	    Matcher m = p.matcher(content);  
+	    if (m.find())  
+	        return m.group();  
+	    return "gb2312";  
+	}  
 	
 	/**
      * Returns headers which were present in the response of the
