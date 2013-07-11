@@ -30,7 +30,7 @@ ignore.failed.pages=true
 
 	这个文件主要配置全局信息，队列大小等
 #### job_conf.xml文件
-...xml
+```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--全局配置 -->
 <conf>
@@ -88,14 +88,14 @@ ignore.failed.pages=true
 		
 	</jobs>
 </conf>
-
+```
 
 每一个job元素代表一个抓取工程，不同的job相互独立。
 如何使用
 ----------------------
 
 # 就这么简单！！！
-....java
+```java
 public static void main(String[] args) {
 	JobConfigurationManager manager = new JobConfigurationManager();
 	List<JobConfiguration> jobs;
@@ -114,12 +114,12 @@ public static void main(String[] args) {
 		 e.getMessage();
 	}
 }
-...
+```
 		没有任何编码负担。
 
 待解决的问题和以后的规划
 ------------------------
-这个项目是一时兴起的小玩物，目前的几乎是完善和调整软件结构，实现更多特性（session、form提交等等）。后期打算将url队列单独分离出来
+这个项目是一时兴起的小玩物，目前的任务是完善和调整软件结构，实现更多特性（session、form提交等等）。后期打算将url队列单独分离出来
 作为一个种子库放在server Center上，爬取器和存储器分散开来以实现分布式爬取。
 
 shenbaise1001@126.com
