@@ -20,20 +20,14 @@ package org.sbs.goodcrawler.bootstrap;
 import java.io.File;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.bootstrap.foreman.ExtractForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.StoreForeman;
 import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
 import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
 import org.sbs.goodcrawler.exception.ConfigurationException;
-import org.sbs.goodcrawler.extractor.DefaultExtractWorker;
-import org.sbs.goodcrawler.fetcher.DefaultFetchWorker;
-import org.sbs.goodcrawler.fetcher.FetchWorker;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
 import org.sbs.goodcrawler.fetcher.PendingPages;
-import org.sbs.goodcrawler.plugin.extract.Extractor66ys;
 import org.sbs.goodcrawler.plugin.extract.ExtractorDytt8;
 import org.sbs.goodcrawler.plugin.storage.ElasticSearchStorage;
 import org.sbs.goodcrawler.storage.PendingStore;
@@ -45,13 +39,6 @@ import org.sbs.goodcrawler.urlmanager.PendingUrls;
  * bootstrap
  */
 public class BootStrap {
-	private Log log = LogFactory.getLog(this.getClass());
-	/**
-	 * @desc 启动咯
-	 */
-	public void start(){
-		
-	}
 	/**
 	 * @param args
 	 * @desc 
