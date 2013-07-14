@@ -57,7 +57,7 @@ public class JobConfiguration extends Configuration {
 	/**
 	 * 两次请求之间的等待（延迟）时间
 	 */
-	private int delayBetweenRequests = 100;
+	private int delayBetweenRequests = 200;
 	/**
 	 * 爬取链接的深度，-1表示无限制
 	 */
