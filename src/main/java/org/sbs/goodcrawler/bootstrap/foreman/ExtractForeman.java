@@ -36,7 +36,9 @@ public class ExtractForeman {
 	
 	public static void start(JobConfiguration conf,Extractor extractor){
 		int threadNum = (int) (conf.getThreadNum() * 0.3);
-		threadNum = 6;
+		if(threadNum<=0)
+			threadNum = 1;
+		threadNum = 5;
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 //		Extractor extractor1 = new Extractor66ys(conf);
 		for(int i=0;i<threadNum;i++){

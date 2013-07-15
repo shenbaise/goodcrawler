@@ -32,8 +32,10 @@ import org.sbs.goodcrawler.fetcher.PageFetcher;
 public class FetchForeman {
 	
 	public static void start(JobConfiguration conf,PageFetcher fetcher){
-		int threadNum = (int) (conf.getThreadNum() * 0.4);
-		threadNum = 2;
+		int threadNum = (int) (conf.getThreadNum() * 0.5);
+		if(threadNum<=0)
+			threadNum = 1;
+		threadNum = 1;
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 //		PageFetcher fetcher = new PageFetcher(conf);
 		for(int i=0;i<threadNum;i++){

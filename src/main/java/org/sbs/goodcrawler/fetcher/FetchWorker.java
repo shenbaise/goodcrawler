@@ -125,12 +125,10 @@ public abstract class FetchWorker extends Worker {
 				Page page = new Page(url);
 				pendingUrls.processedSuccess();
 				if (!result.fetchContent(page)) {
-//					pendingUrls.processedFailure();
 					onFailed(url);
 					return;
 				}
 				if (!parser.parse(page, url.getURL())) {
-//					pendingUrls.processedFailure();
 					onFailed(url);
 					return;
 				}
