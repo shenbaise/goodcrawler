@@ -85,9 +85,9 @@ public class ExtractorDytt8 extends Extractor {
 		        }
 		        // 抽取信息
 				Map<String, String> selects = conf.getSelects();
-				ExtractedPage<String,String> epage = pendingStore.new ExtractedPage<String, String>();
+				ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
 				epage.setUrl(page.getWebURL());
-				HashMap<String, String> result = new HashMap<>();
+				HashMap<String, Object> result = new HashMap<>();
 				Elements text = doc.select("#Zoom");
 				if(null==text || text.size()==0){
 					return null;
@@ -189,10 +189,10 @@ public class ExtractorDytt8 extends Extractor {
 					}
 //					result.put(entry.getKey(), elements.html());
 				}
-				if(StringUtils.isNotBlank(result.get("ym"))){
-					result.put("name", result.get("ym"));
+				if(StringUtils.isNotBlank((String) result.get("nd"))){
+					result.put("nd", Integer.parseInt((String)result.get("nd")));
 				}
-				epage.setMessages((HashMap<String, String>) result);
+				epage.setMessages(result);
 				try {
 					pendingStore.addExtracedPage(epage);
 				} catch (QueueException e) {
@@ -201,6 +201,7 @@ public class ExtractorDytt8 extends Extractor {
 				return epage;
 			} catch (UnsupportedEncodingException e) {
 				 log.error(e.getMessage());
+				 e.printStackTrace();
 			} 
 		}
 		return null;
@@ -286,7 +287,7 @@ public class ExtractorDytt8 extends Extractor {
 		
 	}
 	
-	public HashMap<String, String> getInfoName(String s,HashMap<String, String> map){
+	public HashMap<String, Object> getInfoName(String s,HashMap<String, Object> map){
 		try {
 			String temp = null;
 			if(s.contains("：")){

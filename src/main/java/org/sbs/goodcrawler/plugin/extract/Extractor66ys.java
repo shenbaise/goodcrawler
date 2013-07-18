@@ -80,9 +80,9 @@ public class Extractor66ys extends Extractor {
 		        }
 		        // 抽取信息
 				Map<String, String> selects = conf.getSelects();
-				ExtractedPage<String,String> epage = pendingStore.new ExtractedPage<String, String>();
+				ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
 				epage.setUrl(page.getWebURL());
-				HashMap<String, String> result = new HashMap<>();
+				HashMap<String, Object> result = new HashMap<>();
 				Elements text = doc.select("#text");
 				if(null==text || text.size()==0){
 					return null;
@@ -185,7 +185,10 @@ public class Extractor66ys extends Extractor {
 					}
 //					result.put(entry.getKey(), elements.html());
 				}
-				epage.setMessages((HashMap<String, String>) result);
+				if(StringUtils.isNotBlank((String) result.get("nd"))){
+					result.put("nd", Integer.parseInt((String)result.get("nd")));
+				}
+				epage.setMessages(result);
 				try {
 					pendingStore.addExtracedPage(epage);
 				} catch (QueueException e) {
@@ -280,7 +283,7 @@ public class Extractor66ys extends Extractor {
 		
 	}
 	
-	public HashMap<String, String> getInfoName(String s,HashMap<String, String> map){
+	public HashMap<String, Object> getInfoName(String s,HashMap<String, Object> map){
 		try {
 			String temp = null;
 			if(s.contains("：")){

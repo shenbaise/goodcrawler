@@ -57,7 +57,7 @@ public class ElasticSearchStorage extends Storage {
 			}
 			StoreResult storeResult = new StoreResult();
 			// 处理Result
-			HashMap<String, String> data = page.getMessages();
+			HashMap<String, Object> data = page.getMessages();
 			
 			EsClient.index(index, "movie", data);
 			return storeResult;
