@@ -17,9 +17,11 @@
  */
 package org.sbs.goodcrawler.plugin.storage;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FileUtils;
 import org.elasticsearch.client.Client;
 import org.sbs.goodcrawler.plugin.EsClient;
 import org.sbs.goodcrawler.storage.PendingStore;
@@ -37,6 +39,8 @@ public class ElasticSearchStorage extends Storage {
 //	ExBulk bulk = new ExBulk();	
 	public String index = "";
 	Client client = EsClient.getClient();
+	String file = "d:\\eFile.txt";
+	File f = new File(file);
 	
 	public ElasticSearchStorage(String index){
 		this.index = index;
@@ -52,14 +56,20 @@ public class ElasticSearchStorage extends Storage {
 		try {
 			if(!(page.getUrl().getURL().endsWith(".html") 
 					|| !page.getUrl().getURL().endsWith(".htm")
-					|| !page.getUrl().getURL().endsWith(".xtml"))){
+					|| !page.getUrl().getURL().endsWith(".xhtml"))){
 				return null;
 			}
 			StoreResult storeResult = new StoreResult();
 			// 处理Result
-			HashMap<String, Object> data = page.getMessages();
 			
-			EsClient.index(index, "movie", data);
+			HashMap<String, Object> data = page.getMessages();
+			// 判断是否已存在
+			if(client.prepareGet(index, "0",(String)data.get("n") ).execute().actionGet().isExists()){
+				FileUtils.write(f, page.getUrl().getURL(), true);
+			}else{
+				EsClient.index(index, "0", data);
+			}
+			
 			return storeResult;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -72,8 +72,9 @@ public class EsClient {
 				xBuilder.field(entry.getKey()).value(entry.getValue());
 			}
 			xBuilder.endObject();
-			IndexResponse response = client.prepareIndex(index, type)
-//					.setId(data.get("movie"))	// 使用自动生成id
+//			IndexResponse response = 
+					client.prepareIndex(index, type)
+					.setId((String)data.get("n"))
 					.setSource(xBuilder).execute().actionGet();
 			// what does respose contains?
 		} catch (ElasticSearchException e) {

@@ -18,7 +18,9 @@
 package org.sbs.goodcrawler.plugin.extract;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -85,35 +87,62 @@ public class Extractor66ys extends Extractor {
 				HashMap<String, Object> result = new HashMap<>();
 				Elements text = doc.select("#text");
 				if(null==text || text.size()==0){
-					return null;
+					if(doc.select("#dede_content").size()==0){
+						return null;
+					}
 				}
-				String name = doc.select("h1").text();
-				name = name.replace("《", "").replace("<<", "").replace("》", "").replace(">>", "");
-				result.put("movie", name);
-//				result.put("_id", name);
-				String ts[] = doc.select("h2 a").text().split(" ");
-				if(ts.length>=2){
-					result.put("type", ts[1].trim());
+				
+				// 电视剧、电影、综艺大类分类
+				String u = page.getWebURL().getURL();
+				if(u.contains("/dsj")){
+					result.put("t", "电视剧");
+				}else if(u.contains("/zy")){
+					result.put("t", "综艺");
+				}else if (u.contains("/dm")) {
+					result.put("t", "动漫");
 				}else {
-					result.put("type", "unknow");
+					result.put("t", "电影");
 				}
+				// 片名
+				String name = doc.select("h1").text();
+				if(StringUtils.isBlank(name)){
+					name = doc.select(".title").text();
+				}
+				
+				if(StringUtils.isNotBlank(name)){
+					name = name.replace("《", "").replace("<<", "")
+							.replace("》", "").replace(">>", "")
+							.replace("】", "").replace("【", "")
+							.replace("-", "").replace("_", "");
+					result.put("n", name);
+				}
+				
+				// 如果名称中包含“演唱会”、“mv”则将大类归为音乐
+				if(StringUtils.isNotBlank(name) 
+						&& (name.contains("演唱会") || name.contains("MV")
+								|| name.contains("mv"))){
+					result.put("t", "音乐");
+				}
+				// 保存Url
 				result.put("url", page.getWebURL().getURL());
+				
 				for(Entry<String,String> entry:selects.entrySet()){
 //					result.put(entry.getKey(),doc.select(entry.getValue()).html());
 					Elements elements = doc.select(entry.getValue());
 					if(elements.size()==0)
-						return null;
+						continue;
 					else {
-						if("content".equals(entry.getKey())){
+						if("content".equals(entry.getKey()) || "dede_content".equals(entry.getKey())){
 							
 							for(Element element :elements){
 								// 拿到图片
 								Elements imgs = element.select("img[src]");
-								StringBuilder sb = new StringBuilder();
+								List<String> imageList = new ArrayList<>();
 								for(Element img:imgs){
-									sb.append(img.attr("src")).append(";");
+									imageList.add(img.attr("src"));
 								}
-								result.put("img", sb.toString());
+								result.put("img", imageList);
+								
 								// 影片信息
 								Elements movieInfos = element.select("p");
 								for(Element info:movieInfos){
@@ -125,11 +154,11 @@ public class Extractor66ys extends Extractor {
 										if(start>0){
 											end = infotext_.lastIndexOf("。");
 											if(end>0 && start <end){
-												result.put("jq", infotext_.substring(start,end));
+												result.put("jj", infotext_.substring(start,end));
 											}else {
 												end = infotext_.lastIndexOf(".");
 												if(end>0 && start <end){
-													result.put("jq", infotext_.substring(start,end));
+													result.put("jj", infotext_.substring(start,end));
 												}
 											}
 										}
@@ -168,26 +197,39 @@ public class Extractor66ys extends Extractor {
 									}
 								}
 								
-								
-//								if(result.size()<5){
-//									result.put("content", value)
-//								}
+								// 信息不足，全保存
+								if(result.size()<4){
+									result.put("c", element.text());
+								}
 								
 								// 下载地址
 								Elements elements2 = elements.select("td");
-								sb.setLength(0);
+								List<String> downList = new ArrayList<>();
 								for(Element download:elements2){
-									sb.append(download.text()).append(";");
+									downList.add(download.text());
 								}
-								result.put("download", sb.toString());
+								result.put("d", downList);
 							}
 						}
 					}
 //					result.put(entry.getKey(), elements.html());
 				}
+				// 转换年代为时间
 				if(StringUtils.isNotBlank((String) result.get("nd"))){
-					result.put("nd", Integer.parseInt((String)result.get("nd")));
+					try {
+						result.put("nd", Integer.parseInt((String)result.get("nd")));
+					} catch (Exception e) {
+						result.put("nd", 1800);
+					}
+					
 				}
+				// id
+				if(StringUtils.isBlank((String)result.get("n"))){
+					if(StringUtils.isNotBlank((String)result.get("pm"))){
+						result.put("n", result.get("pm"));
+					}
+				}
+				
 				epage.setMessages(result);
 				try {
 					pendingStore.addExtracedPage(epage);
@@ -197,7 +239,6 @@ public class Extractor66ys extends Extractor {
 				return epage;
 			} catch (UnsupportedEncodingException e) {
 				 log.error(e.getMessage());
-				 
 			} 
 		}
 		return null;
@@ -229,7 +270,7 @@ public class Extractor66ys extends Extractor {
 	
 	private HashMap<String, String> infoName = new HashMap<>();
 	{
-		infoName.put("片　　名", "pm");
+		infoName.put("片　　名", "bm");
 		infoName.put("片　名", "pm");
 		infoName.put("片名", "pm");
 		infoName.put("译　　名", "ym");
@@ -243,8 +284,8 @@ public class Extractor66ys extends Extractor {
 		infoName.put("出品时间", "nd");
 		infoName.put("制片地区", "dq");
 		infoName.put("编剧", "bj");
-		infoName.put("集数", "gj");
-		infoName.put("监制", "gj");
+		infoName.put("集数", "js");
+		infoName.put("监制", "jz");
 		infoName.put("类　　别", "lb");
 		infoName.put("类　别", "lb");
 		infoName.put("类别", "lb");
@@ -270,17 +311,16 @@ public class Extractor66ys extends Extractor {
 		infoName.put("主　　演", "zy");
 		infoName.put("主　演", "zy");
 		infoName.put("主演", "zy");
-		infoName.put("简　　介", "jq");
-		infoName.put("简　介", "jq");
-		infoName.put("剧情介绍", "jq");
-		infoName.put("下载地址", "xzdz");
-		infoName.put("在线观看", "zzdz");
+		infoName.put("简　　介", "jj");
+		infoName.put("简　介", "jj");
+		infoName.put("剧情介绍", "jj");
+		infoName.put("下载地址", "d");
+		infoName.put("在线观看", "k");
 		infoName.put("年　　代", "nd");
 		infoName.put("年代", "nd");
 		infoName.put("时间", "pc");
 		infoName.put("音频", "yy");
 		infoName.put("演员", "zy");
-		
 	}
 	
 	public HashMap<String, Object> getInfoName(String s,HashMap<String, Object> map){
