@@ -19,7 +19,10 @@ package org.sbs.goodcrawler.plugin.storage;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
+
+import net.sourceforge.pinyin4j.PinyinHelper;
 
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.client.Client;
@@ -28,6 +31,10 @@ import org.sbs.goodcrawler.storage.PendingStore;
 import org.sbs.goodcrawler.storage.Storage;
 import org.sbs.goodcrawler.storage.StoreResult;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.util.ImgUtil;
+import org.sbs.util.PinyinUtil;
+
+import com.alibaba.fastjson.JSON;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -41,6 +48,7 @@ public class ElasticSearchStorage extends Storage {
 	Client client = EsClient.getClient();
 	String file = "d:\\eFile.txt";
 	File f = new File(file);
+	ImgUtil imgUtil = new ImgUtil("d:\\images");
 	
 	public ElasticSearchStorage(String index){
 		this.index = index;
@@ -63,9 +71,26 @@ public class ElasticSearchStorage extends Storage {
 			// 处理Result
 			
 			HashMap<String, Object> data = page.getMessages();
+			
+			// 处理缩略图
+			
+			List<String> imageList = (List<String>) data.get("img");
+			String name = (String)data.get("n");
+			// 先检测文件是否已经存在（汉字转为拼音后可能有重复）
+			name = (String)data.get("t") + PinyinUtil.getPinyin(name);
+			for(String s:imageList){
+				if(imgUtil.downloadImageCompress(s, name, 200, -1, 0.2f)){
+					// 把Img信息清空 ？？ 
+//					data.remove("img");
+					break;
+				}
+			}
+			
 			// 判断是否已存在
 			if(client.prepareGet(index, "0",(String)data.get("n") ).execute().actionGet().isExists()){
-				FileUtils.write(f, page.getUrl().getURL(), true);
+				FileUtils.write(f, JSON.toJSONString(data, true), true);
+				FileUtils.write(f, "#######################", true);
+				
 			}else{
 				EsClient.index(index, "0", data);
 			}

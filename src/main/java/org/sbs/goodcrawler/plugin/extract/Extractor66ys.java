@@ -203,10 +203,11 @@ public class Extractor66ys extends Extractor {
 								}
 								
 								// 下载地址
-								Elements elements2 = elements.select("td");
+								// html body div.wrap div.mainleft div.contentinfo div#text table tbody tr td anchor a
+								Elements elements2 = elements.select("td a");
 								List<String> downList = new ArrayList<>();
 								for(Element download:elements2){
-									downList.add(download.text());
+									downList.add(download.attr("href"));
 								}
 								result.put("d", downList);
 							}
@@ -217,7 +218,15 @@ public class Extractor66ys extends Extractor {
 				// 转换年代为时间
 				if(StringUtils.isNotBlank((String) result.get("nd"))){
 					try {
-						result.put("nd", Integer.parseInt((String)result.get("nd")));
+						String nd = (String) result.get("nd");
+						if(nd.contains("年")){
+							nd = nd.split("年")[0];
+						}else if(nd.contains("/")){
+							nd = nd.split("/")[0];
+						}else if (nd.contains("-")) {
+							nd = nd.split("-")[0];
+						}
+						result.put("nd", Integer.parseInt(nd));
 					} catch (Exception e) {
 						result.put("nd", 1800);
 					}
@@ -318,6 +327,8 @@ public class Extractor66ys extends Extractor {
 		infoName.put("在线观看", "k");
 		infoName.put("年　　代", "nd");
 		infoName.put("年代", "nd");
+		infoName.put("出品时间", "nd");
+		infoName.put("上映时间", "nd");
 		infoName.put("时间", "pc");
 		infoName.put("音频", "yy");
 		infoName.put("演员", "zy");
