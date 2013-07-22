@@ -75,10 +75,6 @@ public class DateTimeUtil {
 		return getDateTime(date, DEFAULT_DATE_FORMAT);
 	}
 
-	public static Date getInitBeginDate() {
-		return parse("2005-01-01");
-	}
-
 	/**
 	 * 得到用缺省方式格式化的当前日期及时间
 	 * 
