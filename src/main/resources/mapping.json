@@ -1,64 +1,52 @@
 {
-    "movie":{
-        "_all":{
-            "enabled":true
-        },
-        "index_analyzer" : "ik",
-        "search_analyzer" : "ik",
-        "properties":{
-            "name":{
-                "type":"object",
-                "dynamic":false,
-                "properties":{
-                    "pm":{
-                        "type":"string",
-                        "store":"yes",
-                        "include_in_all":"yes"
-                    },
-                    "ym":{
-                        "type":"string",
-                        "store":"yes"
-                    }
-                }
-            },
-            
-            "nd":{
-                "type":"integer",
-                "include_in_all":false
-                
-            }
-            
-            "address":{
-                "type":"object",
-                "include_in_all":false,
-                "properties":{
-                    "first":{
-                        "properties":{
-                            "location":{
-                                "type":"string",
-                                "store":"yes",
-                                "index_name":"firstLocation"
-                            }
-                        }
-                    },
-                    "last":{
-                        "properties":{
-                            "location":{
-                                "type":"string",
-                                "include_in_all":true
-                            }
-                        }
-                    }
-                }
-            },
-            "simple1":{
-                "type":"long",
-                "include_in_all":true
-            },
-            "simple2":{
-                "type":"long",
-                "include_in_all":false
-            }
+  "0": {
+    "_all": {
+      "enabled": true
+    },
+    "index_analyzer": "ik",
+    "search_analyzer": "ik",
+    "_timestamp": {
+      "enabled": true,
+      "format": "YYYY-MM-dd"
+    },
+    "dynamic_templates": [
+      {
+        "string_template": {
+          "match": "*",
+          "mapping": {
+            "type": "string",
+            "index": "not_analyzed"
+          },
+          "match_mapping_type": "string"
         }
+      }
+    ],
+    "properties": {
+      "n": {
+        "type": "string",
+        "include_in_all": true,
+        "index": "analyzed"
+      },
+      "zy": {
+        "type": "string",
+        "include_in_all": true,
+        "index": "analyzed"
+      },
+      "jj": {
+        "type": "string",
+        "include_in_all": true,
+        "index": "analyzed"
+      },
+      "lb": {
+        "type": "string",
+        "include_in_all": true,
+        "index": "analyzed"
+      },
+      "t": {
+        "type": "string",
+        "include_in_all": true,
+        "index": "analyzed"
+      }
     }
+  }
 }

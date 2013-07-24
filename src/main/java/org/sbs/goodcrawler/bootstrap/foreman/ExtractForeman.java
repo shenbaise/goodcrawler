@@ -38,11 +38,11 @@ public class ExtractForeman {
 		int threadNum = (int) (conf.getThreadNum() * 0.3);
 		if(threadNum<=0)
 			threadNum = 1;
-		threadNum = 5;
+		threadNum = 3;
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 //		Extractor extractor1 = new Extractor66ys(conf);
 		for(int i=0;i<threadNum;i++){
-			executor.submit(new DefaultExtractWorker(conf,new ExtractorDytt8(conf)));
+			executor.submit(new DefaultExtractWorker(conf,new Extractor66ys(conf)));
 		}
 		
 	}

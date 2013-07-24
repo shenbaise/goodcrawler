@@ -20,19 +20,17 @@ package org.sbs.goodcrawler.plugin.storage;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
-
-import net.sourceforge.pinyin4j.PinyinHelper;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.client.Client;
 import org.sbs.goodcrawler.plugin.EsClient;
-import org.sbs.goodcrawler.storage.PendingStore;
+import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.storage.Storage;
 import org.sbs.goodcrawler.storage.StoreResult;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.util.ImgUtil;
-import org.sbs.util.PinyinUtil;
 
 import com.alibaba.fastjson.JSON;
 
@@ -42,13 +40,12 @@ import com.alibaba.fastjson.JSON;
  * 存储到es
  */
 public class ElasticSearchStorage extends Storage {
-	
+	private Log log = LogFactory.getLog(this.getClass());
 //	ExBulk bulk = new ExBulk();	
 	public String index = "";
 	Client client = EsClient.getClient();
 	String file = "d:\\eFile.txt";
 	File f = new File(file);
-	ImgUtil imgUtil = new ImgUtil("d:\\images");
 	
 	public ElasticSearchStorage(String index){
 		this.index = index;
@@ -75,13 +72,19 @@ public class ElasticSearchStorage extends Storage {
 			// 处理缩略图
 			
 			List<String> imageList = (List<String>) data.get("img");
-			String name = (String)data.get("n");
-			// 先检测文件是否已经存在（汉字转为拼音后可能有重复）
-			name = (String)data.get("t") + PinyinUtil.getPinyin(name);
+			
+			String type = (String)data.get("t");
+			if(StringUtils.isBlank(type)){
+				type = "电影";
+				log.error("#### 没有t字段 ：" + data.get("url"));
+			}
+			String lb = (String) data.get("lb");
+			if(StringUtils.isBlank(lb)){
+				lb = "其他";
+			}
+			lb  = lb.replace("/", "-");
 			for(String s:imageList){
-				if(imgUtil.downloadImageCompress(s, name, 200, -1, 0.2f)){
-					// 把Img信息清空 ？？ 
-//					data.remove("img");
+				if(ImgUtil.downAndResize(s, type + File.separator + lb)){
 					break;
 				}
 			}

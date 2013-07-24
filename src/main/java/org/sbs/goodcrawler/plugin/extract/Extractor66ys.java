@@ -38,6 +38,7 @@ import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.util.DateTimeUtil;
 import org.sbs.util.StringUtil;
 
 /**
@@ -120,7 +121,10 @@ public class Extractor66ys extends Extractor {
 				// 如果名称中包含“演唱会”、“mv”则将大类归为音乐
 				if(StringUtils.isNotBlank(name) 
 						&& (name.contains("演唱会") || name.contains("MV")
-								|| name.contains("mv"))){
+								|| name.contains("mv")
+								|| name.contains("巡演")
+								|| name.contains("巡回演出"))){
+					
 					result.put("t", "音乐");
 				}
 				// 保存Url
@@ -202,14 +206,16 @@ public class Extractor66ys extends Extractor {
 									result.put("c", element.text());
 								}
 								
-								// 下载地址
+								// 下载地址 （会有多个网站下载地址）
 								// html body div.wrap div.mainleft div.contentinfo div#text table tbody tr td anchor a
 								Elements elements2 = elements.select("td a");
 								List<String> downList = new ArrayList<>();
 								for(Element download:elements2){
 									downList.add(download.attr("href"));
 								}
-								result.put("d", downList);
+								HashMap<String, Object> dd = new HashMap<>();
+								dd.put("66ys", downList);
+								result.put("d", dd);
 							}
 						}
 					}
@@ -217,8 +223,9 @@ public class Extractor66ys extends Extractor {
 				}
 				// 转换年代为时间
 				if(StringUtils.isNotBlank((String) result.get("nd"))){
+					String nd = null;
 					try {
-						String nd = (String) result.get("nd");
+						nd = (String) result.get("nd");
 						if(nd.contains("年")){
 							nd = nd.split("年")[0];
 						}else if(nd.contains("/")){
@@ -226,11 +233,17 @@ public class Extractor66ys extends Extractor {
 						}else if (nd.contains("-")) {
 							nd = nd.split("-")[0];
 						}
-						result.put("nd", Integer.parseInt(nd));
+						int tem = Integer.parseInt(nd);
+						if(tem>20000){
+							tem = tem / 10;
+						}
+						if(tem>DateTimeUtil.getCurrentYear()){
+							tem = DateTimeUtil.getCurrentYear();
+						}
+						result.put("nd", tem);
 					} catch (Exception e) {
 						result.put("nd", 1800);
 					}
-					
 				}
 				// id
 				if(StringUtils.isBlank((String)result.get("n"))){

@@ -43,6 +43,7 @@ public class StoreForeman {
 		int threadNum = (int) (conf.getThreadNum() * 0.3);
 		if(threadNum<=0)
 			threadNum = 1;
+		threadNum = 4;
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 //		Storage storage = new LocalFileStorage(PropertyConfigurationHelper.getInstance().getString(GlobalConstants.failedPagesBackupPath, ""), conf.getName());
 		for(int i=0;i<threadNum;i++){

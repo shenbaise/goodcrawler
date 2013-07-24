@@ -28,6 +28,7 @@ import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
 import org.sbs.goodcrawler.fetcher.PendingPages;
+import org.sbs.goodcrawler.plugin.extract.Extractor66ys;
 import org.sbs.goodcrawler.plugin.extract.ExtractorDytt8;
 import org.sbs.goodcrawler.plugin.storage.ElasticSearchStorage;
 import org.sbs.goodcrawler.storage.PendingStore;
@@ -54,9 +55,9 @@ public class BootStrap {
 				FetchForeman.start(conf,new PageFetcher(conf));
 				// extract
 				// 66sy
-//				ExtractForeman.start(conf,new Extractor66ys(conf));
+				ExtractForeman.start(conf,new Extractor66ys(conf));
 				// dytt8
-				ExtractForeman.start(conf,new ExtractorDytt8(conf));
+//				ExtractForeman.start(conf,new ExtractorDytt8(conf));
 				// store
 				StoreForeman.start(conf,new ElasticSearchStorage(conf.getName()));
 			}
