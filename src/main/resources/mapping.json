@@ -22,27 +22,32 @@
       }
     ],
     "properties": {
-      "n": {
+      "title": {
         "type": "string",
         "include_in_all": true,
         "index": "analyzed"
       },
-      "zy": {
+      "actors": {
         "type": "string",
         "include_in_all": true,
         "index": "analyzed"
       },
-      "jj": {
+      "director": {
         "type": "string",
         "include_in_all": true,
         "index": "analyzed"
       },
-      "lb": {
+      "summary": {
+        "type": "string",
+        "include_in_all": false,
+        "index": "not_analyzed"
+      },
+      "type": {
         "type": "string",
         "include_in_all": true,
         "index": "analyzed"
       },
-      "t": {
+      "category": {
         "type": "string",
         "include_in_all": true,
         "index": "analyzed"
