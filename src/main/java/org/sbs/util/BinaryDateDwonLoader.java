@@ -26,6 +26,8 @@ import java.util.Date;
 
 import javax.imageio.ImageIO;
 
+import net.coobird.thumbnailator.Thumbnails;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
@@ -167,20 +169,36 @@ public class BinaryDateDwonLoader {
 	 * @return
 	 * 下载文件到指定目录，文件名不变
 	 */
-	public boolean download(String url,String distPath){
+	public String download(String url,String distPath){
 		PageFetchResult result = fetchHeader(url);
-		try {
-			OutputStream outputStream = new FileOutputStream(new File(distPath + File.separator + url.substring(url.lastIndexOf('/')+1)));
-			result.getEntity().writeTo(outputStream);
-			return true;
-		} catch (FileNotFoundException e) {
-			logger.warn(e.getMessage());
-		} catch (IOException e) {
-//			e.printStackTrace();
-			logger.warn(e.getMessage());
+		if(null!=result && null!=result.getEntity()){
+			String fileName = EncryptUtils.encodeMD5(url);
+			File path = new File(distPath);
+			if(!path.exists()){
+				path.mkdirs();
+			}
+			String file = distPath + File.separator + fileName+ url.substring(url.lastIndexOf('.'));
+			File imgFile = new File(file);
+			
+			try {
+				OutputStream outputStream = new FileOutputStream(imgFile);
+				result.getEntity().writeTo(outputStream);
+				outputStream.close();
+				Thumbnails.of(file).width(200)
+				.outputQuality(0.6f)
+				.toFile(file);
+				return imgFile.getName();
+			} catch (FileNotFoundException e) {
+				logger.warn(e.getMessage());
+			} catch (IOException e) {
+//				e.printStackTrace();
+				logger.warn(e.getMessage());
+			}
 		}
-		return false;
+		return null;
 	}
+	
+	
 	/**
 	 * @param args
 	 */
@@ -192,6 +210,7 @@ public class BinaryDateDwonLoader {
 		try {
 			OutputStream outputStream = new FileOutputStream(new File("d:\\"+img.substring(img.lastIndexOf('/')+1)));
 			result.getEntity().writeTo(outputStream);
+			outputStream.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
