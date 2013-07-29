@@ -19,20 +19,27 @@ package org.sbs.goodcrawler.plugin.storage;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
 import org.sbs.goodcrawler.plugin.EsClient;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.storage.Storage;
 import org.sbs.goodcrawler.storage.StoreResult;
+import org.sbs.util.BinaryDateDwonLoader;
 import org.sbs.util.ImgUtil;
+import org.sbs.util.MapUtils;
+import org.sbs.util.PinyinUtil;
 
-import com.alibaba.fastjson.JSON;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -43,9 +50,12 @@ public class ElasticSearchStorage extends Storage {
 	private Log log = LogFactory.getLog(this.getClass());
 //	ExBulk bulk = new ExBulk();	
 	public String index = "";
-	Client client = EsClient.getClient();
 	String file = "d:\\eFile.txt";
+	String imagePath = "d:\\images\\";
 	File f = new File(file);
+	
+//	private ObjectMapper objectMapper = new ObjectMapper();
+	
 	
 	public ElasticSearchStorage(String index){
 		this.index = index;
@@ -58,6 +68,9 @@ public class ElasticSearchStorage extends Storage {
 
 	@Override
 	public StoreResult onStore(ExtractedPage page) {
+		BinaryDateDwonLoader dwonLoader = BinaryDateDwonLoader.getInstance();
+		Client client = EsClient.getClient();
+		
 		try {
 			if(!(page.getUrl().getURL().endsWith(".html") 
 					|| !page.getUrl().getURL().endsWith(".htm")
@@ -66,37 +79,44 @@ public class ElasticSearchStorage extends Storage {
 			}
 			StoreResult storeResult = new StoreResult();
 			// 处理Result
-			
 			HashMap<String, Object> data = page.getMessages();
-			
 			// 处理缩略图
+			String type = (String)data.get("category");
 			
-			List<String> imageList = (List<String>) data.get("img");
+			Set<String> lb = (Set<String>) data.get("type");
+			if(null!=lb&&lb.size()>0){
+				// nothing to do 
+			}else {
+				lb = (Sets.newHashSet("其他"));
+				data.put("type", lb);
+			}
+			// 动作-喜剧
+			for (String string : lb) {
+				type +='_'+string;
+			}
 			
-			String type = (String)data.get("t");
-			if(StringUtils.isBlank(type)){
-				type = "电影";
-				log.error("#### 没有t字段 ：" + data.get("url"));
-			}
-			String lb = (String) data.get("lb");
-			if(StringUtils.isBlank(lb)){
-				lb = "其他";
-			}
-			lb  = lb.replace("/", "-");
-			for(String s:imageList){
-				if(ImgUtil.downAndResize(s, type + File.separator + lb)){
-					break;
+			Object temObject = data.get("thumbnail");
+			if(null!=temObject){
+				String thumbnails =  (String) temObject;
+				type = PinyinUtil.getFirstSpell(type);
+				Iterable<String> thums = Splitter.on(';').omitEmptyStrings().split(thumbnails);
+				for (String img : thums) {
+					if(null!=(img = ImgUtil.downThenResize(img, imagePath+type))){
+						data.put("thumbnail", type+File.separator + img);
+						break;
+					}
 				}
 			}
-			
 			// 判断是否已存在
-			if(client.prepareGet(index, "0",(String)data.get("n") ).execute().actionGet().isExists()){
-				FileUtils.write(f, JSON.toJSONString(data, true), true);
-				FileUtils.write(f, "#######################", true);
-				
+			GetResponse get = client.prepareGet(index, "0",(String)data.get("title") ).execute().actionGet();
+			if(get.isExists()){
+				Map<String, Object> m = get.getSource();
+				m = MapUtils.mager((HashMap<String, Object>) m, data);
+				EsClient.index(index, "0", m);
 			}else{
 				EsClient.index(index, "0", data);
 			}
+			data.clear();
 			
 			return storeResult;
 		} catch (Exception e) {
@@ -109,6 +129,5 @@ public class ElasticSearchStorage extends Storage {
 	public StoreResult afterStore(ExtractedPage page) {
 		return null;
 	}
-
 	
 }
