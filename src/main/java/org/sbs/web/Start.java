@@ -31,12 +31,13 @@ public class Start extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("start");
-		BootStrap.start("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml");
-		
+		if(!CrawlerStatus.running){
+			BootStrap.start("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml");
+		}
 		request.setAttribute("start", "程序正在运行中。。。");
 		request.setAttribute("jobs", BootStrap.getJobsNames());
 		request.setAttribute("status", CrawlerStatus.getStatus());
-		response.sendRedirect("index.jsp");
+		request.getRequestDispatcher("index.jsp").forward(request, response);
 	}
 
 }

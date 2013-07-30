@@ -31,6 +31,7 @@ public class Status extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Status");
+		
 		if(CrawlerStatus.running){
 			request.setAttribute("start", "程序正在运行中。。。");
 			request.setAttribute("jobs", BootStrap.getJobsNames());
@@ -38,7 +39,8 @@ public class Status extends HttpServlet {
 		}else {
 			request.setAttribute("stop", "程序停止运行。。。");
 		}
-		response.sendRedirect("index.jsp");
+//		response.sendRedirect("index.jsp");
+		request.getRequestDispatcher("index.jsp").forward(request, response);
 	}
 
 

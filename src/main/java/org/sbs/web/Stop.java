@@ -31,9 +31,11 @@ public class Stop extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("stop");
-		BootStrap.stop();
+		if(CrawlerStatus.running){
+			BootStrap.stop();
+		}
 		request.setAttribute("stop", "程序停止运行。。。");
-		response.sendRedirect("index.jsp");
+		request.getRequestDispatcher("index.jsp").forward(request, response);
 	}
 
 }
