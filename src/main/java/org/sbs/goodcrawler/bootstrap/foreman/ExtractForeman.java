@@ -32,19 +32,19 @@ import org.sbs.goodcrawler.plugin.extract.ExtractorDytt8;
  * @date 2013-7-3
  * 提取工工头
  */
-public class ExtractForeman {
+public class ExtractForeman extends Foreman{
 	
 	public static void start(JobConfiguration conf,Extractor extractor){
 		int threadNum = (int) (conf.getThreadNum() * 0.3);
 		if(threadNum<=0)
 			threadNum = 1;
-		threadNum = 3;
+		threadNum = 4;
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 //		Extractor extractor1 = new Extractor66ys(conf);
 		for(int i=0;i<threadNum;i++){
 			executor.submit(new DefaultExtractWorker(conf,new Extractor66ys(conf)));
 		}
-		
+		executor.shutdown();
 	}
 
 	/**

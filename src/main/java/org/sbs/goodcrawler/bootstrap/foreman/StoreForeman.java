@@ -49,6 +49,7 @@ public class StoreForeman {
 		for(int i=0;i<threadNum;i++){
 			executor.submit(new DefaultStoreWorker(conf,storage));
 		}
+		executor.shutdown();
 	}
 
 	/**

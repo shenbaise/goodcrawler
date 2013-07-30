@@ -29,7 +29,7 @@ import org.sbs.goodcrawler.fetcher.PageFetcher;
  * @date 2013-7-2
  * 这是个工头
  */
-public class FetchForeman {
+public class FetchForeman extends Foreman{
 	
 	public static void start(JobConfiguration conf,PageFetcher fetcher){
 		int threadNum = (int) (conf.getThreadNum() * 0.5);
@@ -41,6 +41,7 @@ public class FetchForeman {
 		for(int i=0;i<threadNum;i++){
 			executor.submit(new DefaultFetchWorker(conf,fetcher));
 		}
+		executor.shutdown();
 	}
 	
 	/**
@@ -48,7 +49,16 @@ public class FetchForeman {
 	 * @desc 
 	 */
 	public static void main(String[] args) {
-
+		ExecutorService executor = Executors.newFixedThreadPool(10);
+		executor.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				System.out.println("////");
+			}
+		});
+		executor.shutdown();
 	}
 
 }
