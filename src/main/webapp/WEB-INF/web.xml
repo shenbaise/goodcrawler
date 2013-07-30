@@ -39,4 +39,15 @@
     <servlet-name>stop</servlet-name>
     <url-pattern>/stop</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <description></description>
+    <display-name>status</display-name>
+    <servlet-name>status</servlet-name>
+    <servlet-class>org.sbs.web.Status</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>status</servlet-name>
+    <url-pattern>/status</url-pattern>
+  </servlet-mapping>
 </web-app>

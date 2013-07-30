@@ -38,7 +38,7 @@
 			</tr>
 			<tr>
 				<td>
-					<b>运行状态:</b>
+					<b>运行状态(<a class="ke-insertfile" href="status">刷新</a>)<br />:</b>
 				</td>
 				<td>
 					<a><font color="red"><%=request.getAttribute("status") %></font></a>
