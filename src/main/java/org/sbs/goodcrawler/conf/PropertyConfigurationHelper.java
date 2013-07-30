@@ -18,6 +18,7 @@
 package org.sbs.goodcrawler.conf;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -28,8 +29,9 @@ import org.apache.commons.logging.LogFactory;
  * @date 2013-6-29
  * @desc properties配置文件帮助类
  */
-public class PropertyConfigurationHelper {
+public class PropertyConfigurationHelper implements Serializable{
 	
+	private static final long serialVersionUID = 7599466817406649028L;
 	private Log log = LogFactory.getLog(this.getClass());
 	private static PropertyConfigurationHelper instance = null;
 	private Properties properties;

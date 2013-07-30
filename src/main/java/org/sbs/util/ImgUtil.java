@@ -61,7 +61,7 @@ public class ImgUtil {
 	}
 	
 	/**
-	 * 下载压缩，Url的md5做文件名
+	 * 下载压缩，Url的md5做文件名，返回文件名
 	 * @param url
 	 * @param distPath
 	 * @return
@@ -82,7 +82,7 @@ public class ImgUtil {
 			Thumbnails.of(imgFile).width(200)
 			.outputQuality(0.6f)
 			.toFile(imgFile);
-			return file;
+			return imgFile.getName();
 		} catch (IOException e) {
 			log.error("###图片下载压缩失败#"+url);
 			return null;

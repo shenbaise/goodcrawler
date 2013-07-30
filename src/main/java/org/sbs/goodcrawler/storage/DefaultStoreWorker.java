@@ -42,10 +42,9 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	@Override
 	public void run() {
 		ExtractedPage page ;
-		System.out.println( " store ..");
-		while(true) {
+		while(!stop) {
 			try {
-				while(!pendingStore.isEmpty()){
+				while(!pendingStore.isEmpty() && !stop){
 					page = pendingStore.getExtractedPage();
 					work(page);
 				}

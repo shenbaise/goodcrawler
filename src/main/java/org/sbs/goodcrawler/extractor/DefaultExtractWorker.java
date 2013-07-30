@@ -39,9 +39,9 @@ public class DefaultExtractWorker extends ExtractWorker {
 	@Override
 	public void run() {
 		Page page ;
-		while(true){
+		while(!stop){
 			try {
-				while(null!=(page=pendingPages.getPage())){
+				while(null!=(page=pendingPages.getPage()) && !stop){
 					work(page);
 				}
 			} catch (QueueException e) {

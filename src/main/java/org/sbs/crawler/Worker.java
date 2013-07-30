@@ -23,5 +23,12 @@ package org.sbs.crawler;
  * 工人
  */
 public abstract class Worker implements Runnable{
+	public static  boolean stop = false;
 	
+	/**
+	 * 停工
+	 */
+	public static synchronized void stop(){
+		stop = true;
+	}
 }
