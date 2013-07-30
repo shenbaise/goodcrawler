@@ -73,8 +73,8 @@ public class DefaultFetchWorker extends FetchWorker {
 		WebURL url ;
 		String s = "";
 		try {
-			while(true){
-				while(null!=(url=pendingUrls.getUrl())){
+			while(!stop){
+				while(null!=(url=pendingUrls.getUrl()) && !stop){
 					s = url.getURL();
 					if(s.contains(".rmvb")
 							||s.contains("ftp")

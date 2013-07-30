@@ -18,177 +18,147 @@
 package org.sbs.goodcrawler.fetcher;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.conf.GlobalConstants;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
-import org.sbs.util.DateTimeUtil;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-6-29
- * 等待处理的页面
+ * @date 2013-6-29 等待处理的页面
  */
-public class PendingPages {
-	
-	private Log log = LogFactory.getLog(this.getClass());
+public class PendingPages implements Serializable {
+
+	private static final long serialVersionUID = -5671808882701246813L;
 	private static PendingPages instance = null;
+
 	/**
 	 * 待处理页面（页面已下载）队列
 	 */
 	private BlockingQueue<Page> Queue = null;
-	/**
-	 * 处理失败的页面队列
-	 */
-	private BlockingQueue<Page> failedQueue = null;
+
 	/**
 	 * 配置文件助手
 	 */
-	private PropertyConfigurationHelper config = PropertyConfigurationHelper.getInstance();
-	/**
-	 * 是否忽略处理失败的页面（如果页面解析出错则放掉该也，不加入失败页面队列）
-	 */
-	private boolean ignoreFailedPage = true;
-	
+	private PropertyConfigurationHelper config = PropertyConfigurationHelper
+			.getInstance();
+
 	/**
 	 * 总共获得到的页面数，每爬到一个+1
 	 */
 	private AtomicLong count = new AtomicLong(0L);
-	
+
 	/**
 	 * 解析（抽取）失败的页面数
 	 */
 	private AtomicInteger failure = new AtomicInteger(0);
-	
-	private PendingPages(){
+
+	private PendingPages() {
 		init();
 	}
-	
-	public static PendingPages getInstace(){
-		if(null==instance){
+
+	public static PendingPages getInstace() {
+		if (null == instance) {
 			instance = new PendingPages();
 		}
 		return instance;
 	}
-	
-	private void init(){
-		ignoreFailedPage = Boolean.getBoolean(config.getString(GlobalConstants.ignoreFailedPages, "true"));
-		Queue = new LinkedBlockingDeque<Page>(config.getInt(GlobalConstants.pendingPagesQueueSize, 2000));
-		if(!ignoreFailedPage){
-			failedQueue = new LinkedBlockingDeque<Page>(config.getInt(GlobalConstants.failedPagesQueueSize, 2000));
-			// 执行备份
-			BackupFailedPages backup = new BackupFailedPages();
-			Thread failedPagesBackupThread = new Thread(backup, "failed-pages-backup-thread");
-			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-			scheduler.scheduleAtFixedRate(failedPagesBackupThread, 60, 60, TimeUnit.SECONDS);
-		}
+
+	private void init() {
+		File file = new File(PropertyConfigurationHelper.getInstance()
+				.getString("status.save.path", "status")
+				+ File.separator
+				+ "pages.good");
+		if (file.exists()) {
+			try {
+				FileInputStream fisUrl = new FileInputStream(file);
+				ObjectInputStream oisUrl = new ObjectInputStream(fisUrl);
+				instance = (PendingPages) oisUrl.readObject();
+				oisUrl.close();
+				fisUrl.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		} 
+		if(null==Queue)
+			Queue = new LinkedBlockingDeque<Page>(config.getInt(
+					GlobalConstants.pendingPagesQueueSize, 2000));
 	}
-	
+
 	/**
 	 * 向队列中添加一个页面
+	 * 
 	 * @param page
 	 * @desc
 	 */
-	public void addPage(Page page) throws QueueException{
-		if(page!=null){
+	public void addPage(Page page) throws QueueException {
+		if (page != null) {
 			try {
 				Queue.put(page);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
-				// log.erro(e.getMessage());
 				throw new QueueException("待处理页面加入操作中断");
 			}
 			count.incrementAndGet();
 		}
 	}
+
 	/**
 	 * 从队列中取走一个页面
+	 * 
 	 * @return
 	 * @desc
 	 */
-	public Page getPage() throws QueueException{
+	public Page getPage() throws QueueException {
 		try {
 			return Queue.take();
 		} catch (InterruptedException e) {
 			throw new QueueException("待处理页面队列取出操作中断");
 		}
 	}
-	public boolean isEmpty(){
+
+	public boolean isEmpty() {
 		return Queue.isEmpty();
 	}
+
 	/**
 	 * @param page
 	 * @desc 添加一个处理失败的页面
 	 */
-	public void addFailedPage(Page page){
+	public void addFailedPage(Page page) {
 		try {
-			if(null!=page){
-				failedQueue.put(page);
+			if (null != page) {
+				FailedPageBackup.getInstace().addPage(page);
 				failure.incrementAndGet();
 			}
-		} catch (Exception e) {
+		} catch (Exception | QueueException e) {
 			// ..
 		}
 	}
-	/**
-	 * @author shenbaise(shenbaise@outlook.com)
-	 * @date 2013-6-30
-	 * 备份失败页面
-	 */
-	private class BackupFailedPages implements Runnable{
-		@Override
-		public void run() {
-			Page page ;
-			boolean flag = true;
-			File backFile = null;
-			FileChannel fc = null;
-			byte[] b = new byte[]{(byte)1,(byte)1};
-			if(!ignoreFailedPage){
-				backFile = new File(config.getString(GlobalConstants.failedPagesBackupPath, "") + File.pathSeparator + DateTimeUtil.getDate());
-				try {
-					if(flag){
-						while(null!=(page=failedQueue.poll())){
-							fc = new FileOutputStream(backFile,true).getChannel();
-							fc.write(ByteBuffer.wrap(page.getContentData()));
-							fc.write(ByteBuffer.wrap(b));
-						}
-						fc.close();
-					}
-				}  catch (IOException e) {
-					e.printStackTrace();
-					log.warn(e.getMessage());
-				}
-			}
-		}
-	}
-	
-	
-	public String pendingStatus(){
+
+	public String pendingStatus() {
 		StringBuilder sb = new StringBuilder(32);
 		sb.append("队列中等待处理的Page有").append(Queue.size()).append("个，失败")
-		.append(failure.get()).append("个").append(Queue.isEmpty());
+				.append(failure.get()).append("个").append(Queue.isEmpty());
 		return sb.toString();
 	}
-	
+
 	/**
 	 * @param args
-	 * @desc 
+	 * @desc
 	 */
 	public static void main(String[] args) {
 		PendingPages pendingPages = PendingPages.getInstace();
