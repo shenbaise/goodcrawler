@@ -1,6 +1,6 @@
 goodcrawler(web crawler) 网络爬虫
 ===========
-### 0.0.2版增加web管理
+### 0.0.2版增加web管理  && 开发工作转移到0.0.2 
 
 为什么叫goodcrawler?
 -----------
