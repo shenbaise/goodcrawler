@@ -25,7 +25,7 @@ import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
  * @desc 
  */
 public class FetcherInstance {
-	public static JobConfiguration conf = new JobConfiguration();
+	private static JobConfiguration conf = new JobConfiguration();
 	{
 		conf.setAgent("ipad");
 		conf.setSocketTimeoutMilliseconds(15000);
@@ -34,5 +34,12 @@ public class FetcherInstance {
 		conf.setHttps(true);
 	}
 	
+	private static PageFetcher fetcher = null;
 	
+	public static PageFetcher getFetcher(){
+		if(null==fetcher){
+			fetcher = new PageFetcher(conf);
+		}
+		return fetcher;
+	}
 }

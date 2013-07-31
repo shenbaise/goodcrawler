@@ -17,6 +17,8 @@
  */
 package org.sbs.goodcrawler.urlmanager;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -24,8 +26,10 @@ import org.apache.commons.lang3.StringUtils;
  * @date 2013-6-30
  * Bloomfilter的帮助类
  */
-public class BloomfilterHelper {
+public class BloomfilterHelper implements Serializable{
 	
+	private static final long serialVersionUID = -160403070863080075L;
+
 	private BloomFilter<String> bf = new BloomFilter<String>(0.001, 10000);
 	
 	private static BloomfilterHelper bloomfilterHelper = null;

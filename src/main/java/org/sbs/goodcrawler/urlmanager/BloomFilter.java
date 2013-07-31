@@ -9,7 +9,8 @@ import java.util.Collection;
 
 public class BloomFilter<E> implements Serializable {
 	
-    private BitSet bitset;
+	private static final long serialVersionUID = 3944542836944448383L;
+	private BitSet bitset;
     private int bitSetSize;
     private double bitsPerElement;
     private int expectedNumberOfFilterElements; // expected (maximum) number of elements to be added
@@ -161,7 +162,8 @@ public class BloomFilter<E> implements Serializable {
      * @param obj is the object to compare to.
      * @return True if the contents of the objects are equal.
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
