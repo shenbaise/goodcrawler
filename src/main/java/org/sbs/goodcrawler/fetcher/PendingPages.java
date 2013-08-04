@@ -25,6 +25,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -115,7 +116,26 @@ public class PendingPages implements Serializable {
 			count.incrementAndGet();
 		}
 	}
-
+	/**
+	 * 向队列中添加一个页面
+	 * @param page
+	 * @param timeout
+	 * @throws QueueException
+	 */
+	public boolean addPage(Page page,int timeout) throws QueueException {
+		if (page != null) {
+			try {
+				boolean b = Queue.offer(page, 1000, TimeUnit.MILLISECONDS);
+				if(b){
+					count.incrementAndGet();
+				}
+				return b;
+			} catch (InterruptedException e) {
+				throw new QueueException("待处理页面加入操作中断");
+			}
+		}
+		return false;
+	}
 	/**
 	 * 从队列中取走一个页面
 	 * 

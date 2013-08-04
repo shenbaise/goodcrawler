@@ -17,10 +17,13 @@
  */
 package org.sbs.goodcrawler.fetcher;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -150,6 +153,7 @@ public abstract class FetchWorker extends Worker {
 	 * @return
 	 */
 	public boolean fetchFilter(String url){
+		
 		if(null==fetchFilters || fetchFilters.size()==0){
 			return true;
 		}
@@ -166,6 +170,7 @@ public abstract class FetchWorker extends Worker {
 	 * @return
 	 */
 	public boolean extractFilter(String url){
+		// bloomfilter it
 		if(null==extractFilters || extractFilters.size()==0){
 			return true;
 		}
@@ -173,10 +178,6 @@ public abstract class FetchWorker extends Worker {
 			if(p.matcher(url).matches()){
 				return true;
 			}
-		}
-		// bloomfilter it
-		if(bloomfilterHelper.exist(url)){
-			return false;
 		}
 		return false;
 	}
@@ -225,12 +226,15 @@ public abstract class FetchWorker extends Worker {
 				            for (Element link : links) { 
 				                String linkHref = link.absUrl("href"); 
 				                // 是否加入爬取队列
-				                if(fetchFilter(linkHref)){
+				                if(fetchFilter(linkHref) 
+				                		&& !bloomfilterHelper.exist(linkHref)){
 				                	WebURL purl = new WebURL();
 				                	purl.setURL(linkHref);
 				                	purl.setJobName(conf.jobName);
 				                	try {
-										pendingUrls.addUrl(purl);
+										if(!pendingUrls.addUrl(purl,1000)){
+											FileUtils.writeStringToFile(new File("status/_urls.good"), url.getURL()+"\n", true);
+										}
 									} catch (QueueException e) {
 										 log.error(e.getMessage());
 									}
@@ -240,6 +244,8 @@ public abstract class FetchWorker extends Worker {
 					} catch (QueueException e) {
 						log.warn("一个页面加入待处理队列时失败" + e.getMessage());
 					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
