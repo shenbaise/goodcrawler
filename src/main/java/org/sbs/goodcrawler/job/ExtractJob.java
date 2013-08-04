@@ -19,7 +19,7 @@ package org.sbs.goodcrawler.job;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.JobConfigurationX;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.fetcher.PendingPages;
 
@@ -33,7 +33,7 @@ public class ExtractJob extends Job {
 	private Log log = LogFactory.getLog(this.getClass());
 	private PendingPages pendingPages = PendingPages.getInstace();
 	
-	public ExtractJob(JobConfiguration conf) {
+	public ExtractJob(JobConfigurationX conf) {
 		super(conf);
 	}
 	

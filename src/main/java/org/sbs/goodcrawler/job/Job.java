@@ -17,7 +17,7 @@
  */
 package org.sbs.goodcrawler.job;
 
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.JobConfigurationX;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -26,9 +26,9 @@ import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
  * job
  */
 public abstract class Job implements Runnable{
-	protected JobConfiguration conf;
+	protected JobConfigurationX conf;
 	
-	public Job(JobConfiguration conf) {
+	public Job(JobConfigurationX conf) {
 		super();
 		this.conf = conf;
 	}
