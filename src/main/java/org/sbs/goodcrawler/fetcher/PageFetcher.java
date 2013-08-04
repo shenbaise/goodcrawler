@@ -53,7 +53,7 @@ import org.apache.http.params.HttpProtocolParamBean;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 import org.sbs.crawler.Configurable;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 import org.sbs.url.URLCanonicalizer;
 
@@ -77,7 +77,7 @@ public class PageFetcher extends Configurable {
 
 	protected IdleConnectionMonitorThread connectionMonitorThread = null;
 
-	public PageFetcher(JobConfiguration config) {
+	public PageFetcher(FetchConfig config) {
 		super(config);
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
@@ -151,8 +151,8 @@ public class PageFetcher extends Configurable {
 			get = new HttpGet(toFetchURL);
 			synchronized (mutex) {
 				long now = (new Date()).getTime();
-				if (now - lastFetchTime < ((JobConfiguration)config).getDelayBetweenRequests()) {
-					Thread.sleep(((JobConfiguration)config).getDelayBetweenRequests() - (now - lastFetchTime));
+				if (now - lastFetchTime < ((FetchConfig)config).getDelayBetweenRequests()) {
+					Thread.sleep(((FetchConfig)config).getDelayBetweenRequests() - (now - lastFetchTime));
 				}
 				lastFetchTime = (new Date()).getTime();
 			}
@@ -203,7 +203,7 @@ public class PageFetcher extends Configurable {
 						size = -1;
 					}
 				}
-				if (size > ((JobConfiguration)config).getMaxDownloadSizePerPage()) {
+				if (size > ((FetchConfig)config).getMaxDownloadSizePerPage()) {
 					fetchResult.setStatusCode(CustomFetchStatus.PageTooBig);
 					get.abort();
 					return fetchResult;
