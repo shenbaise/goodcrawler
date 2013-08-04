@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -123,7 +124,28 @@ public class PendingUrls implements Serializable {
 			throw new QueueException("待处理链接队列加入操作中断");
 		}
 	}
-
+	/**
+	 * 加入一个待处理的URL，Url总数+1
+	 * @param url
+	 * @param timeout
+	 * @return
+	 * @throws QueueException
+	 */
+	public boolean addUrl(WebURL url,int timeout) throws QueueException {
+		if (url != null) {
+			try {
+				boolean b = Queue.offer(url, 1000, TimeUnit.MILLISECONDS);
+				if(b){
+					urlCount.getAndIncrement();
+				}
+				return b;
+			} catch (InterruptedException e) {
+				throw new QueueException("待处理页面加入操作中断");
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * @return
 	 * @desc 返回一个将要处理的URL
