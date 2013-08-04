@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -72,7 +73,13 @@ public class ImgUtil {
 		if(!path.exists()){
 			path.mkdirs();
 		}
-		String file = distPath + File.separator + fileName+ url.substring(url.lastIndexOf('.'));
+		String suffix = ".jpg";
+		if(url.indexOf('.',url.lastIndexOf('/'))>0)
+			suffix = url.substring(url.lastIndexOf('.'));
+		if(StringUtils.isBlank(suffix)){
+			suffix = ".jpg";
+		}
+		String file = distPath + File.separator + fileName+ suffix;
 		File imgFile = new File(file);
 		
 		try {
