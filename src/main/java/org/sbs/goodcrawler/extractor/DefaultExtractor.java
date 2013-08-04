@@ -55,6 +55,8 @@ public class DefaultExtractor extends Extractor {
 				if(count==50){
 					System.out.println(count);
 				}
+				
+				System.out.println(count);
 				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
 		        // 抽取信息
 				HashMap<String, Object> result = Maps.newHashMap();
