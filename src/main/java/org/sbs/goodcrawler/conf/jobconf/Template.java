@@ -77,7 +77,7 @@ public class Template {
 			HashMap<String, Object> m = selector.processAll(doc);
 			if(selector.isGiveup()){
 				giveup = true;
-				break;
+				return null;
 			}
 			result = MapUtils.mager(result, m);
 		}

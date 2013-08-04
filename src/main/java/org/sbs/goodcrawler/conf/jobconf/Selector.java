@@ -74,6 +74,12 @@ public class Selector {
 	public HashMap<String, Object> processAll(Document doc){
 		giveup = false;
 		HashMap<String, Object> result = process2(doc);
+		
+		if((null==result || result.size()==0) && required){
+			giveup = true;
+			return null;
+		}
+		
 		if(null!=conditions && conditions.size()>0){
 			for(Condition condition:conditions){
 				if(condition.test())
@@ -81,10 +87,12 @@ public class Selector {
 					List<Selector> cSelectors = condition.getSelectors();
 					for(Selector selector:cSelectors){
 						HashMap<String, Object> m = selector.process2(doc);
+						
 						if((null==m || m.size()==0) && selector.required){
 							giveup = true;
 							break;
 						}
+						
 						if(null!=m&&m.size()>0){
 							result.putAll(m);
 						}
@@ -94,6 +102,8 @@ public class Selector {
 		}
 		if(null!=nextUrl){
 			HashMap<String, Object> m = nextUrl.process(doc);
+			if(nextUrl.getSelector().giveup)
+				return null;
 			if(m!=null & m.size()>0){
 				result.putAll(m);;
 			}
@@ -134,6 +144,8 @@ public class Selector {
 //		}
 		if (doc != null) {
 			Elements elements = doc.select(value);
+			if(elements.isEmpty())
+				return null;
 			switch (_type) {
 			case $string:
 				StringBuilder sb = new StringBuilder();
