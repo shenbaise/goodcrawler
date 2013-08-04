@@ -36,6 +36,7 @@ import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
 import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
 import org.sbs.goodcrawler.fetcher.PendingPages;
 import org.sbs.goodcrawler.storage.PendingStore;
+import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
 
 /**
@@ -51,14 +52,14 @@ public class BootStrap {
 	 * @desc 
 	 */
 	public static void main(String[] args) {
-		start("D:\\pioneer\\goodcrawler\\conf\\youku_conf.xml");
+		start();
 //		stop();
 	}
 	/**
 	 * 启动任务
 	 * @param jobConf
 	 */
-	public static void start(String jobConf){
+	public static void start(){
 		JobConfigurationManager.init();
 		JobConfigurationManager manager = JobConfigurationManager.getInstance();
 		List<Document> configDocs = manager.getConfigDoc();
@@ -122,12 +123,13 @@ public class BootStrap {
 		PendingUrls urls = PendingUrls.getInstance();
 		PendingPages pages = PendingPages.getInstace();
 		PendingStore stores = PendingStore.getInstance();
+		BloomfilterHelper bloomfilter = BloomfilterHelper.getInstance();
 		
 		File base = new File(conHelper.getString("status.save.path", "status"));
 		if (!base.exists()) {
 			base.mkdir();
 		}
-		File urlsFile = new File(base, "ulrs.good");
+		File urlsFile = new File(base, "urls.good");
 		File pagesFile = new File(base,"pages.good");
 		File storesFile = new File(base,"stores.good");
 		File filterFile = new File(base,"filter.good");
@@ -153,9 +155,9 @@ public class BootStrap {
 			
 			FileOutputStream fosFilter = new FileOutputStream(filterFile);
 			ObjectOutputStream oosFilter = new ObjectOutputStream(fosFilter);
-			oosStore.writeObject(oosFilter);
-			oosStore.close();
-			fosStore.close();
+			oosFilter.writeObject(bloomfilter);
+			oosFilter.close();
+			fosFilter.close();
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

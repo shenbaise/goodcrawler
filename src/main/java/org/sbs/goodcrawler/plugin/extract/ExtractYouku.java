@@ -17,18 +17,21 @@
  */
 package org.sbs.goodcrawler.plugin.extract;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.JobConfigurationX;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
@@ -38,6 +41,7 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * @author whiteme
@@ -47,7 +51,7 @@ import com.google.common.collect.Maps;
 public class ExtractYouku extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
 //http://player.youku.com/player.php/sid/XNTg3ODI3NTIw/v.swf?isAutoPlay=true 
-	public ExtractYouku(JobConfiguration conf) {
+	public ExtractYouku(JobConfigurationX conf) {
 		super(conf);
 	}
 
@@ -91,51 +95,75 @@ public class ExtractYouku extends Extractor {
 		try {
 			ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
 			epage.setUrl(page.getWebURL());
-			
+			Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
+			// 提取Url，放入待抓取Url队列
+			Elements links = doc.getElementsByTag("a"); 
+	        if (!links.isEmpty()) { 
+	            for (Element link : links) { 
+	                String linkHref = link.absUrl("href"); 
+	                if(filterUrls(linkHref)){
+	                	WebURL weburl = new WebURL();
+	                	weburl.setURL(linkHref);
+	                	weburl.setJobName(conf.jobName);
+	                	try {
+							pendingUrls.addUrl(weburl);
+						} catch (QueueException e) {
+							 log.error(e.getMessage());
+						}
+	                }
+	            }
+	        }
 			if(url.contains("/show_page/")){
-				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
-				// 提取Url，放入待抓取Url队列
-				Elements links = doc.getElementsByTag("a"); 
-		        if (!links.isEmpty()) { 
-		            for (Element link : links) { 
-		                String linkHref = link.absUrl("href"); 
-		                if(filterUrls(linkHref)){
-		                	WebURL weburl = new WebURL();
-		                	weburl.setURL(linkHref);
-		                	weburl.setJobName(conf.getName());
-		                	try {
-								pendingUrls.addUrl(weburl);
-							} catch (QueueException e) {
-								 log.error(e.getMessage());
-							}
-		                }
-		            }
-		        }
 		        
 				String title = doc.select(".title .name").text();
+				if(StringUtils.isBlank(title))
+					return null;
 				map.put("title", title);
 				String category = doc.select(".title .type a").text();
+				if(StringUtils.isBlank(category))
+					return null;
 				map.put("category", category);
-				int year = Integer.parseInt(CharMatcher.DIGIT.retainFrom(doc.select(".title .pub").text()));
-				map.put("year", year);
+				
+				String _year = CharMatcher.DIGIT.retainFrom(doc.select(".title .pub").text());
+				if(StringUtils.isNotBlank(_year)){
+					int year = Integer.parseInt(_year);
+					map.put("year", year);
+				}
+				
 				String score = CharMatcher.DIGIT.retainFrom(doc.select(".ratingstar .num").text());
 				map.put("score", score);
 				String alias = doc.select(".alias").text();
+				
 				if(alias.contains(":")){
 					map.put("translation", alias.split(":")[1]);
 				}
 				String img = doc.select(".thumb img").attr("src");
-				map.put("thumbnail",Lists.newArrayList(img));
+				if(StringUtils.isBlank(img))
+					return null;
+				map.put("thumbnail",img);
 				String area = doc.select(".row2 .area a").text();
+				if(StringUtils.isBlank(area))
+					return null;
 				map.put("area", area);
 				String[] type = doc.select(".row2 .type a").text().split(" ");
-				map.put("type", Lists.newArrayList(type));
+				if(null==type || type.length==0)
+					return null;
+				map.put("type", Sets.newHashSet(type));
 				String director = doc.select(".row2 .director a").text();
 				map.put("director", director);
-				int duration = Integer.parseInt(CharMatcher.DIGIT.retainFrom(doc.select(".row2 .duration").text()));
-				map.put("duration", duration);
-				int hot = Integer.parseInt(CharMatcher.anyOf(",").removeFrom(doc.select(".row2 .vr .num").text()));
-				map.put("hot", hot);
+				
+				String _duration  = CharMatcher.DIGIT.retainFrom(doc.select(".row2 .duration").text());
+				if(StringUtils.isNotBlank(_duration)){
+					int duration = Integer.parseInt(_duration);
+					map.put("duration", duration);
+				}
+				String _hot = CharMatcher.anyOf(",").removeFrom(doc.select(".row2 .vr .num").text());
+				_hot = CharMatcher.DIGIT.retainFrom(_hot);
+				if(StringUtils.isNotBlank(_hot)){
+					int hot = Integer.parseInt(_hot);
+					map.put("hot", hot);
+				}
+				
 				String sumary = doc.select(".detail .long").text();
 				map.put("summary", sumary);
 				// 播放和预告
@@ -144,9 +172,13 @@ public class ExtractYouku extends Extractor {
 				for(Element element:elements){
 					String n = element.text();
 					String urlString = element.attr("href");
+					if(StringUtils.isBlank(urlString))
+						return null;
 					Document d2 = Jsoup.parse(new URL(urlString), 10000);
 					if(null!=d2){
 						String x = d2.select("#link2").attr("value");
+						if(StringUtils.isBlank(x))
+							return null;
 						playList.put(n, x);
 					}
 				}
@@ -154,9 +186,9 @@ public class ExtractYouku extends Extractor {
 			}else if(url.contains("/v_show/")) {
 				Document d3 = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
 				// 提取Url，放入待抓取Url队列
-				Elements links = d3.getElementsByTag("a"); 
-		        if (!links.isEmpty()) { 
-		            for (Element link : links) { 
+				Elements links2 = d3.getElementsByTag("a"); 
+		        if (!links2.isEmpty()) { 
+		            for (Element link : links2) { 
 		                String linkHref = link.absUrl("href"); 
 		                if(filterUrls(linkHref)){
 		                	WebURL weburl = new WebURL();
@@ -171,6 +203,8 @@ public class ExtractYouku extends Extractor {
 		            }
 		        }
 				String p = d3.select("h1.title a").attr("href");
+				if(StringUtils.isBlank(p))
+					return null;
 				return getInformation(p);
 			}
 		} catch (MalformedURLException e) {
@@ -178,7 +212,11 @@ public class ExtractYouku extends Extractor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(map);
+		if(map!=null&&map.size()>4){
+			if(null==map.get("year")){
+				map.put("year", 1800);
+			}
+		}
 		return map;
 	}
 	
@@ -206,11 +244,20 @@ public class ExtractYouku extends Extractor {
 		        }
 		        
 				String title = doc.select(".title .name").text();
+				if(StringUtils.isBlank(title))
+					return null;
 				map.put("title", title);
 				String category = doc.select(".title .type a").text();
+				if(StringUtils.isBlank(category))
+					return null;
 				map.put("category", category);
-				int year = Integer.parseInt(CharMatcher.DIGIT.retainFrom(doc.select(".title .pub").text()));
-				map.put("year", year);
+				
+				String _year = CharMatcher.DIGIT.retainFrom(doc.select(".title .pub").text());
+				if(StringUtils.isNotBlank(_year)){
+					int year = Integer.parseInt(_year);
+					map.put("year", year);
+				}
+				
 				String score = CharMatcher.DIGIT.retainFrom(doc.select(".ratingstar .num").text());
 				map.put("score", score);
 				String alias = doc.select(".alias").text();
@@ -218,17 +265,31 @@ public class ExtractYouku extends Extractor {
 					map.put("translation", alias.split(":")[1]);
 				}
 				String img = doc.select(".thumb img").attr("src");
+				if(StringUtils.isBlank(img))
+					return null;
 				map.put("thumbnail",Lists.newArrayList(img));
 				String area = doc.select(".row2 .area a").text();
+				if(StringUtils.isBlank(area))
+					return null;
 				map.put("area", area);
 				String[] type = doc.select(".row2 .type a").text().split(" ");
+				if(null==type || type.length==0)
+					return null;
 				map.put("type", Lists.newArrayList(type));
 				String director = doc.select(".row2 .director a").text();
 				map.put("director", director);
-				int duration = Integer.parseInt(CharMatcher.DIGIT.retainFrom(doc.select(".row2 .duration").text()));
-				map.put("duration", duration);
-				int hot = Integer.parseInt(CharMatcher.anyOf(",").removeFrom(doc.select(".row2 .vr .num").text()));
-				map.put("hot", hot);
+				
+				String _duration  = CharMatcher.DIGIT.retainFrom(doc.select(".row2 .duration").text());
+				if(StringUtils.isNotBlank(_duration)){
+					int duration = Integer.parseInt(_duration);
+					map.put("duration", duration);
+				}
+				String _hot = CharMatcher.anyOf(",").removeFrom(doc.select(".row2 .vr .num").text());
+				if(StringUtils.isNotBlank(_hot)){
+					int hot = Integer.parseInt(_hot);
+					map.put("hot", hot);
+				}
+				
 				String sumary = doc.select(".detail .long").text();
 				map.put("summary", sumary);
 				// 播放和预告
@@ -237,9 +298,13 @@ public class ExtractYouku extends Extractor {
 				for(Element element:elements){
 					String n = element.text();
 					String urlString = element.attr("href");
+					if(StringUtils.isBlank(urlString))
+						return null;
 					Document d2 = Jsoup.parse(new URL(urlString), 10000);
 					if(null!=d2){
 						String x = d2.select("#link2").attr("value");
+						if(StringUtils.isBlank(x))
+							return null;
 						playList.put(n, x);
 					}
 				}

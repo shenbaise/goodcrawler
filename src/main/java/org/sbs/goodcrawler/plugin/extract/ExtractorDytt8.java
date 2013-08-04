@@ -30,7 +30,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.JobConfigurationX;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
@@ -48,7 +48,7 @@ public class ExtractorDytt8 extends Extractor {
 	/**
 	 * @param conf
 	 */
-	public ExtractorDytt8(JobConfiguration conf) {
+	public ExtractorDytt8(JobConfigurationX conf) {
 		super(conf);
 	}
 

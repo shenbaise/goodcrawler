@@ -44,7 +44,7 @@ public class PendingStore implements Serializable {
 	private static final long serialVersionUID = -1872886200443134215L;
 	private Log log = LogFactory.getLog(this.getClass());
 	@SuppressWarnings("rawtypes")
-	private static BlockingQueue<ExtractedPage> Queue = null;
+	private BlockingQueue<ExtractedPage> Queue = null;
 	private static PendingStore instance = null;
 
 	private PendingStore() {
@@ -77,6 +77,8 @@ public class PendingStore implements Serializable {
 				instance = (PendingStore) oisUrl.readObject();
 				oisUrl.close();
 				fisUrl.close();
+				Queue = instance.Queue;
+				System.out.println("recovery store queue..." + Queue.size());
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

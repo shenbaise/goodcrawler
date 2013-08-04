@@ -50,13 +50,6 @@ public class DefaultExtractor extends Extractor {
 	public ExtractedPage<String, Object> onExtract(Page page) {
 		if(null!=page){
 			try {
-				count++;
-//				System.out.println(count);
-				if(count==50){
-					System.out.println(count);
-				}
-				
-				System.out.println(count);
 				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
 		        // 抽取信息
 				HashMap<String, Object> result = Maps.newHashMap();
@@ -76,6 +69,7 @@ public class DefaultExtractor extends Extractor {
 				epage.setMessages(result);
 				try {
 					pendingStore.addExtracedPage(epage);
+					count++;
 				} catch (QueueException e) {
 					 log.error(e.getMessage());
 				}

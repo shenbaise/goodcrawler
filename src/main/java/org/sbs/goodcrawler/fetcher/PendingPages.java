@@ -87,6 +87,8 @@ public class PendingPages implements Serializable {
 				instance = (PendingPages) oisUrl.readObject();
 				oisUrl.close();
 				fisUrl.close();
+				Queue = instance.Queue;
+				System.out.println("recovery page queue..." + Queue.size());
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

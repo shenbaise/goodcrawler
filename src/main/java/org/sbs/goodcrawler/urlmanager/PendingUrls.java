@@ -43,7 +43,7 @@ public class PendingUrls implements Serializable {
 
 	private static final long serialVersionUID = 2260258894389085989L;
 	private Log log = LogFactory.getLog(this.getClass());
-	private static BlockingQueue<WebURL> Queue = null;
+	private BlockingQueue<WebURL> Queue = null;
 	private static PendingUrls instance = null;
 	/**
 	 * 总URL个数，每爬到一个+1
@@ -95,6 +95,8 @@ public class PendingUrls implements Serializable {
 				instance = (PendingUrls) oisUrl.readObject();
 				oisUrl.close();
 				fisUrl.close();
+				Queue = instance.Queue;
+				System.out.println("recovery url queue..." + Queue.size());
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

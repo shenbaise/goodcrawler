@@ -23,10 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sbs.goodcrawler.conf.GlobalConstants;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 
 /**
@@ -62,11 +60,13 @@ public class BloomfilterHelper implements Serializable{
 				+ "filter.good");
 		if (file.exists()) {
 			try {
-				FileInputStream fisUrl = new FileInputStream(file);
-				ObjectInputStream oisUrl = new ObjectInputStream(fisUrl);
-				instance = (BloomfilterHelper) oisUrl.readObject();
-				oisUrl.close();
-				fisUrl.close();
+				FileInputStream fis = new FileInputStream(file);
+				ObjectInputStream ois = new ObjectInputStream(fis);
+				instance = (BloomfilterHelper) ois.readObject();
+				ois.close();
+				fis.close();
+				bf = instance.bf;
+				System.out.println("recovery Bloomfilter...");
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

@@ -18,7 +18,6 @@
 package org.sbs.goodcrawler.plugin.extract;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
@@ -62,7 +61,7 @@ public class Extractor66ys extends Extractor {
 	/**
 	 * @param conf
 	 */
-	public Extractor66ys(JobConfiguration conf) {
+	public Extractor66ys(ExtractConfig conf) {
 		super(conf);
 	}
 
@@ -83,7 +82,7 @@ public class Extractor66ys extends Extractor {
 		                if(filterUrls(linkHref)){
 		                	WebURL url = new WebURL();
 		                	url.setURL(linkHref);
-		                	url.setJobName(conf.getName());
+		                	url.setJobName(conf.jobName);
 		                	try {
 								pendingUrls.addUrl(url);
 							} catch (QueueException e) {
@@ -93,7 +92,7 @@ public class Extractor66ys extends Extractor {
 		            }
 		        }
 		        // 抽取信息
-				Map<String, String> selects = conf.getSelects();
+				Map<String, String> selects = Maps.newHashMap();
 				ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
 				epage.setUrl(page.getWebURL());
 				HashMap<String, Object> result = new HashMap<>();

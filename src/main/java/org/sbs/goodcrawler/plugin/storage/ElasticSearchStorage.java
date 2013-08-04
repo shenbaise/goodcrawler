@@ -112,8 +112,9 @@ public class ElasticSearchStorage extends Storage {
 //			}
 			// 判断是否已存在
 			GetResponse get = client.prepareGet(index, "0",(String)data.get("title") ).execute().actionGet();
-//			System.out.println(i);
+			
 			i++;
+//			System.out.println(i + "==");
 			if(get.isExists()){
 				Map<String, Object> m = get.getSource();
 				m = MapUtils.mager((HashMap<String, Object>) m, data);
