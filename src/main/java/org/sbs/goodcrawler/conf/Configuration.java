@@ -17,14 +17,13 @@
  */
 package org.sbs.goodcrawler.conf;
 
-
 /**
  * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-6-30
- * 配置接口
+ * @date 2013-6-30 配置接口
  */
 public abstract class Configuration {
 
-	public abstract String toString();
+	public String jobName;
 
+	public abstract String toString();
 }
