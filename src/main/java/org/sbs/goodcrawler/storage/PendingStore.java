@@ -94,7 +94,7 @@ public class PendingStore implements Serializable {
 	public void addExtracedPage(ExtractedPage<?, ?> store)
 			throws QueueException {
 		try {
-			if (null != store) {
+			if (null != store && null!=store.getMessages() && store.getMessages().size()>0) {
 				Queue.put(store);
 			}
 		} catch (InterruptedException e) {
