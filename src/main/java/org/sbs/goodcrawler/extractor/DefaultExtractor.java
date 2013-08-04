@@ -19,20 +19,19 @@ package org.sbs.goodcrawler.extractor;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
+import org.sbs.goodcrawler.conf.jobconf.Template;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.util.MapUtils;
+
+import com.google.common.collect.Maps;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -42,44 +41,37 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
 public class DefaultExtractor extends Extractor {
 	
 	private Log log = LogFactory.getLog(this.getClass());
-	
-	public DefaultExtractor(JobConfiguration conf) {
+	private int count = 0;
+	public DefaultExtractor(ExtractConfig conf) {
 		super(conf);
 	}
 
 	@Override
-	public ExtractedPage<String, String> onExtract(Page page) {
-		
+	public ExtractedPage<String, Object> onExtract(Page page) {
 		if(null!=page){
 			try {
-				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
-				
-				// 提取Url，放入待抓取Url队列
-				Elements links = doc.getElementsByTag("a"); 
-		        if (!links.isEmpty()) { 
-		            for (Element link : links) { 
-		                String linkHref = link.absUrl("href"); 
-		                if(filterUrls(linkHref)){
-		                	WebURL url = new WebURL();
-		                	url.setURL(linkHref);
-		                	url.setJobName(conf.getName());
-		                	try {
-								pendingUrls.addUrl(url);
-							} catch (QueueException e) {
-								 log.error(e.getMessage());
-							}
-		                }
-		            }
-		        }
-		        // 抽取信息
-				Map<String, String> selects = conf.getSelects();
-				ExtractedPage<String,String> epage = pendingStore.new ExtractedPage<String, String>();
-				epage.setUrl(page.getWebURL());
-				HashMap<String, String> result = new HashMap<>();
-				for(Entry<String,String> entry:selects.entrySet()){
-					result.put(entry.getKey(),doc.select(entry.getValue()).html());
+				count++;
+//				System.out.println(count);
+				if(count==50){
+					System.out.println(count);
 				}
-				epage.setMessages((HashMap<String, String>) result);
+				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
+		        // 抽取信息
+				HashMap<String, Object> result = Maps.newHashMap();
+				for(Template template:conf.getTemplates()){
+					if(template.matches(page.getWebURL().getURL())){
+						HashMap<String, Object> m = template.extract(doc);
+						if(template.isGiveup()){
+							return null;
+						}
+						if(null!=m && m.size()>0){
+							result = MapUtils.mager(result, m);
+						}
+					}
+				}
+				ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
+				epage.setUrl(page.getWebURL());
+				epage.setMessages(result);
 				try {
 					pendingStore.addExtracedPage(epage);
 				} catch (QueueException e) {

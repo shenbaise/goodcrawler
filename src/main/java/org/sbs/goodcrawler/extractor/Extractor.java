@@ -17,19 +17,13 @@
  */
 package org.sbs.goodcrawler.extractor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.StringUtils;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.fetcher.FetchWorker;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.storage.PendingStore;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
-import org.sbs.goodcrawler.urlmanager.WebURL;
 import org.sbs.robotstxt.RobotstxtServer;
 import org.sbs.util.UrlUtils;
 
@@ -39,70 +33,24 @@ import org.sbs.util.UrlUtils;
  * 提取器接口
  */
 public abstract class Extractor {
-	public JobConfiguration conf = null;
+	
+	public ExtractConfig conf = null;
 	public PendingUrls pendingUrls = PendingUrls.getInstance();
 	public PendingStore pendingStore = PendingStore.getInstance();
 	public BloomfilterHelper bloomfilterHelper = BloomfilterHelper.getInstance();
-	public List<Pattern> urlFilters = new ArrayList<>();
-	public List<String> domains = new ArrayList<>();
 	public UrlUtils urlUtils = new UrlUtils();
 	protected RobotstxtServer robotstxtServer;
-	public String[] fileSuffix ;
 
 	/**
 	 * @param conf
 	 * 构造函数
 	 */
-	public Extractor(JobConfiguration conf){
+	public Extractor(ExtractConfig conf){
 		this.conf = conf;
-		// url 过滤器
-		List<String> regs = conf.getUrlFilterReg();
-		for(String reg:regs){
-			Pattern p = Pattern.compile(reg);
-			urlFilters.add(p);
-		}
-		// job爬取的域名
-		List<String> list = conf.getSeeds();
-		for(String seed:list){
-			domains.add(urlUtils.getDomain(seed));
-		}
 		robotstxtServer = FetchWorker.robotstxtServer;
-		
-		String fs = conf.getFileSuffix();
-		if(StringUtils.isNotBlank(fs)){
-			fileSuffix = fs.split(",");
-		}
 	}
-	/**
-	 * @param url
-	 * @return
-	 * @desc 配置的正则
-	 */
-	private boolean regFilter(String url){
-		if(null==urlFilters || urlFilters.size()==0)
-			return true;
-		for(Pattern p : urlFilters){
-			if(p.matcher(url).matches())
-				return true;
-		}
-		return false;
-	}
-	/**
-	 * @param url
-	 * @return
-	 * @desc 根据域名
-	 */
-	private boolean domainFilter(String url){
-		if(conf.isOnlyDomain()){
-			for(String domain:domains){
-				if(url.contains(domain))
-					return true;
-			}
-			return false;
-		}else {
-			return true;
-		}
-	}
+	
+	
 	/**
 	 * @param url
 	 * @return
@@ -111,60 +59,15 @@ public abstract class Extractor {
 	private boolean bloomFilter(String url){
 		return !bloomfilterHelper.exist(url);
 	}
-	/**
-	 * @param url
-	 * @return
-	 * @desc robotstxt 过滤
-	 */
-	private boolean robotsFilter(String url){
-		if(conf.isRobots()){
-			WebURL webURL = new WebURL();
-			webURL.setURL(url);
-			return robotstxtServer.allows(webURL);
-		}else {
-			return true;
-		}
-	}
 	
-	public boolean isSuffix(String url){
-		for(String s :fileSuffix){
-			if(url.endsWith(s)){
-				return true;
-			}
-		}
-		return false;
-	}
+	
 	/**
 	 * @param url
 	 * @return
-	 * @desc 文件后缀过滤
-	 */
-	public boolean fileSuffixFilter(String url){
-		for(String s :fileSuffix){
-			if(url.endsWith(s)){
-				;
-			}
-		}
-		if(conf.isFetchBinaryContent()){
-			for(String s :fileSuffix){
-				return url.endsWith(s);
-			}
-		}else {
-			for(String s :fileSuffix){
-				return url.endsWith(s);
-			}
-		}
-		return true;
-	}
-	/**
-	 * @param url
-	 * @return
-	 * @desc 根据配置过滤Url
+	 * @desc bloomFilter Url
 	 */
 	public boolean filterUrls(String url){
-		return regFilter(url) && domainFilter(url) 
-//				&& robotsFilter(url)
-				&& bloomFilter(url);
+		return  bloomFilter(url);
 	}
 	/**
 	 * @param page
