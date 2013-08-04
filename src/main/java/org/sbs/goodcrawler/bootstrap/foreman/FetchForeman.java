@@ -20,7 +20,7 @@ package org.sbs.goodcrawler.bootstrap.foreman;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
 import org.sbs.goodcrawler.fetcher.DefaultFetchWorker;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
 
@@ -31,13 +31,10 @@ import org.sbs.goodcrawler.fetcher.PageFetcher;
  */
 public class FetchForeman extends Foreman{
 	
-	public static void start(JobConfiguration conf,PageFetcher fetcher){
-		int threadNum = (int) (conf.getThreadNum() * 0.5);
-		if(threadNum<=0)
-			threadNum = 4;
-		threadNum = 3;
+	public static void start(FetchConfig conf){
+		int threadNum = conf.getThreadNum();
+		PageFetcher fetcher = new PageFetcher(conf);
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-//		PageFetcher fetcher = new PageFetcher(conf);
 		for(int i=0;i<threadNum;i++){
 			executor.submit(new DefaultFetchWorker(conf,fetcher));
 		}

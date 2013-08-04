@@ -24,18 +24,17 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
+import org.jsoup.nodes.Document;
 import org.sbs.crawler.Worker;
 import org.sbs.goodcrawler.bootstrap.foreman.ExtractForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.StoreForeman;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
+import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
 import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
-import org.sbs.goodcrawler.exception.ConfigurationException;
-import org.sbs.goodcrawler.fetcher.PageFetcher;
+import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
 import org.sbs.goodcrawler.fetcher.PendingPages;
-import org.sbs.goodcrawler.plugin.extract.Extractor66ys;
-import org.sbs.goodcrawler.plugin.storage.ElasticSearchStorage;
 import org.sbs.goodcrawler.storage.PendingStore;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
 
@@ -52,37 +51,35 @@ public class BootStrap {
 	 * @desc 
 	 */
 	public static void main(String[] args) {
-//		start("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml");
-		stop();
+		start("D:\\pioneer\\goodcrawler\\conf\\youku_conf.xml");
+//		stop();
 	}
 	/**
 	 * 启动任务
 	 * @param jobConf
 	 */
 	public static void start(String jobConf){
-		JobConfigurationManager manager = new JobConfigurationManager();
-		List<JobConfiguration> jobs = null;
-		try {
-			jobs = manager.loadJobConfigurations(
-					new File(jobConf));
-			for(JobConfiguration conf:jobs){
-				// fetch
-				FetchForeman.start(conf,new PageFetcher(conf));
-				// extract
-				// 66sy
-				
-//				Class<?> extractor66ys = ClassLoader.getSystemClassLoader().loadClass("org.sbs.goodcrawler.plugin.extract.Extractor66ys.java");
-				
-				ExtractForeman.start(conf,new Extractor66ys(conf));
-				// dytt8
-//				ExtractForeman.start(conf,new ExtractorDytt8(conf));
-				// store
-				StoreForeman.start(conf,new ElasticSearchStorage(conf.getName()));
-				
-				BootStrap.jobs += conf.getName() + ";";
-			}
-		} catch (ConfigurationException e) {
-			 e.getMessage();
+		JobConfigurationManager.init();
+		JobConfigurationManager manager = JobConfigurationManager.getInstance();
+		List<Document> configDocs = manager.getConfigDoc();
+		
+		for(Document doc:configDocs){
+			// fetcher
+			FetchConfig fConfig = new FetchConfig();
+			fConfig = fConfig.loadConfig(doc);
+			FetchForeman.start(fConfig);
+			
+			// extract
+			ExtractConfig eConfig = new ExtractConfig();
+			eConfig.loadConfig(doc);
+			ExtractForeman.start(eConfig);
+			
+			// store
+			StoreConfig sConfig = new StoreConfig();
+			sConfig.loadConfig(doc);
+			StoreForeman.start(sConfig);
+			
+			BootStrap.jobs += sConfig.jobName + ";";
 		}
 		
 		
@@ -133,6 +130,7 @@ public class BootStrap {
 		File urlsFile = new File(base, "ulrs.good");
 		File pagesFile = new File(base,"pages.good");
 		File storesFile = new File(base,"stores.good");
+		File filterFile = new File(base,"filter.good");
 		
 		try {
 			FileOutputStream fosUrl = new FileOutputStream(urlsFile);
@@ -150,6 +148,12 @@ public class BootStrap {
 			FileOutputStream fosStore = new FileOutputStream(storesFile);
 			ObjectOutputStream oosStore = new ObjectOutputStream(fosStore);
 			oosStore.writeObject(stores);
+			oosStore.close();
+			fosStore.close();
+			
+			FileOutputStream fosFilter = new FileOutputStream(filterFile);
+			ObjectOutputStream oosFilter = new ObjectOutputStream(fosFilter);
+			oosStore.writeObject(oosFilter);
 			oosStore.close();
 			fosStore.close();
 			
