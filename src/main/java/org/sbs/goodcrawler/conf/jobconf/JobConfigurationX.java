@@ -31,7 +31,10 @@ import org.sbs.goodcrawler.storage.StorageType;
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29 任务配置文件解析类
  */
-public class JobConfiguration extends Configuration {
+public class JobConfigurationX extends Configuration {
+
+	public JobConfigurationX() {
+	}
 
 	private Log log = LogFactory.getLog(this.getClass());
 	/**
@@ -133,14 +136,13 @@ public class JobConfiguration extends Configuration {
 	 */
 	private Map<String, String> selects = new HashMap<>();
 
-	public JobConfiguration() {
-	};
+	
 
 	public Log getLog() {
 		return log;
 	}
 
-	public JobConfiguration setLog(Log log) {
+	public JobConfigurationX setLog(Log log) {
 		this.log = log;
 		return this;
 	}

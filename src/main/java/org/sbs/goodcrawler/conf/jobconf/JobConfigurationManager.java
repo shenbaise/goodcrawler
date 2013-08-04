@@ -18,29 +18,17 @@
 package org.sbs.goodcrawler.conf.jobconf;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ConfigurationException;
-import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.storage.StorageType;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -49,13 +37,81 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  */
 public class JobConfigurationManager {
 	
-	private Log log = LogFactory.getLog(this.getClass());
+	private static Log log = LogFactory.getLog(JobConfigurationManager.class);
+	private static List<File> confFiles = null;
+	private static List<Document> configDocuments = Lists.newArrayList();
+	
+	private static JobConfigurationManager manager = null;
+	private static boolean initial = false;
+	private JobConfigurationManager(){}
+	/**
+	 * 初始化配置
+	 * @param confFile
+	 */
+	public static void init(){
+		if(initial){
+			try {
+				throw new ConfigurationException("配置已经初始化，不能再次初始化！");
+			} catch (Exception e) {
+			}
+		}else {
+			File confPath = new File("conf");
+			File[] files = confPath.listFiles(new FilenameFilter() {
+				
+				@Override
+				public boolean accept(File dir, String name) {
+					if(name.endsWith("_conf.xml")){
+						return true;
+					}
+					else
+					return false;
+				}
+			});
+			confFiles = Lists.newArrayList(files);
+			load();
+			manager = new JobConfigurationManager();
+			initial = true;
+		}
+	}
+	/**
+	 * 返回配置实例
+	 * @return
+	 */
+	public static JobConfigurationManager getInstance(){
+		if(initial){
+			return manager;
+		}else {
+			try {
+				throw new ConfigurationException("请先进行初始化操作！");
+			} catch (Exception e) {
+			}
+			return null;
+		}
+	}
+	/**
+	 * 加载配置
+	 */
+	private static void load(){
+		for(File f:confFiles){
+			try {
+				Document doc = Jsoup.parse(f, "utf-8");
+				configDocuments.add(doc);
+			} catch (IOException e) {
+				log.fatal("job配置加载失败");
+			}
+		}
+	}
+	
+	public List<Document> getConfigDoc(){
+		return configDocuments;
+	}
 	/**
 	 * @param configFile
 	 * @return
 	 * @throws ConfigurationException 
 	 * @desc 从配置文件中加载任务配置，一个job对应一个jobConfiguration
 	 */
+	/*
 	public List<JobConfiguration> loadJobConfigurations(File configFile) throws ConfigurationException{
 		List<JobConfiguration> list = new ArrayList<>();
 		try {
@@ -122,29 +178,8 @@ public class JobConfigurationManager {
 		}
 		return list;
 	}
+	*/
 	
-	
-	/**
-	 * @param storageType
-	 * @return
-	 * @desc 返回一个存储类型
-	 */
-	public StorageType getStorageType(String storageType){
-		if(StringUtils.isNotBlank(storageType)){
-			if(StorageType.Hbase.name().equals(storageType)){
-				return StorageType.Hbase;
-			}else if (storageType.equals(StorageType.ElasticSearch.name())) {
-				return StorageType.ElasticSearch;
-			}else if (storageType.equals(StorageType.LocalFile.name())){
-				return StorageType.LocalFile;
-			}else if (storageType.equals(StorageType.Mongodb.name())) {
-				return StorageType.Mongodb;
-			}else if (storageType.equals(StorageType.Mysql.name())){
-				return StorageType.Mysql;
-			}
-		}
-		return StorageType.LocalFile;
-	}
 	
 	/**
 	 * @param args
@@ -152,6 +187,7 @@ public class JobConfigurationManager {
 	 * @desc 
 	 */
 	public static void main(String[] args) throws ConfigurationException {
+		/*
 		JobConfigurationManager manager = new JobConfigurationManager();
 		List<JobConfiguration> jobs =  manager.loadJobConfigurations(
 				new File("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml"));
@@ -159,6 +195,8 @@ public class JobConfigurationManager {
 			System.out.println(job.toString());
 		}
 //		System.out.println(StorageType.Hbase.name());
+		 */
+		init();
 	}
 
 }
