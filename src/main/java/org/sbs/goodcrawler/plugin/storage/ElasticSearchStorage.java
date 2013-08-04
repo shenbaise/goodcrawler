@@ -19,8 +19,6 @@ package org.sbs.goodcrawler.plugin.storage;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,13 +30,11 @@ import org.sbs.goodcrawler.plugin.EsClient;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.storage.Storage;
 import org.sbs.goodcrawler.storage.StoreResult;
-import org.sbs.util.BinaryDateDwonLoader;
 import org.sbs.util.ImgUtil;
 import org.sbs.util.MapUtils;
 import org.sbs.util.PinyinUtil;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -46,6 +42,7 @@ import com.google.common.collect.Sets;
  * @date 2013-6-30
  * 存储到es
  */
+@SuppressWarnings("rawtypes")
 public class ElasticSearchStorage extends Storage {
 	private Log log = LogFactory.getLog(this.getClass());
 //	ExBulk bulk = new ExBulk();	
@@ -53,6 +50,7 @@ public class ElasticSearchStorage extends Storage {
 	String file = "d:\\eFile.txt";
 	String imagePath = "d:\\images\\";
 	File f = new File(file);
+	int i = 0 ;
 	
 //	private ObjectMapper objectMapper = new ObjectMapper();
 	
@@ -66,22 +64,23 @@ public class ElasticSearchStorage extends Storage {
 		return null;
 	}
 
+	@SuppressWarnings({ "unchecked" })
 	@Override
 	public StoreResult onStore(ExtractedPage page) {
-		BinaryDateDwonLoader dwonLoader = BinaryDateDwonLoader.getInstance();
 		Client client = EsClient.getClient();
 		
 		try {
-			if(!(page.getUrl().getURL().endsWith(".html") 
-					|| !page.getUrl().getURL().endsWith(".htm")
-					|| !page.getUrl().getURL().endsWith(".xhtml"))){
-				return null;
-			}
 			StoreResult storeResult = new StoreResult();
 			// 处理Result
 			HashMap<String, Object> data = page.getMessages();
 			// 处理缩略图
 			String type = (String)data.get("category");
+			
+			Object objectYear = data.get("year");
+			int year = 1800;
+			if(null!=objectYear){
+				year = (int)objectYear;
+			}
 			
 			Set<String> lb = (Set<String>) data.get("type");
 			if(null!=lb&&lb.size()>0){
@@ -90,10 +89,6 @@ public class ElasticSearchStorage extends Storage {
 				lb = (Sets.newHashSet("其他"));
 				data.put("type", lb);
 			}
-			// 动作-喜剧
-			for (String string : lb) {
-				type +='_'+string;
-			}
 			
 			Object temObject = data.get("thumbnail");
 			if(null!=temObject){
@@ -101,14 +96,24 @@ public class ElasticSearchStorage extends Storage {
 				type = PinyinUtil.getFirstSpell(type);
 				Iterable<String> thums = Splitter.on(';').omitEmptyStrings().split(thumbnails);
 				for (String img : thums) {
-					if(null!=(img = ImgUtil.downThenResize(img, imagePath+type))){
-						data.put("thumbnail", type+File.separator + img);
+					if(null!=(img = ImgUtil.downThenResize(img, imagePath+year + File.separator + type))){
+						if(img.lastIndexOf('.')>0){
+							data.put("thumbnail", year + File.separator + type+File.separator + img);
+						}else {
+							data.put("thumbnail", year + File.separator + type+File.separator + img + ".jpg");
+						}
 						break;
 					}
 				}
 			}
+			// 是否需要更新
+//			if(null==data.get("online")||((Set)data.get("online")).size()==0){
+//				
+//			}
 			// 判断是否已存在
 			GetResponse get = client.prepareGet(index, "0",(String)data.get("title") ).execute().actionGet();
+//			System.out.println(i);
+			i++;
 			if(get.isExists()){
 				Map<String, Object> m = get.getSource();
 				m = MapUtils.mager((HashMap<String, Object>) m, data);
