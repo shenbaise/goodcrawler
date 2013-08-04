@@ -32,7 +32,7 @@ public class Start extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("start");
 		if(!CrawlerStatus.running){
-			BootStrap.start("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml");
+			BootStrap.start("D:\\pioneer\\goodcrawler\\src\\main\\resources\\youku_conf.xml");
 		}
 		request.setAttribute("start", "程序正在运行中。。。");
 		request.setAttribute("jobs", BootStrap.getJobsNames());
