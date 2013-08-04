@@ -335,6 +335,7 @@ public class FetchConfig extends Configuration{
 	public FetchConfig loadConfig(Document confDoc){
 		Document doc = confDoc;
 		jobName = doc.select("job name").text();
+		
 		Elements e = doc.select("fetch");
 		this.agent = e.select("agent").text();
 		this.type = e.select("type").text();

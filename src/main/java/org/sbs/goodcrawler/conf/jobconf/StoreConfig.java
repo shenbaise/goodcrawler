@@ -40,7 +40,8 @@ public class StoreConfig extends Configuration {
 	public StoreConfig loadConfig(Document confDoc){
 		Document doc = confDoc;
 		jobName = doc.select("job name").text();
-		Elements e = doc.select("extract");
+		
+		Elements e = doc.select("store");
 		this.type = e.select("type").text();
 		if(StringUtils.isNotBlank(e.select("threadNum").text())){
 			this.threadNum = Integer.parseInt(e.select("threadNum").text());

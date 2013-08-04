@@ -56,6 +56,7 @@ public class ExtractConfig extends Configuration {
 	public ExtractConfig loadConfig(Document confDoc){
 		Document doc = confDoc;
 		super.jobName = doc.select("job name").text();
+		
 		Elements e = doc.select("extract");
 		this.type = e.select("type").text();
 		if(StringUtils.isNotBlank(e.select("threadNum").text())){
