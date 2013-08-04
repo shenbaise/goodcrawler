@@ -119,6 +119,7 @@
 								<element1 name="year" type="int" value=".title .pub" attr="text"/>
 								<element1 name="score" type="int" value=".ratingstar .num" attr="text" />
 								<element1 name="area" type="string" value=".row2 .area a" attr="text" />
+								<element1 name="type" type="set" value=".row1 .type .a" attr="text" required="true"/>
 								<element1 name="lang" type="string" value=".lang" attr="text">
 									<action1 opration="split" separator=":" retain="1"></action1>
 								</element1>
@@ -138,7 +139,7 @@
 									<action1 opration="split" separator=":" retain="1"></action1>
 								</element1>
 								<element1 name="area" type="string" value=".row2 .area a" attr="text"/>
-								<element1 name="type" type="set" value=".row2 .type a" attr="text"/>
+								<element1 name="type" type="set" value=".row2 .type a" attr="text" required="true" />
 								<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
 								<element1 name="summary" type="string" value=".detail .long" attr="text" />
 								<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
