@@ -17,6 +17,12 @@
  */
 package org.sbs.goodcrawler.storage;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -33,37 +39,64 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-30
  */
-public class PendingStore {
-	
+public class PendingStore implements Serializable {
+
+	private static final long serialVersionUID = -1872886200443134215L;
 	private Log log = LogFactory.getLog(this.getClass());
 	@SuppressWarnings("rawtypes")
-	private static BlockingQueue<ExtractedPage> Queue = null;
+	private BlockingQueue<ExtractedPage> Queue = null;
 	private static PendingStore instance = null;
-	
-	private PendingStore(){
+
+	private PendingStore() {
 		init();
 	}
+
 	/**
 	 * @return
 	 * @desc 返回队列实例
 	 */
-	public static PendingStore getInstance(){
-		if(null==instance){
+	public static PendingStore getInstance() {
+		if (null == instance) {
 			instance = new PendingStore();
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * @desc 初始化队列
 	 */
-	private void init(){
-		Queue = new ArrayBlockingQueue<>(PropertyConfigurationHelper.getInstance().getInt(GlobalConstants.pendingStoreMessgeQueueSize, 2000));
+	private void init() {
+		File file = new File(PropertyConfigurationHelper.getInstance()
+				.getString("status.save.path", "status")
+				+ File.separator
+				+ "stores.good");
+		if (file.exists()) {
+			try {
+				FileInputStream fisUrl = new FileInputStream(file);
+				ObjectInputStream oisUrl = new ObjectInputStream(fisUrl);
+				instance = (PendingStore) oisUrl.readObject();
+				oisUrl.close();
+				fisUrl.close();
+				Queue = instance.Queue;
+				System.out.println("recovery store queue..." + Queue.size());
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		} 
+		if(null==Queue)
+			Queue = new ArrayBlockingQueue<>(PropertyConfigurationHelper
+					.getInstance().getInt(
+							GlobalConstants.pendingStoreMessgeQueueSize, 2000));
 	}
-	
-	public void addExtracedPage(ExtractedPage<?, ?> store) throws QueueException{
+
+	public void addExtracedPage(ExtractedPage<?, ?> store)
+			throws QueueException {
 		try {
-			if(null != store){
+			if (null != store && null!=store.getMessages() && store.getMessages().size()>0) {
 				Queue.put(store);
 			}
 		} catch (InterruptedException e) {
@@ -71,13 +104,13 @@ public class PendingStore {
 			throw new QueueException("待处理存储信息队列加入操作中断");
 		}
 	}
-	
+
 	/**
 	 * @return
 	 * @desc 返回一个将要处理的URL
 	 */
 	@SuppressWarnings("rawtypes")
-	public ExtractedPage getExtractedPage() throws QueueException{
+	public ExtractedPage getExtractedPage() throws QueueException {
 		try {
 			return Queue.take();
 		} catch (InterruptedException e) {
@@ -86,23 +119,23 @@ public class PendingStore {
 			throw new QueueException("待处理存储信息队列取出操作中断");
 		}
 	}
-	
-	public boolean isEmpty(){
+
+	public boolean isEmpty() {
 		return Queue.isEmpty();
 	}
-	
-	public String pendingStatus(){
+
+	public String pendingStatus() {
 		StringBuilder sb = new StringBuilder(32);
 		sb.append("队列中等待处理的Store有").append(Queue.size()).append("个");
 		return sb.toString();
 	}
-	
+
 	/**
 	 * @author shenbaise(shenbaise@outlook.com)
-	 * @date 2013-7-2
-	 * 从Page中提取到信息
+	 * @date 2013-7-2 从Page中提取到信息
 	 */
-	public class ExtractedPage<V,T>{
+	public class ExtractedPage<V, T> implements Serializable {
+		private static final long serialVersionUID = 3965488944964575676L;
 		/**
 		 * 保留字段
 		 */
@@ -115,9 +148,9 @@ public class PendingStore {
 		 * 提取到信息，与job配置中的select对应，内容可以在扩展接口中重新修改和定义。
 		 */
 		HashMap<V, T> messages = new HashMap<>();
-		
+
 		ExtractResult result;
-		
+
 		public ExtractResult getResult() {
 			return result;
 		}
@@ -127,16 +160,18 @@ public class PendingStore {
 			return this;
 		}
 
-		public ExtractedPage(){}
-		
+		public ExtractedPage() {
+		}
+
 		public ExtractedPage(WebURL url) {
 			super();
 			this.url = url;
 		}
-		
+
 		public WebURL getUrl() {
 			return url;
 		}
+
 		public ExtractedPage<V, T> setUrl(WebURL url) {
 			this.url = url;
 			return this;
@@ -159,11 +194,10 @@ public class PendingStore {
 			this.messages = messages;
 			return this;
 		}
-		
-		public ExtractedPage<V, T> addMessage(V key,T value){
+
+		public ExtractedPage<V, T> addMessage(V key, T value) {
 			messages.put(key, value);
 			return this;
 		}
 	}
 }
-

@@ -18,7 +18,7 @@
 package org.sbs.goodcrawler.extractor;
 
 import org.sbs.crawler.Worker;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.fetcher.PendingPages;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.storage.PendingStore;
@@ -35,10 +35,10 @@ public abstract class ExtractWorker extends Worker {
 	protected PendingUrls pendingUrls = PendingUrls.getInstance();
 	protected PendingPages pendingPages = PendingPages.getInstace();
 	protected PendingStore pendingStore = PendingStore.getInstance();
-	protected JobConfiguration conf;
+	protected ExtractConfig conf;
 	protected Extractor extractor;
 
-	public ExtractWorker(JobConfiguration conf, Extractor extractor) {
+	public ExtractWorker(ExtractConfig conf, Extractor extractor) {
 		this.conf = conf;
 		this.extractor = extractor;
 	}

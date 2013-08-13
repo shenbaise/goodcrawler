@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,7 +49,7 @@ public class ImgUtil {
 		}
 		try {
 			// 下载
-			FileUtils.copyURLToFile(new URL(url), new File(disFile), 10000, 30000);
+			FileUtils.copyURLToFile(new URL(url), new File(disFile), 10000, 20000);
 			// 压缩
 			Thumbnails.of(disFile).width(200)
 			.outputQuality(0.6f)
@@ -58,5 +59,40 @@ public class ImgUtil {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * 下载压缩，Url的md5做文件名，返回文件名
+	 * @param url
+	 * @param distPath
+	 * @return
+	 */
+	public static String downThenResize(String url,String distPath){
+		String fileName = EncryptUtils.encodeMD5(url);
+		File path = new File(distPath);
+		if(!path.exists()){
+			path.mkdirs();
+		}
+		String suffix = ".jpg";
+		if(url.indexOf('.',url.lastIndexOf('/'))>0)
+			suffix = url.substring(url.lastIndexOf('.'));
+		if(StringUtils.isBlank(suffix)){
+			suffix = ".jpg";
+		}
+		String file = distPath + File.separator + fileName+ suffix;
+		File imgFile = new File(file);
+		
+		try {
+			// 下载
+			FileUtils.copyURLToFile(new URL(url), imgFile, 10000, 20000);
+			// 压缩
+			Thumbnails.of(imgFile).width(200)
+			.outputQuality(0.6f)
+			.toFile(imgFile);
+			return imgFile.getName();
+		} catch (IOException e) {
+			log.error("###图片下载压缩失败#"+url);
+			return null;
+		}
 	}
 }

@@ -18,7 +18,7 @@
 package org.sbs.goodcrawler.storage;
 
 import org.sbs.crawler.Worker;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 
 /**
@@ -28,16 +28,17 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
  * @date 2013-7-4
  * 存储工
  */
+@SuppressWarnings("rawtypes")
 public abstract class StoreWorker<V, T> extends Worker{
 	
 	protected PendingStore pendingStore = PendingStore.getInstance();
-	protected JobConfiguration conf;
+	protected StoreConfig conf;
 	protected Storage storage;
 	/**
 	 * 构造函数
 	 */
-	public StoreWorker(JobConfiguration jobConfiguration,Storage storage) {
-		this.conf = jobConfiguration;
+	public StoreWorker(StoreConfig conf,Storage storage) {
+		this.conf = conf;
 		this.storage = storage;
 	}
 	
@@ -82,6 +83,31 @@ public abstract class StoreWorker<V, T> extends Worker{
 		}
 	}
 	
+	
+	public PendingStore getPendingStore() {
+		return pendingStore;
+	}
+
+	public void setPendingStore(PendingStore pendingStore) {
+		this.pendingStore = pendingStore;
+	}
+
+	public StoreConfig getConf() {
+		return conf;
+	}
+
+	public void setConf(StoreConfig conf) {
+		this.conf = conf;
+	}
+
+	public Storage getStorage() {
+		return storage;
+	}
+
+	public void setStorage(Storage storage) {
+		this.storage = storage;
+	}
+
 	/**
 	 * @param args
 	 * @desc 

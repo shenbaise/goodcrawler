@@ -1,7 +1,5 @@
 goodcrawler(web crawler) 网络爬虫
 ===========
-### 0.0.2版增加web管理  && 开发工作转移到0.0.2 
-
 为什么叫goodcrawler?
 -----------
 		首先它是个crawler，其次它不bad。我觉得不bad那就是good了，所以起名goodcrawler。

@@ -17,14 +17,9 @@
  */
 package org.sbs.goodcrawler.fetcher;
 
-import java.io.File;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
-import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
-import org.sbs.goodcrawler.exception.ConfigurationException;
+import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 
@@ -35,12 +30,17 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  */
 public class DefaultFetchWorker extends FetchWorker {
 	
+	public DefaultFetchWorker(FetchConfig conf) {
+		super(conf);
+	}
+
+	public DefaultFetchWorker(FetchConfig conf, PageFetcher fetcher) {
+		super(conf, fetcher);
+	}
+
 	private Log log = LogFactory.getLog(this.getClass());
 	
-	public DefaultFetchWorker(JobConfiguration conf,PageFetcher fetcher) {
-		super(conf);
-		this.fetcher = fetcher;
-	}
+	
 
 	/* (non-Javadoc)
 	 * @see org.sbs.goodcrawler.fetcher.FetchWorker#onSuccessed()
@@ -71,25 +71,18 @@ public class DefaultFetchWorker extends FetchWorker {
 	public void run() {
 		int c = 0;
 		WebURL url ;
-		String s = "";
 		try {
-			while(true){
+			while(!stop){
 				while(null!=(url=pendingUrls.getUrl())){
-					s = url.getURL();
-					if(s.contains(".rmvb")
-							||s.contains("ftp")
-							||s.contains(".aiv")
-							||s.contains(".mtk")
-							||s.contains(".rm")){
-						pendingUrls.processedIgnored();
-						continue;
+					fetchPage(url);
+					// 确保当前任务完成后跳出
+					if(stop)
+						break;
+					c++;
+					if(c>10000){
+						c=0;
+						Thread.sleep(2000L);
 					}
-						fetchPage(url);
-						c++;
-						if(c>10000){
-							c=0;
-							Thread.sleep(2000L);
-						}
 				}
 			}
 		} catch (QueueException e) {
@@ -104,19 +97,6 @@ public class DefaultFetchWorker extends FetchWorker {
 	 * @desc 
 	 */
 	public static void main(String[] args) {
-		JobConfigurationManager manager = new JobConfigurationManager();
-		List<JobConfiguration> jobs;
-		try {
-			jobs = manager.loadJobConfigurations(
-					new File("D:\\pioneer\\goodcrawler\\src\\main\\resources\\job_conf.xml"));
-			// 创建一个工人
-			FetchWorker fetchWorker = new DefaultFetchWorker(jobs.get(1),new PageFetcher(jobs.get(1)));
-			// 设置fetcher
-//			fetchWorker.setFetcher(new PageFetcher(jobs.get(1)));
-			// 开始工作
-			(new Thread(fetchWorker)).start();
-		} catch (ConfigurationException e) {
-			// log.error(e.getMessage());
-		}
+	
 	}
 }

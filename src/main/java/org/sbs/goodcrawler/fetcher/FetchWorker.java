@@ -17,19 +17,34 @@
  */
 package org.sbs.goodcrawler.fetcher;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpStatus;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.sbs.crawler.Worker;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.job.Parser;
+import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 import org.sbs.robotstxt.RobotstxtConfig;
 import org.sbs.robotstxt.RobotstxtServer;
+import org.sbs.util.UrlUtils;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -38,6 +53,8 @@ import org.sbs.robotstxt.RobotstxtServer;
  */
 public abstract class FetchWorker extends Worker {
 	private Log log = LogFactory.getLog(this.getClass());
+	protected UrlUtils urlUtils = new UrlUtils();
+	protected BloomfilterHelper bloomfilterHelper = BloomfilterHelper.getInstance();
 	/**
 	 * url队列
 	 */
@@ -53,7 +70,7 @@ public abstract class FetchWorker extends Worker {
 	/**
 	 * job配置
 	 */
-	protected JobConfiguration conf;
+	protected FetchConfig conf;
 	/**
 	 * 解析器
 	 */
@@ -62,11 +79,18 @@ public abstract class FetchWorker extends Worker {
 	 * robots
 	 */
 	public static RobotstxtServer robotstxtServer;
+	
+	public List<Pattern> fetchFilters = Lists.newArrayList();
+	
+	public List<Pattern> extractFilters = Lists.newArrayList();
+	
+	public List<String> domains = Lists.newArrayList();
+	
 	/**
 	 * @param conf
 	 * 构造函数，未提供爬取器，需通过setFetcher方法设置Fetcher
 	 */
-	public FetchWorker(JobConfiguration conf){
+	public FetchWorker(FetchConfig conf){
 		this.conf = conf;
 		parser = new Parser(conf);
 		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
@@ -74,12 +98,27 @@ public abstract class FetchWorker extends Worker {
 		robotstxtConfig.setEnabled(conf.isRobots());
 		robotstxtConfig.setUserAgentName(conf.getAgent());
 		robotstxtServer = new RobotstxtServer(robotstxtConfig, fetcher);
+		
+		// 过滤器
+		List<String> urls1 = conf.getFetchUrlFilters();
+		List<String> urls2 = conf.getExtractUrlfilters();
+		for(String s:urls1){
+			fetchFilters.add(Pattern.compile(s));
+		}
+		for(String s:urls2){
+			extractFilters.add(Pattern.compile(s));
+		}
+		// 域名 
+		domains.addAll(conf.getSeeds());
+		for(String s:domains){
+			s = urlUtils.getDomain(s);
+		}
 	}
 	/**
 	 * @param conf
 	 * @param fetcher 推荐使用的构造函数
 	 */
-	public FetchWorker(JobConfiguration conf,PageFetcher fetcher){
+	public FetchWorker(FetchConfig conf,PageFetcher fetcher){
 		this.fetcher = fetcher;
 		this.conf = conf;
 		parser = new Parser(conf);
@@ -88,6 +127,16 @@ public abstract class FetchWorker extends Worker {
 		robotstxtConfig.setEnabled(conf.isRobots());
 		robotstxtConfig.setUserAgentName(conf.getAgent());
 		robotstxtServer = new RobotstxtServer(robotstxtConfig, fetcher);
+		// 过滤器
+		List<String> urls1 = conf.getFetchUrlFilters();
+		List<String> urls2 = conf.getExtractUrlfilters();
+		for(String s:urls1){
+			fetchFilters.add(Pattern.compile(s));
+		}
+		for(String s:urls2){
+			extractFilters.add(Pattern.compile(s));
+		}
+		
 	}
 	public FetchWorker setFetcher(final PageFetcher fetcher){
 		this.fetcher = fetcher;
@@ -106,37 +155,131 @@ public abstract class FetchWorker extends Worker {
 	 */
 	public abstract void onIgnored(WebURL url);
 	/**
+	 * fetcher filter
+	 * @param url
+	 * @return
+	 */
+	public boolean fetchFilter(String url){
+		if(null==fetchFilters || fetchFilters.size()==0){
+			return true;
+		}
+		for(Pattern p:fetchFilters){
+			if(p.matcher(url).matches()){
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * 按域名过滤
+	 * @param url
+	 * @return
+	 */
+	public boolean domainFilter(String url){
+		if(conf.isOnlyDomain()){
+			if(null==domains || domains.size()==0){
+				return true;
+			}
+			for(String s:domains){
+				if(url.contains(s)){
+					return true;
+				}
+			}
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	/**
+	 * extract filter
+	 * @param url
+	 * @return
+	 */
+	public boolean extractFilter(String url){
+		// bloomfilter it
+		if(null==extractFilters || extractFilters.size()==0){
+			return true;
+		}
+		for(Pattern p:extractFilters){
+			if(p.matcher(url).matches()){
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
 	 * @param url
 	 * @desc 爬网页
 	 */
 	public void fetchPage(WebURL url){
 		PageFetchResult result = null;
 		if(null!=url && StringUtils.isNotBlank(url.getURL())){
-			result = fetcher.fetchHeader(url);
-			// 获取状态
-			int statusCode = result.getStatusCode();
-			if (statusCode == CustomFetchStatus.PageTooBig) {
+			// 是否需要爬
+			if(fetchFilter(url.getURL()) && domainFilter(url.getURL())){
+				result = fetcher.fetchHeader(url);
+				// 获取状态
+				int statusCode = result.getStatusCode();
+				if (statusCode == CustomFetchStatus.PageTooBig) {
+					onIgnored(url);
+					return ;
+				}
+				if (statusCode != HttpStatus.SC_OK){
+					onFailed(url);
+				}else {
+					Page page = new Page(url);
+					pendingUrls.processedSuccess();
+					if (!result.fetchContent(page)) {
+						onFailed(url);
+						return;
+					}
+					if (!parser.parse(page, url.getURL())) {
+						onFailed(url);
+						return;
+					}
+					try {
+						// 是否加入抽取队列
+						if(extractFilter(url.getURL())){
+							pendingPages.addPage(page);
+						}
+//						else {
+//							onIgnored(url);
+//						}
+						
+						// 提取Url，放入待抓取Url队列
+						Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
+						Elements links = doc.getElementsByTag("a"); 
+				        if (!links.isEmpty()) { 
+				            for (Element link : links) { 
+				                String linkHref = link.absUrl("href"); 
+				                // 是否加入爬取队列
+				                if(fetchFilter(linkHref) 
+				                		&& !bloomfilterHelper.exist(linkHref)){
+				                	WebURL purl = new WebURL();
+				                	purl.setURL(linkHref);
+				                	purl.setJobName(conf.jobName);
+				                	try {
+										if(!pendingUrls.addUrl(purl,1000)){
+											// 队列容量问题的解决：
+											// 1.把收集到Url直接放到es中，当队列空时再从中取。2.写入文件（一个或者多个-5000条分一个文件）
+											FileUtils.writeStringToFile(new File("status/_urls.good"), url.getURL()+"\n", true);
+										}
+									} catch (QueueException e) {
+										 log.error(e.getMessage());
+									}
+				                }
+				            }
+				        }
+					} catch (QueueException e) {
+						log.warn("一个页面加入待处理队列时失败" + e.getMessage());
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			} else {
 				onIgnored(url);
-				return ;
-			}
-			if (statusCode != HttpStatus.SC_OK){
-				onFailed(url);
-			}else {
-				Page page = new Page(url);
-				pendingUrls.processedSuccess();
-				if (!result.fetchContent(page)) {
-					onFailed(url);
-					return;
-				}
-				if (!parser.parse(page, url.getURL())) {
-					onFailed(url);
-					return;
-				}
-				try {
-					pendingPages.addPage(page);
-				} catch (QueueException e) {
-					log.warn("一个页面加入待处理队列时失败" + e.getMessage());
-				}
 			}
 		}
 	}

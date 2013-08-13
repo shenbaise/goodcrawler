@@ -17,26 +17,69 @@
  */
 package org.sbs.goodcrawler.urlmanager;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+
 import org.apache.commons.lang3.StringUtils;
+import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-30
  * Bloomfilter的帮助类
  */
-public class BloomfilterHelper {
+public class BloomfilterHelper implements Serializable{
 	
-	private BloomFilter<String> bf = new BloomFilter<String>(0.001, 10000);
+	private static final long serialVersionUID = -160403070863080075L;
+
+	private BloomFilter<String> bf = null;
 	
-	private static BloomfilterHelper bloomfilterHelper = null;
+	private static BloomfilterHelper instance = null;
 	
-	private BloomfilterHelper(){};
+	private BloomfilterHelper(){
+		init();
+	};
 	
 	public static BloomfilterHelper getInstance(){
-		if(null==bloomfilterHelper)
-			bloomfilterHelper = new BloomfilterHelper();
-		return bloomfilterHelper;
+		if(null==instance)
+			instance = new BloomfilterHelper();
+		return instance;
 	}
+	
+	/**
+	 * @desc 初始化队列
+	 */
+	private void init() {
+		File file = new File(PropertyConfigurationHelper.getInstance()
+				.getString("status.save.path", "status")
+				+ File.separator
+				+ "filter.good");
+		if (file.exists()) {
+			try {
+				FileInputStream fis = new FileInputStream(file);
+				ObjectInputStream ois = new ObjectInputStream(fis);
+				instance = (BloomfilterHelper) ois.readObject();
+				ois.close();
+				fis.close();
+				bf = instance.bf;
+				System.out.println("recovery Bloomfilter...");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		} 
+		if(null==bf){
+			bf = new BloomFilter<String>(0.001, 10000);
+		}
+	}
+	
 	/**
 	 * @param s
 	 * @return
@@ -46,6 +89,13 @@ public class BloomfilterHelper {
 		if(StringUtils.isBlank(url))
 			return true;
 		return bf.containsOradd(url.getBytes());
+	}
+	/**
+	 * add
+	 * @param url
+	 */
+	public void add(String url){
+		bf.add(url);
 	}
 	
 	/**

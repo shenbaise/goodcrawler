@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -48,6 +49,8 @@ public class EsClient {
 			.put("client.transport.sniff", true).build();
 
 	private static Client client = null;
+	
+	private static String mapping = "{  \"0\": {    \"_all\": {      \"enabled\": true    },    \"index_analyzer\": \"ik\",    \"search_analyzer\": \"ik\",    \"_timestamp\": {      \"enabled\": true,      \"format\": \"YYYY-MM-dd\"    },    \"dynamic_templates\": [      {        \"string_template\": {          \"match\": \"*\",          \"mapping\": {            \"type\": \"string\",            \"index\": \"not_analyzed\"          },          \"match_mapping_type\": \"string\"        }      }    ],    \"properties\": {      \"title\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"actors\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"director\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"summary\": {        \"type\": \"string\",        \"include_in_all\": false,        \"index\": \"not_analyzed\"      },      \"type\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"category\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      }    }  }}";
 
 	static {
 		client = new TransportClient(settings)
@@ -74,7 +77,7 @@ public class EsClient {
 			xBuilder.endObject();
 //			IndexResponse response = 
 					client.prepareIndex(index, type)
-					.setId((String)data.get("n"))
+					.setId((String)data.get("title"))
 					.setSource(xBuilder).execute().actionGet();
 			// what does respose contains?
 		} catch (ElasticSearchException e) {
@@ -83,7 +86,23 @@ public class EsClient {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * Index
+	 * @param index
+	 * @param type
+	 * @param id
+	 * @param json
+	 */
+	public static void index(String index, String type, String id,String json) {
+		try {
+			client.prepareIndex(index, type)
+			.setId(id)
+			.setSource(json).execute().actionGet();
+		} catch (ElasticSearchException e) {
+			e.printStackTrace();
+		} 
+	}
+	
 	public static SearchResponse search(String index,String id){
 		SearchResponse response = client.prepareSearch(index)
 		        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -171,19 +190,35 @@ public class EsClient {
 	 */
 	public void putMapping(){
 		try {
-			client.admin().indices().preparePutMapping("movie").setSource(getMapping()).execute().get();
+			client.admin().indices().preparePutMapping("movie")
+			.setType("0").setSource(mapping).execute().get();
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	/**
+	 * 创建索引并设置mapping
+	 * @param index
+	 * @param type
+	 * @param mapping
+	 */
+	public static void createIndexAndMapping(String index,String type,String mapping){
+			client.prepareIndex(index, type).execute().actionGet();
+			client.admin().indices().preparePutMapping("movie")
+			.setSource(mapping).setType(type)
+			.execute().actionGet();
+		
+	}
+	
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		SearchResponse response = EsClient.search("movie", "魔境仙踪[国语高清]");
-		System.out.println(response.toString());
-		response.getHits().getTotalHits();
+//		SearchResponse response = EsClient.search("movie", "魔境仙踪[国语高清]");
+//		System.out.println(response.toString());
+//		response.getHits().getTotalHits();
+		createIndexAndMapping("movie", "0", mapping);
 	}
 
 }

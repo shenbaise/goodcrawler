@@ -17,6 +17,7 @@
 
 package org.sbs.goodcrawler.job;
 
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +34,9 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  *
  * @author Yasser Ganjisaffar <lastname at gmail dot com>
  */
-public class Page {
+public class Page implements Serializable{
+	
+	private static final long serialVersionUID = -8815708487494541068L;
 	
 	protected Pattern p = Pattern.compile("(?<=charset=)(.+)(?=\")");
     /**

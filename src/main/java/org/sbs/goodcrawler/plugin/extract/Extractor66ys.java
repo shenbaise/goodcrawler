@@ -18,11 +18,12 @@
 package org.sbs.goodcrawler.plugin.extract;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,16 +31,23 @@ import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.util.BinaryDateDwonLoader;
+import org.sbs.util.CharUtil;
 import org.sbs.util.DateTimeUtil;
-import org.sbs.util.StringUtil;
+import org.sbs.util.StringHelper;
+
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -48,10 +56,12 @@ import org.sbs.util.StringUtil;
  */
 public class Extractor66ys extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
+	private BinaryDateDwonLoader dwonLoader = BinaryDateDwonLoader.getInstance();
+	private int count = 0;
 	/**
 	 * @param conf
 	 */
-	public Extractor66ys(JobConfiguration conf) {
+	public Extractor66ys(ExtractConfig conf) {
 		super(conf);
 	}
 
@@ -72,7 +82,7 @@ public class Extractor66ys extends Extractor {
 		                if(filterUrls(linkHref)){
 		                	WebURL url = new WebURL();
 		                	url.setURL(linkHref);
-		                	url.setJobName(conf.getName());
+		                	url.setJobName(conf.jobName);
 		                	try {
 								pendingUrls.addUrl(url);
 							} catch (QueueException e) {
@@ -82,7 +92,7 @@ public class Extractor66ys extends Extractor {
 		            }
 		        }
 		        // 抽取信息
-				Map<String, String> selects = conf.getSelects();
+				Map<String, String> selects = Maps.newHashMap();
 				ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
 				epage.setUrl(page.getWebURL());
 				HashMap<String, Object> result = new HashMap<>();
@@ -96,13 +106,13 @@ public class Extractor66ys extends Extractor {
 				// 电视剧、电影、综艺大类分类
 				String u = page.getWebURL().getURL();
 				if(u.contains("/dsj")){
-					result.put("t", "电视剧");
+					result.put("category", "电视剧");
 				}else if(u.contains("/zy")){
-					result.put("t", "综艺");
+					result.put("category", "综艺");
 				}else if (u.contains("/dm")) {
-					result.put("t", "动漫");
+					result.put("category", "动漫");
 				}else {
-					result.put("t", "电影");
+					result.put("category", "电影");
 				}
 				// 片名
 				String name = doc.select("h1").text();
@@ -111,41 +121,37 @@ public class Extractor66ys extends Extractor {
 				}
 				
 				if(StringUtils.isNotBlank(name)){
-					name = name.replace("《", "").replace("<<", "")
-							.replace("》", "").replace(">>", "")
-							.replace("】", "").replace("【", "")
-							.replace("-", "").replace("_", "");
-					result.put("n", name);
+					name =  CharMatcher.anyOf("[]【】 《》").removeFrom(name);
+					name = CharMatcher.anyOf("/").replaceFrom(name, "|");
+					result.put("title", name);
 				}
 				
 				// 如果名称中包含“演唱会”、“mv”则将大类归为音乐
 				if(StringUtils.isNotBlank(name) 
 						&& (name.contains("演唱会") || name.contains("MV")
+								|| name.toLowerCase().contains("mtv")
 								|| name.contains("mv")
 								|| name.contains("巡演")
 								|| name.contains("巡回演出"))){
-					
-					result.put("t", "音乐");
+					result.put("category", "音乐");
 				}
-				// 保存Url
+				// 保存资源源地址
 				result.put("url", page.getWebURL().getURL());
 				
 				for(Entry<String,String> entry:selects.entrySet()){
-//					result.put(entry.getKey(),doc.select(entry.getValue()).html());
 					Elements elements = doc.select(entry.getValue());
 					if(elements.size()==0)
 						continue;
 					else {
 						if("content".equals(entry.getKey()) || "dede_content".equals(entry.getKey())){
-							
 							for(Element element :elements){
 								// 拿到图片
 								Elements imgs = element.select("img[src]");
-								List<String> imageList = new ArrayList<>();
+								StringBuilder sb = new StringBuilder();
 								for(Element img:imgs){
-									imageList.add(img.attr("src"));
+									sb.append(img.attr("src")).append(";");
 								}
-								result.put("img", imageList);
+								result.put("thumbnail", sb.toString());
 								
 								// 影片信息
 								Elements movieInfos = element.select("p");
@@ -158,11 +164,11 @@ public class Extractor66ys extends Extractor {
 										if(start>0){
 											end = infotext_.lastIndexOf("。");
 											if(end>0 && start <end){
-												result.put("jj", infotext_.substring(start,end));
+												result.put("summary", infotext_.substring(start,end));
 											}else {
 												end = infotext_.lastIndexOf(".");
 												if(end>0 && start <end){
-													result.put("jj", infotext_.substring(start,end));
+													result.put("summary", infotext_.substring(start,end));
 												}
 											}
 										}
@@ -201,57 +207,89 @@ public class Extractor66ys extends Extractor {
 									}
 								}
 								
-								// 信息不足，全保存
-								if(result.size()<4){
-									result.put("c", element.text());
-								}
-								
 								// 下载地址 （会有多个网站下载地址）
 								// html body div.wrap div.mainleft div.contentinfo div#text table tbody tr td anchor a
 								Elements elements2 = elements.select("td a");
-								List<String> downList = new ArrayList<>();
+								Set<String> downList = Sets.newHashSet();
 								for(Element download:elements2){
 									downList.add(download.attr("href"));
 								}
-								HashMap<String, Object> dd = new HashMap<>();
+								TreeMap<String, Object> dd = Maps.newTreeMap();
 								dd.put("66ys", downList);
-								result.put("d", dd);
+								result.put("download", dd);
 							}
 						}
 					}
 //					result.put(entry.getKey(), elements.html());
 				}
 				// 转换年代为时间
-				if(StringUtils.isNotBlank((String) result.get("nd"))){
-					String nd = null;
+				String nd = (String) result.get("year");;
+				if(StringUtils.isNotBlank(nd)){
 					try {
-						nd = (String) result.get("nd");
 						if(nd.contains("年")){
 							nd = nd.split("年")[0];
 						}else if(nd.contains("/")){
 							nd = nd.split("/")[0];
+						}else if (nd.contains(".")) {
+							nd = nd.split("[.]")[0];
 						}else if (nd.contains("-")) {
 							nd = nd.split("-")[0];
+						}else if (nd.contains("·")) {
+							nd = nd.split("·")[0];
 						}
-						int tem = Integer.parseInt(nd);
+						int tem = Integer.parseInt(CharMatcher.DIGIT.retainFrom(nd));
 						if(tem>20000){
 							tem = tem / 10;
 						}
 						if(tem>DateTimeUtil.getCurrentYear()){
 							tem = DateTimeUtil.getCurrentYear();
 						}
-						result.put("nd", tem);
+						result.put("year", tem);
 					} catch (Exception e) {
-						result.put("nd", 1800);
+						System.out.println((String) result.get("year"));
+						result.put("year", 1800);
+						e.printStackTrace();
 					}
 				}
-				// id
-				if(StringUtils.isBlank((String)result.get("n"))){
-					if(StringUtils.isNotBlank((String)result.get("pm"))){
-						result.put("n", result.get("pm"));
+				// 
+				String tmp = (String)result.get("translation");
+				if(StringUtils.isNotBlank(tmp)){
+					tmp = CharMatcher.anyOf("[]【】 ").removeFrom(tmp);
+					tmp = CharMatcher.anyOf("/").replaceFrom(tmp, "|");
+					// 中英文名称做交换
+					if(CharUtil.isChinese(tmp)){
+						String title = (String) result.get("title");
+						if(StringUtils.isNotBlank(title)){
+							result.put("translation", title);
+							result.put("title", tmp);
+						}
 					}
 				}
-				
+				// 转换type为set
+				String type = (String)result.get("type");
+				if(StringUtils.isNotBlank(type)){
+					type = StringHelper.removeAB12Blank(type);
+					result.put("type", Sets.newHashSet(Splitter.on(CharMatcher.anyOf("/\\、，,|")).omitEmptyStrings().split(type)));
+				}
+				// 转actors为set
+				String actor = (String)result.get("actors");
+				if(StringUtils.isNotBlank(actor)){
+					actor = StringHelper.removeAB12(actor);
+					result.put("actors", Sets.newHashSet(Splitter.on(CharMatcher.anyOf("/\\、，,| ")).omitEmptyStrings().split(actor)));
+				}
+				// 转换片长、级数
+				String duration = (String)result.get("duration");
+				if(StringUtils.isNotBlank(duration)){
+					duration = CharMatcher.DIGIT.retainFrom(duration);
+					result.put("duration", duration);
+				}
+				// 集数
+				String number = (String)result.get("number");
+				if(StringUtils.isNotBlank(number)){
+					number = CharMatcher.DIGIT.retainFrom(number);
+					result.put("number", number);
+				}
+				count++;
 				epage.setMessages(result);
 				try {
 					pendingStore.addExtracedPage(epage);
@@ -287,64 +325,68 @@ public class Extractor66ys extends Extractor {
 	 * @desc 
 	 */
 	public static void main(String[] args) {
-
+		System.out.println(CharMatcher.anyOf("[]").removeFrom("shdflk [斯蒂芬] 斯蒂芬["));
+		System.out.println("2013.7.1央一、2013.7.7央八".split("[.]")[0]);
+		;
+		String s = CharMatcher.WHITESPACE.removeFrom(" 剧 情 / 爱 情  / 家庭 /&&dfWQ/343/df ");
+//		s = CharMatcher.inRange('a', 'z').removeFrom(s);
+//		s = CharMatcher.inRange('0','9').removeFrom(s);
+//		s = CharMatcher.JAVA_ISO_CONTROL.removeFrom(s);
+		s = CharMatcher.anyOf("abcdefghijklmnopqrstuvwxyz;&ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.~!@#$%^&*()-+= ").removeFrom(s);
+		List<String> list = Lists.newArrayList(Splitter.on(CharMatcher.anyOf("/\\")).omitEmptyStrings().trimResults().split(s));
+		System.out.println(list);
+		System.out.println(CharMatcher.SINGLE_WIDTH.matchesAnyOf("!@3 号  nihaoma"));
+		
+		System.out.println(Splitter.on(CharMatcher.anyOf("/\\、，,| ")).omitEmptyStrings().split("铃木亮平 | 清水富美加 | 片濑那奈 | 安田显  韦斯利·斯奈普斯 Wesley Snipes / 瑞利·史密斯 Riley Smith / 塔尼特·菲尼克斯 Tanit Phoenix /Kevin Howarth / Simona Brhlikova / Steven Elder / 帕特里克·博金 PatrickBergin "));
+		System.out.println("今天是个很好的日子".substring("今天是个很好的日子".lastIndexOf("很好")+"很好".length()));
 	}
 	
-	private HashMap<String, String> infoName = new HashMap<>();
+	private TreeMap<String, String> infoName = new TreeMap<>();
 	{
-		infoName.put("片　　名", "bm");
-		infoName.put("片　名", "pm");
-		infoName.put("片名", "pm");
-		infoName.put("译　　名", "ym");
-		infoName.put("译　名", "ym");
-		infoName.put("译名", "ym");
-		infoName.put("国　　家", "gj");
-		infoName.put("国　家", "gj");
-		infoName.put("国家", "gj");
-		infoName.put("地　　区", "gj");
-		infoName.put("地　区", "gj");
-		infoName.put("出品时间", "nd");
-		infoName.put("制片地区", "dq");
-		infoName.put("编剧", "bj");
-		infoName.put("集数", "js");
-		infoName.put("监制", "jz");
-		infoName.put("类　　别", "lb");
-		infoName.put("类　别", "lb");
-		infoName.put("类别", "lb");
-		infoName.put("语　　言", "yy");
-		infoName.put("语　言", "yy");
-		infoName.put("语言", "yy");
-		infoName.put("字　　幕", "zm");
-		infoName.put("字　幕", "zm");
-		infoName.put("字幕", "zm");
-		infoName.put("文件格式", "gs");
-		infoName.put("视频尺寸", "cc");
-		infoName.put("IMDB评分", "imdb-pf");
-		infoName.put("评　　分", "pf");
-		infoName.put("评　分", "pf");
-		infoName.put("评分", "pf");
-		infoName.put("文件大小", "dx");
-		infoName.put("片　　长", "pc");
-		infoName.put("片　长", "pc");
-		infoName.put("片长", "pc");
-		infoName.put("导　　演", "dy");
-		infoName.put("导　演", "dy");
-		infoName.put("导演", "dy");
-		infoName.put("主　　演", "zy");
-		infoName.put("主　演", "zy");
-		infoName.put("主演", "zy");
-		infoName.put("简　　介", "jj");
-		infoName.put("简　介", "jj");
-		infoName.put("剧情介绍", "jj");
-		infoName.put("下载地址", "d");
-		infoName.put("在线观看", "k");
-		infoName.put("年　　代", "nd");
-		infoName.put("年代", "nd");
-		infoName.put("出品时间", "nd");
-		infoName.put("上映时间", "nd");
-		infoName.put("时间", "pc");
-		infoName.put("音频", "yy");
-		infoName.put("演员", "zy");
+		
+		infoName.put("中文名", "title");
+		infoName.put("中文剧名", "title");
+		infoName.put("影片原名", "title");
+		infoName.put("剧 名", "title");
+		infoName.put("原名", "title");
+		infoName.put("片名", "title");
+		infoName.put("中文译名", "translation");
+		infoName.put("外文名", "translation");
+		infoName.put("英文名", "translation");
+		infoName.put("译名", "translation");
+		infoName.put("国家", "nation");
+		infoName.put("国别", "nation");
+		infoName.put("地区", "area");
+		infoName.put("出品时间", "publishTime");
+		infoName.put("制片地区", "area");
+		infoName.put("年代", "year");
+		infoName.put("出品时间", "year");
+		infoName.put("出品年代", "year");
+		infoName.put("上映时间", "year");
+		infoName.put("上映日期", "year");
+		infoName.put("集数", "number");
+		infoName.put("监制", "studioManager");
+		infoName.put("大类", "category");
+		infoName.put("类别", "type");
+		infoName.put("分类", "type");
+		infoName.put("种类", "type");
+		infoName.put("类型", "type");
+		infoName.put("语言", "lang");
+		infoName.put("发音", "lang");
+		infoName.put("视频尺寸", "size");
+		infoName.put("评分", "score");
+		infoName.put("片长", "duration");
+		infoName.put("时长", "duration");
+		infoName.put("导演", "director");
+		infoName.put("主演", "actors");
+		infoName.put("简介", "summary");
+		infoName.put("剧情", "summary");
+		infoName.put("介绍", "summary");
+		infoName.put("下载地址", "download");
+		//infoName.put("在线观看", "online");
+		// TODO 66ys不需要在线观看
+		infoName.put("时间", "year");
+		infoName.put("演员", "actors");
 	}
 	
 	public HashMap<String, Object> getInfoName(String s,HashMap<String, Object> map){
@@ -353,33 +395,45 @@ public class Extractor66ys extends Extractor {
 			if(s.contains("：")){
 				String ss[] = s.split("：");
 				if(ss.length>=2){
-					temp = infoName.get(ss[0].trim());
+					temp = infoName.get(CharMatcher.WHITESPACE.removeFrom(ss[0]));
 					if(StringUtils.isNotBlank(temp)){
-						map.put(temp, ss[1].trim());
+						map.put(temp, CharMatcher.WHITESPACE.removeFrom(ss[1]));
 					}
 				}
-			}else if(s.contains("：")){
+			}else if(s.contains(":")){
 				String ss[] = s.split(":");
 				if(ss.length>=2){
-					temp = infoName.get(ss[0]);
+					temp = infoName.get(CharMatcher.WHITESPACE.removeFrom(ss[0]));
 					if(StringUtils.isNotBlank(temp)){
-						map.put(temp, ss[1].trim());
+						map.put(temp, CharMatcher.WHITESPACE.removeFrom(ss[1]));
 					}
 				}
 			} else if (s.contains("】")) {
 				String ss[] = s.split("】");
 				if(ss.length>=2){
-					temp = infoName.get(ss[0]);
+					temp = infoName.get(CharMatcher.WHITESPACE.removeFrom(ss[0]));
 					if(StringUtils.isNotBlank(temp)){
-						map.put(temp, ss[1].trim());
+						map.put(temp, CharMatcher.WHITESPACE.removeFrom(ss[1]));
 					}
 				}
 			}
 			else {
 				if(s.length()>6){
-					temp = infoName.get(s.substring(0, 4));
-					if(StringUtils.isNotBlank(temp)){
-						map.put(temp, s.substring(5).trim());
+					Set<String> set = infoName.keySet();
+					int p =0;
+					s = CharMatcher.WHITESPACE.removeFrom(s);
+					for (String key : set) {
+						if(s.contains(key)){
+							p = s.indexOf(key)+key.length();
+							if(p>4)break;
+							if(p<s.length()){
+								String sub = s.substring(s.indexOf(key)+key.length());
+								if(null==map.get(infoName.get(key))){
+									map.put(infoName.get(key), sub);
+									break;
+								}
+							}
+						}
 					}
 				}
 			}

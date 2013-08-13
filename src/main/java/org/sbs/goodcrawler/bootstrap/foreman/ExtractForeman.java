@@ -17,34 +17,35 @@
  */
 package org.sbs.goodcrawler.bootstrap.foreman;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.apache.commons.beanutils.BeanUtils;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.extractor.DefaultExtractWorker;
 import org.sbs.goodcrawler.extractor.DefaultExtractor;
-import org.sbs.goodcrawler.extractor.Extractor;
-import org.sbs.goodcrawler.plugin.extract.Extractor66ys;
-import org.sbs.goodcrawler.plugin.extract.ExtractorDytt8;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-3
  * 提取工工头
  */
-public class ExtractForeman {
+public class ExtractForeman extends Foreman{
 	
-	public static void start(JobConfiguration conf,Extractor extractor){
-		int threadNum = (int) (conf.getThreadNum() * 0.3);
-		if(threadNum<=0)
-			threadNum = 1;
-		threadNum = 3;
-		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-//		Extractor extractor1 = new Extractor66ys(conf);
-		for(int i=0;i<threadNum;i++){
-			executor.submit(new DefaultExtractWorker(conf,new Extractor66ys(conf)));
-		}
+	public static void start(ExtractConfig conf){
+		int threadNum = conf.getThreadNum();
 		
+		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
+		for(int i=0;i<threadNum;i++){
+			try {
+				executor.submit(new DefaultExtractWorker(conf,new DefaultExtractor((ExtractConfig) BeanUtils.cloneBean(conf))));
+			} catch (IllegalAccessException | InstantiationException
+					| InvocationTargetException | NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+		}
+		executor.shutdown();
 	}
 
 	/**

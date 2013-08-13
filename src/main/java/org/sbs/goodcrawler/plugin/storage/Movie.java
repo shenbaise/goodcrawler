@@ -102,6 +102,14 @@ public class Movie {
 	 */
 	private int year;
 	/**
+	 * 热度
+	 */
+	private int hot;
+	/**
+	 * 播放、点击、搜索次数
+	 */
+	private int hits;
+	/**
 	 * 简介
 	 */
 	private String summary;
@@ -290,11 +298,28 @@ public class Movie {
 	public void setOnline(TreeMap<String, List<String>> online) {
 		this.online = online;
 	}
+	
+	public int getHot() {
+		return hot;
+	}
+
+	public void setHot(int hot) {
+		this.hot = hot;
+	}
+	
+	
+	public int getHits() {
+		return hits;
+	}
+
+	public void setHits(int hits) {
+		this.hits = hits;
+	}
 
 	/**
 	 * 合并2个movie
 	 */
-	public void merge(Movie movie) {
+	public Movie merge(Movie movie) {
 		if (StringUtils.isNotBlank(movie.getTranslation())) {
 			this.translation = movie.getTranslation();
 		}
@@ -367,5 +392,31 @@ public class Movie {
 			} else
 				this.online = movie.getOnline();
 		}
+		
+		return this;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Movie [id=").append(id).append(", title=")
+				.append(title).append(", translation=").append(translation)
+				.append(", nation=").append(nation).append(", area=")
+				.append(area).append(", publishTime=").append(publishTime)
+				.append(", category=").append(category).append(", type=")
+				.append(type).append(", number=").append(number)
+				.append(", studioManager=").append(studioManager)
+				.append(", director=").append(director).append(", actors=")
+				.append(actors).append(", duration=").append(duration)
+				.append(", lang=").append(lang).append(", score=")
+				.append(score).append(", size=").append(size).append(", year=")
+				.append(year).append(", hot=").append(hot).append(", hits=")
+				.append(hits).append(", summary=").append(summary)
+				.append(", thumbnail=").append(thumbnail).append(", download=")
+				.append(download).append(", online=").append(online)
+				.append("]");
+		return builder.toString();
+	}
+	
+	
 }

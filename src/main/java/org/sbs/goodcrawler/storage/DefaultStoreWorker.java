@@ -19,7 +19,7 @@ package org.sbs.goodcrawler.storage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
+import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 
@@ -35,17 +35,16 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	
 	private Log log = LogFactory.getLog(this.getClass());
 	
-	public DefaultStoreWorker(JobConfiguration jobConfiguration, Storage storage) {
-		super(jobConfiguration, storage);
+	public DefaultStoreWorker(StoreConfig conf, Storage storage) {
+		super(conf, storage);
 	}
 
 	@Override
 	public void run() {
 		ExtractedPage page ;
-		System.out.println( " store ..");
-		while(true) {
+		while(!stop) {
 			try {
-				while(!pendingStore.isEmpty()){
+				while(!pendingStore.isEmpty() && !stop){
 					page = pendingStore.getExtractedPage();
 					work(page);
 				}

@@ -20,14 +20,9 @@ package org.sbs.goodcrawler.bootstrap.foreman;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.sbs.goodcrawler.conf.GlobalConstants;
-import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
-import org.sbs.goodcrawler.conf.jobconf.JobConfiguration;
-import org.sbs.goodcrawler.fetcher.DefaultFetchWorker;
-import org.sbs.goodcrawler.fetcher.PageFetcher;
+import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
+import org.sbs.goodcrawler.plugin.storage.ElasticSearchStorage;
 import org.sbs.goodcrawler.storage.DefaultStoreWorker;
-import org.sbs.goodcrawler.storage.LocalFileStorage;
-import org.sbs.goodcrawler.storage.Storage;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -39,16 +34,16 @@ public class StoreForeman {
 	public StoreForeman() {
 	}
 	
-	public static void start(JobConfiguration conf,Storage storage){
-		int threadNum = (int) (conf.getThreadNum() * 0.3);
-		if(threadNum<=0)
-			threadNum = 1;
-		threadNum = 4;
+	@SuppressWarnings("rawtypes")
+	public static void start(StoreConfig conf){
+		int threadNum = conf.getThreadNum();
+		
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-//		Storage storage = new LocalFileStorage(PropertyConfigurationHelper.getInstance().getString(GlobalConstants.failedPagesBackupPath, ""), conf.getName());
+		
 		for(int i=0;i<threadNum;i++){
-			executor.submit(new DefaultStoreWorker(conf,storage));
+			executor.submit(new DefaultStoreWorker(conf,new ElasticSearchStorage(conf.jobName)));
 		}
+		executor.shutdown();
 	}
 
 	/**
