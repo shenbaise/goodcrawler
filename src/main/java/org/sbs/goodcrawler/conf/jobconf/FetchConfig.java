@@ -30,7 +30,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.conf.Configuration;
-import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
@@ -410,24 +409,18 @@ public class FetchConfig extends Configuration{
 		}
 		
 		// 加入seed
-		// 检测
-		File file = new File(PropertyConfigurationHelper.getInstance()
-				.getString("status.save.path", "status")
-				+ File.separator
-				+ "urls.good");
-		if (!file.exists()){
-			Elements seeds = doc.select("fetch seeds seed");
-			for(Element element:seeds){
-				WebURL url = new WebURL();
-				url.setURL(element.text());
-				try {
-					PendingUrls.getInstance().addUrl(url);
-					BloomfilterHelper.getInstance().add(url.getURL());
-				} catch (QueueException e1) {
-					e1.printStackTrace();
-				}
+		Elements seeds = doc.select("fetch seeds seed");
+		for(Element element:seeds){
+			WebURL url = new WebURL();
+			url.setURL(element.text());
+			try {
+				PendingUrls.getInstance().addUrl(url);
+				BloomfilterHelper.getInstance().add(url.getURL());
+			} catch (QueueException e1) {
+				e1.printStackTrace();
 			}
 		}
+		
 		return this;
 	}
 

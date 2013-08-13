@@ -84,8 +84,6 @@ public abstract class FetchWorker extends Worker {
 	
 	public List<Pattern> extractFilters = Lists.newArrayList();
 	
-	public List<String> domains = Lists.newArrayList();
-	
 	/**
 	 * @param conf
 	 * 构造函数，未提供爬取器，需通过setFetcher方法设置Fetcher
@@ -107,11 +105,6 @@ public abstract class FetchWorker extends Worker {
 		}
 		for(String s:urls2){
 			extractFilters.add(Pattern.compile(s));
-		}
-		// 域名 
-		domains.addAll(conf.getSeeds());
-		for(String s:domains){
-			s = urlUtils.getDomain(s);
 		}
 	}
 	/**
@@ -160,6 +153,7 @@ public abstract class FetchWorker extends Worker {
 	 * @return
 	 */
 	public boolean fetchFilter(String url){
+		
 		if(null==fetchFilters || fetchFilters.size()==0){
 			return true;
 		}
@@ -169,27 +163,6 @@ public abstract class FetchWorker extends Worker {
 			}
 		}
 		return false;
-	}
-	/**
-	 * 按域名过滤
-	 * @param url
-	 * @return
-	 */
-	public boolean domainFilter(String url){
-		if(conf.isOnlyDomain()){
-			if(null==domains || domains.size()==0){
-				return true;
-			}
-			for(String s:domains){
-				if(url.contains(s)){
-					return true;
-				}
-			}
-			return false;
-		}
-		else {
-			return true;
-		}
 	}
 	/**
 	 * extract filter
@@ -216,7 +189,7 @@ public abstract class FetchWorker extends Worker {
 		PageFetchResult result = null;
 		if(null!=url && StringUtils.isNotBlank(url.getURL())){
 			// 是否需要爬
-			if(fetchFilter(url.getURL()) && domainFilter(url.getURL())){
+			if(fetchFilter(url.getURL())){
 				result = fetcher.fetchHeader(url);
 				// 获取状态
 				int statusCode = result.getStatusCode();
@@ -260,8 +233,6 @@ public abstract class FetchWorker extends Worker {
 				                	purl.setJobName(conf.jobName);
 				                	try {
 										if(!pendingUrls.addUrl(purl,1000)){
-											// 队列容量问题的解决：
-											// 1.把收集到Url直接放到es中，当队列空时再从中取。2.写入文件（一个或者多个-5000条分一个文件）
 											FileUtils.writeStringToFile(new File("status/_urls.good"), url.getURL()+"\n", true);
 										}
 									} catch (QueueException e) {

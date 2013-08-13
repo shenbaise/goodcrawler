@@ -16,7 +16,7 @@
 				<!-- 默认为Default，如果有其他实现，填写类的全路径 -->
 				<type>default</type>
 				<agent>Kindle</agent>
-				<threadNum>3</threadNum>
+				<threadNum>1</threadNum>
 				<delayBetweenRequests>100</delayBetweenRequests>
 				<maxDepthOfCrawling>-1</maxDepthOfCrawling>
 				<maxOutgoingLinksToFollow>1000</maxOutgoingLinksToFollow>
@@ -60,7 +60,7 @@
 			<!-- 定义extract -->
 			<extract>
 				<type>default</type>
-				<threadNum>6</threadNum>
+				<threadNum>1</threadNum>
 				<template>
 					<urls>
 						<url>http://.*.youku.com/show_page/.*</url>
@@ -156,6 +156,7 @@
 				<type>default</type>
 				<threadNum>1</threadNum>
 			</store>
+
 			<!-- job运行时效，-1表示直到爬完全部，60表示一个小时后job自动结束 -->
 			<timeout>-1</timeout>
 		</job>
