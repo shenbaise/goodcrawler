@@ -30,6 +30,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.conf.jobconf.JobConfigurationX;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
@@ -48,7 +49,7 @@ public class ExtractorDytt8 extends Extractor {
 	/**
 	 * @param conf
 	 */
-	public ExtractorDytt8(JobConfigurationX conf) {
+	public ExtractorDytt8(ExtractConfig conf) {
 		super(conf);
 	}
 
@@ -73,7 +74,7 @@ public class ExtractorDytt8 extends Extractor {
 		                		WebURL url = new WebURL();
 		                		
 			                	url.setURL(linkHref);
-			                	url.setJobName(conf.getName());
+			                	url.setJobName(conf.jobName);
 								pendingUrls.addUrl(url);
 							} catch (QueueException e) {
 								 log.error(e.getMessage());
