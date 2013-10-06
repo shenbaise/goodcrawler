@@ -31,6 +31,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.conf.jobconf.JobConfigurationX;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
@@ -51,7 +52,7 @@ import com.google.common.collect.Sets;
 public class ExtractYouku extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
 //http://player.youku.com/player.php/sid/XNTg3ODI3NTIw/v.swf?isAutoPlay=true 
-	public ExtractYouku(JobConfigurationX conf) {
+	public ExtractYouku(ExtractConfig conf) {
 		super(conf);
 	}
 
@@ -193,7 +194,7 @@ public class ExtractYouku extends Extractor {
 		                if(filterUrls(linkHref)){
 		                	WebURL weburl = new WebURL();
 		                	weburl.setURL(linkHref);
-		                	weburl.setJobName(conf.getName());
+		                	weburl.setJobName(conf.jobName);
 		                	try {
 								pendingUrls.addUrl(weburl);
 							} catch (QueueException e) {
@@ -233,7 +234,7 @@ public class ExtractYouku extends Extractor {
 		                if(filterUrls(linkHref)){
 		                	WebURL weburl = new WebURL();
 		                	weburl.setURL(linkHref);
-		                	weburl.setJobName(conf.getName());
+		                	weburl.setJobName(conf.jobName);
 		                	try {
 								pendingUrls.addUrl(weburl);
 							} catch (QueueException e) {
