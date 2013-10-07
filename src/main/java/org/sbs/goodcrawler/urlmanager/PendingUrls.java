@@ -129,7 +129,7 @@ public class PendingUrls implements Serializable {
 	/**
 	 * 加入一个待处理的URL，Url总数+1
 	 * @param url
-	 * @param timeout
+	 * @param timeout (MILLISECONDS)
 	 * @return
 	 * @throws QueueException
 	 */

@@ -17,12 +17,10 @@
  */
 package org.sbs.goodcrawler.plugin.extract;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -32,12 +30,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.conf.jobconf.JobConfigurationX;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.util.Submitor;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
@@ -106,11 +104,7 @@ public class ExtractYouku extends Extractor {
 	                	WebURL weburl = new WebURL();
 	                	weburl.setURL(linkHref);
 	                	weburl.setJobName(conf.jobName);
-	                	try {
-							pendingUrls.addUrl(weburl);
-						} catch (QueueException e) {
-							 log.error(e.getMessage());
-						}
+	                	Submitor.submitUrl(weburl);
 	                }
 	            }
 	        }
