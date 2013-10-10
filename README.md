@@ -1,5 +1,7 @@
 goodcrawler(web crawler) 网络爬虫
 ===========
+本版本将对爬虫爬去策略，通用抽取器做重构
+---------------------------
 为什么叫goodcrawler?
 -----------
 		首先它是个crawler，其次它不bad。我觉得不bad那就是good了，所以起名goodcrawler。
