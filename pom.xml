@@ -70,7 +70,7 @@
 			<artifactId>servlet-api</artifactId>
 			<version>3.0-alpha-1</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
@@ -131,80 +131,63 @@
 			<version>1.9.13</version>
 		</dependency>
 	</dependencies>
-
+	
 	<build>
-		<finalName>goodcrawler</finalName>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
+        <finalName>goodcrawler</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.3</version>
 				<configuration>
 					<warName>${project.artifactId}</warName>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<configuration>
-					<charset>UTF-8</charset>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>7.1.0.RC1</version>
-				<configuration>
-					<scanIntervalSeconds>10</scanIntervalSeconds>
-					<stopKey>foo</stopKey>
-					<stopPort>9999</stopPort>
-					<connectors>
-						<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-							<port>8000</port>
-						</connector>
-					</connectors>
-					<scanTargetPatterns>
-						<scanTargetPattern>
-							<directory>src/main/webapp/WEB-INF</directory>
-							<excludes>
-								<exclude>**/*.jsp</exclude>
-							</excludes>
-							<includes>
-								<include>**/*.properties</include>
-								<include>**/*.xml</include>
-							</includes>
-						</scanTargetPattern>
-					</scanTargetPatterns>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-						<version>1.1</version>
-						<type>jar</type>
-					</dependency>
-					<dependency>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-jcl</artifactId>
-						<version>1.0.1</version>
-						<type>jar</type>
-					</dependency>
-					<dependency>
-						<groupId>log4j</groupId>
-						<artifactId>log4j</artifactId>
-						<version>1.2.13</version>
-						<type>jar</type>
-					</dependency>
-				</dependencies>
-			</plugin>
-		</plugins>
-	</build>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <charset>UTF-8</charset>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>7.1.0.RC1</version>
+                <configuration>
+                    <scanIntervalSeconds>10</scanIntervalSeconds>
+                    <stopKey>foo</stopKey>
+                    <stopPort>9999</stopPort>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                        <version>1.1</version>
+                        <type>jar</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-jcl</artifactId>
+                        <version>1.0.1</version>
+                        <type>jar</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                        <version>1.2.13</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 </project>

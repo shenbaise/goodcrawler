@@ -34,10 +34,10 @@ import com.google.common.collect.Sets;
 /**
  * @author whiteme
  * @date 2013年8月3日
- * @desc
+ * @desc 选择器，抽取文档中的相应元素
  */
 public class Selector {
-	
+	/** 要抽取的元素名 **/
 	private String name;
 	private String type;
 	private SelectorType _type;
