@@ -43,7 +43,9 @@ import org.sbs.util.StringUtil;
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-7
  * extractor for 66ys
+ * de precated . use defaultExtractor instead
  */
+@Deprecated
 public class ExtractorDytt8 extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
 	/**
@@ -85,7 +87,8 @@ public class ExtractorDytt8 extends Extractor {
 		            }
 		        }
 		        // 抽取信息
-				Map<String, String> selects = conf.getSelects();
+//				Map<String, String> selects = conf.getSelects();
+		        Map<String, String> selects  = null;
 				ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
 				epage.setUrl(page.getWebURL());
 				HashMap<String, Object> result = new HashMap<>();

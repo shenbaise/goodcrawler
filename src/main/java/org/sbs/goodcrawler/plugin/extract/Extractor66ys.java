@@ -53,7 +53,9 @@ import com.google.common.collect.Sets;
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-7
  * extractor for 66ys
+ * de precated . use defaultExtractor instead
  */
+@Deprecated
 public class Extractor66ys extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
 	private BinaryDateDwonLoader dwonLoader = BinaryDateDwonLoader.getInstance();

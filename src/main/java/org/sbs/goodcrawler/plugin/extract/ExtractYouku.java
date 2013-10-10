@@ -46,7 +46,9 @@ import com.google.common.collect.Sets;
  * @author whiteme
  * @date 2013年7月28日
  * @desc 
+ * de precated . use defaultExtractor instead
  */
+@Deprecated
 public class ExtractYouku extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
 //http://player.youku.com/player.php/sid/XNTg3ODI3NTIw/v.swf?isAutoPlay=true 
