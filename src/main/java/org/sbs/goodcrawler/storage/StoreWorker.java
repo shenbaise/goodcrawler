@@ -18,7 +18,7 @@
 package org.sbs.goodcrawler.storage;
 
 import org.sbs.crawler.Worker;
-import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
+import org.sbs.goodcrawler.jobconf.StoreConfig;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 
 /**

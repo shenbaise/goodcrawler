@@ -1,164 +1,153 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!--全局配置 -->
-<conf>
-	<globalSettings>
-		<threadPoolSize>50</threadPoolSize>
-		<timeout>10000</timeout>
-		<reportProcess>true</reportProcess>
-	</globalSettings>
+<job>
+	<name>movie</name>
+	<!-- 表示爬虫运行指定的时间长度后自动结束  -->
+	<jobtime>-1</jobtime>
+	<!-- 表示抓取指定数量的Url后结束  -->
+	<urlNum>-1</urlNum>
+	<!-- 定义 Fetcher -->
+	<fetch>
+		<!-- 默认为Default，如果有其他实现，填写类的全路径 -->
+		<type>default</type>
+		<agent>Kindle</agent>
+		<threadNum>1</threadNum>
+		<delayBetweenRequests>100</delayBetweenRequests>
+		<maxDepthOfCrawling>-1</maxDepthOfCrawling>
+		<maxOutgoingLinksToFollow>1000</maxOutgoingLinksToFollow>
+		<fetchBinaryContent>false</fetchBinaryContent>
+		<fileSuffix>gif,jpg,png,zip,rar,aiv,mtk</fileSuffix>
+		<https>true</https>
+		<onlyDomain>true</onlyDomain>
+		<connection>
+			<socketTimeoutMilliseconds>20000</socketTimeoutMilliseconds>
+			<connectionTimeout>2000</connectionTimeout>
+			<maxTotalConnections>120</maxTotalConnections>
+			<maxConnectionsPerHost>100</maxConnectionsPerHost>
+			<maxDownloadSizePerPage>1048576</maxDownloadSizePerPage>
+		</connection>
+		<proxy>
+			<proxyHost></proxyHost>
+			<proxyPort></proxyPort>
+			<proxyUsername></proxyUsername>
+			<proxyPassword></proxyPassword>
+		</proxy>
+		<seeds>
+			<seed>http://www.youku.com/</seed>
+		</seeds>
+		<!-- 加入Url待处理队列的策略 -->
+		<fetchUrlFilters>
+			<!-- 
+			<filter>http://.+[.]youku[.]com/.*[.]html$</filter>
+			 -->
+			<!-- 种子需要加入过滤策略 -->
+			<filter>http://.*.youku.com/show_page/.*</filter>
+			<filter>http://.*.youku.com/star_page/.*</filter>
+			<filter>http://www.youku.com/</filter>
+		</fetchUrlFilters>
+		<!-- 加入待抽取信息页队列的策略 -->
+		<extractUrlfilters>
+			<filter>http://.*.youku.com/show_page/.*</filter>
+			<filter>http://.*.youku.com/star_page/.*</filter>
+		</extractUrlfilters>
+	</fetch>
 
-	<!--作业配置 -->
-	<jobs>
-		<job>
-			<name>movie</name>
-			<!-- 定义 Fetcher -->
-			<fetch>
-				<!-- 默认为Default，如果有其他实现，填写类的全路径 -->
-				<type>default</type>
-				<agent>Kindle</agent>
-				<threadNum>1</threadNum>
-				<delayBetweenRequests>100</delayBetweenRequests>
-				<maxDepthOfCrawling>-1</maxDepthOfCrawling>
-				<maxOutgoingLinksToFollow>1000</maxOutgoingLinksToFollow>
-				<fetchBinaryContent>false</fetchBinaryContent>
-				<fileSuffix>gif,jpg,png,zip,rar,aiv,mtk</fileSuffix>
-				<https>true</https>
-				<onlyDomain>true</onlyDomain>
-				<connection>
-					<socketTimeoutMilliseconds>20000</socketTimeoutMilliseconds>
-					<connectionTimeout>2000</connectionTimeout>
-					<maxTotalConnections>120</maxTotalConnections>
-					<maxConnectionsPerHost>100</maxConnectionsPerHost>
-					<maxDownloadSizePerPage>1048576</maxDownloadSizePerPage>
-				</connection>
-				<proxy>
-					<proxyHost></proxyHost>
-					<proxyPort></proxyPort>
-					<proxyUsername></proxyUsername>
-					<proxyPassword></proxyPassword>
-				</proxy>
-				<seeds>
-					<seed>http://www.youku.com/</seed>
-				</seeds>
-				<!-- 加入Url待处理队列的策略 -->
-				<fetchUrlFilters>
-					<!-- 
-					<filter>http://.+[.]youku[.]com/.*[.]html$</filter>
-					 -->
-					<!-- 种子需要加入过滤策略 -->
-					<filter>http://.*.youku.com/show_page/.*</filter>
-					<filter>http://.*.youku.com/star_page/.*</filter>
-					<filter>http://www.youku.com/</filter>
-				</fetchUrlFilters>
-				<!-- 加入待抽取信息页队列的策略 -->
-				<extractUrlfilters>
-					<filter>http://.*.youku.com/show_page/.*</filter>
-					<filter>http://.*.youku.com/star_page/.*</filter>
-				</extractUrlfilters>
-			</fetch>
-
-			<!-- 定义extract -->
-			<extract>
-				<type>default</type>
-				<threadNum>1</threadNum>
-				<template>
-					<urls>
-						<url>http://.*.youku.com/show_page/.*</url>
-					</urls>
-					<elements>
-						<element name="title" type="string" value=".title .name" attr="text" required="true" />
-						<element name="category" type="string" value=".title .type a" attr="text" required="true">
-							
-							<if test="category=电影" ref="category">
-								<element1 name="year" type="int" value=".title .pub" attr="text"/>
-								<element1 name="score" type="int" value=".ratingstar .num" attr="text"/>
-								<element1 name="alias" type="string" value=".alias" attr="text">
-									<action1 opration="split" separator=":" retain="1"></action1>
-								</element1>
-								<element1 name="area" type="string" value=".row2 .area a" attr="text"/>
-								<element1 name="lang" type="string" value=".lang" attr="text">
-									<action1 opration="split" separator=":" retain="1"></action1>
-								</element1>
-								<element1 name="type" type="set" value=".row2 .type a" attr="text" required="true"/>
-								<element1 name="director" type="string" value=".row2 .director a" attr="text" />
-								<element1 name="actors" type="set" value=".actor a" attr="text" />
-								<element1 name="duration" type="int" value=".row2 .duration" attr="text" />
-								<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
-								<element1 name="summary" type="string" value=".detail .long" attr="text" />
-								<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
-								
-								<element1 name="play1" type="url" value=".btnplayposi" attr="href">
-									<element2 name="online1" type="set" value="#link2" attr="value" />
-								</element1>
-								<element1 name="play2" type="url" value=".btnplaytrailer" attr="value">
-									<element2 name="online2" type="set" value="#link2" attr="value" />
-								</element1>
-							</if>
-							<if test="category=电视剧">
-								<element1 name="year" type="int" value=".title .pub" attr="text" required="true"/>
-								<element1 name="score" type="int" value=".ratingstar .num" attr="text"/>
-								<element1 name="alias" type="string" value=".alias" attr="text">
-									<action1 opration="split" separator=":" retain="1"></action1>
-								</element1>
-								<element1 name="area" type="string" value=".row2 .area a" attr="text"/>
-								<element1 name="lang" type="string" value=".lang" attr="text">
-									<action1 opration="split" separator=":" retain="1"></action1>
-								</element1>
-								<element1 name="type" type="set" value=".row2 .type a" attr="text" required="true"/>
-								<element1 name="director" type="string" value=".row2 .director a" attr="text" />
-								<element1 name="actors" type="set" value=".actor a" attr="text"/>
-								<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
-								<element1 name="summary" type="string" value="#show_info_short" attr="text" />
-								<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
-								<!-- 剧集超过40需要模拟点击 #研究中 -->
-								<element1 name="play1" type="url" value="#episode a" attr="href">
-									<element2 name="online" type="set" value="#link2" attr="value" />
-								</element1>
-							</if>
-							<if test="category=综艺">
-								<element1 name="year" type="int" value=".title .pub" attr="text"/>
-								<element1 name="score" type="int" value=".ratingstar .num" attr="text" />
-								<element1 name="area" type="string" value=".row2 .area a" attr="text" />
-								<element1 name="type" type="set" value=".row1 .type .a" attr="text" required="true"/>
-								<element1 name="lang" type="string" value=".lang" attr="text">
-									<action1 opration="split" separator=":" retain="1"></action1>
-								</element1>
-								<element1 name="host" type="string" value=".row1 .host a" attr="text"/>
-								<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
-								<element1 name="summary" type="string" value="#show_info_short" attr="text" />
-								<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
-								<!-- 剧集超过40需要模拟点击 #研究中 -->
-								<element1 name="play1" type="url" value="#episode a" attr="href">
-									<element2 name="online" type="set" value="#link2" attr="value" />
-								</element1>
-							</if>
-							<if test="category=动漫">
-								<element1 name="year" type="int" value=".title .pub" attr="text" required="true"/>
-								<element1 name="score" type="int" value=".ratingstar .num" attr="text"/>
-								<element1 name="alias" type="string" value=".alias" attr="text">
-									<action1 opration="split" separator=":" retain="1"></action1>
-								</element1>
-								<element1 name="area" type="string" value=".row2 .area a" attr="text"/>
-								<element1 name="type" type="set" value=".row2 .type a" attr="text" required="true" />
-								<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
-								<element1 name="summary" type="string" value=".detail .long" attr="text" />
-								<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
-								<element1 name="play1" type="url" value="#episode a" attr="href">
-									<element2 name="online" type="set" value="#link2" attr="value" />
-								</element1>
-							</if>
-						</element>
-					</elements>
-				</template>
-			</extract>
-			<!-- 存储配置 -->
-			<store>
-				<type>default</type>
-				<threadNum>1</threadNum>
-			</store>
-
-			<!-- job运行时效，-1表示直到爬完全部，60表示一个小时后job自动结束 -->
-			<timeout>-1</timeout>
-		</job>
-	</jobs>
-</conf>
+	<!-- 定义extract -->
+	<extract>
+		<type>default</type>
+		<threadNum>1</threadNum>
+		<template>
+			<urls>
+				<url>http://.*.youku.com/show_page/.*</url>
+			</urls>
+			<elements>
+				<element name="title" type="string" value=".title .name" attr="text" required="true" />
+				<element name="category" type="string" value=".title .type a" attr="text" required="true">
+					
+					<if test="category=电影" ref="category">
+						<element1 name="year" type="int" value=".title .pub" attr="text"/>
+						<element1 name="score" type="int" value=".ratingstar .num" attr="text"/>
+						<element1 name="alias" type="string" value=".alias" attr="text">
+							<action1 opration="split" separator=":" retain="1"></action1>
+						</element1>
+						<element1 name="area" type="string" value=".row2 .area a" attr="text"/>
+						<element1 name="lang" type="string" value=".lang" attr="text">
+							<action1 opration="split" separator=":" retain="1"></action1>
+						</element1>
+						<element1 name="type" type="set" value=".row2 .type a" attr="text" required="true"/>
+						<element1 name="director" type="string" value=".row2 .director a" attr="text" />
+						<element1 name="actors" type="set" value=".actor a" attr="text" />
+						<element1 name="duration" type="int" value=".row2 .duration" attr="text" />
+						<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
+						<element1 name="summary" type="string" value=".detail .long" attr="text" />
+						<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
+						
+						<element1 name="play1" type="url" value=".btnplayposi" attr="href">
+							<element2 name="online1" type="set" value="#link2" attr="value" />
+						</element1>
+						<element1 name="play2" type="url" value=".btnplaytrailer" attr="value">
+							<element2 name="online2" type="set" value="#link2" attr="value" />
+						</element1>
+					</if>
+					<if test="category=电视剧">
+						<element1 name="year" type="int" value=".title .pub" attr="text" required="true"/>
+						<element1 name="score" type="int" value=".ratingstar .num" attr="text"/>
+						<element1 name="alias" type="string" value=".alias" attr="text">
+							<action1 opration="split" separator=":" retain="1"></action1>
+						</element1>
+						<element1 name="area" type="string" value=".row2 .area a" attr="text"/>
+						<element1 name="lang" type="string" value=".lang" attr="text">
+							<action1 opration="split" separator=":" retain="1"></action1>
+						</element1>
+						<element1 name="type" type="set" value=".row2 .type a" attr="text" required="true"/>
+						<element1 name="director" type="string" value=".row2 .director a" attr="text" />
+						<element1 name="actors" type="set" value=".actor a" attr="text"/>
+						<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
+						<element1 name="summary" type="string" value="#show_info_short" attr="text" />
+						<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
+						<!-- 剧集超过40需要模拟点击 #研究中 -->
+						<element1 name="play1" type="url" value="#episode a" attr="href">
+							<element2 name="online" type="set" value="#link2" attr="value" />
+						</element1>
+					</if>
+					<if test="category=综艺">
+						<element1 name="year" type="int" value=".title .pub" attr="text"/>
+						<element1 name="score" type="int" value=".ratingstar .num" attr="text" />
+						<element1 name="area" type="string" value=".row2 .area a" attr="text" />
+						<element1 name="type" type="set" value=".row1 .type .a" attr="text" required="true"/>
+						<element1 name="lang" type="string" value=".lang" attr="text">
+							<action1 opration="split" separator=":" retain="1"></action1>
+						</element1>
+						<element1 name="host" type="string" value=".row1 .host a" attr="text"/>
+						<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
+						<element1 name="summary" type="string" value="#show_info_short" attr="text" />
+						<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
+						<!-- 剧集超过40需要模拟点击 #研究中 -->
+						<element1 name="play1" type="url" value="#episode a" attr="href">
+							<element2 name="online" type="set" value="#link2" attr="value" />
+						</element1>
+					</if>
+					<if test="category=动漫">
+						<element1 name="year" type="int" value=".title .pub" attr="text" required="true"/>
+						<element1 name="score" type="int" value=".ratingstar .num" attr="text"/>
+						<element1 name="alias" type="string" value=".alias" attr="text">
+							<action1 opration="split" separator=":" retain="1"></action1>
+						</element1>
+						<element1 name="area" type="string" value=".row2 .area a" attr="text"/>
+						<element1 name="type" type="set" value=".row2 .type a" attr="text" required="true" />
+						<element1 name="hot" type="int" value=".row2 .vr .num" attr="text" />
+						<element1 name="summary" type="string" value=".detail .long" attr="text" />
+						<element1 name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true"/>
+						<element1 name="play1" type="url" value="#episode a" attr="href">
+							<element2 name="online" type="set" value="#link2" attr="value" />
+						</element1>
+					</if>
+				</element>
+			</elements>
+		</template>
+	</extract>
+	<!-- 存储配置 -->
+	<store>
+		<type>elasticsearch</type>
+		<threadNum>2</threadNum>
+	</store>
+</job>

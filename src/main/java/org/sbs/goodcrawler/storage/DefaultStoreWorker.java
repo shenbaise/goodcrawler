@@ -19,8 +19,8 @@ package org.sbs.goodcrawler.storage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
 import org.sbs.goodcrawler.exception.QueueException;
+import org.sbs.goodcrawler.jobconf.StoreConfig;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 
 /**

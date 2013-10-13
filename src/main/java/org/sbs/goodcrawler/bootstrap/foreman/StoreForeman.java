@@ -20,7 +20,7 @@ package org.sbs.goodcrawler.bootstrap.foreman;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
+import org.sbs.goodcrawler.jobconf.StoreConfig;
 import org.sbs.goodcrawler.plugin.storage.ElasticSearchStorage;
 import org.sbs.goodcrawler.storage.DefaultStoreWorker;
 

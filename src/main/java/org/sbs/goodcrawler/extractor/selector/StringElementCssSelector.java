@@ -1,0 +1,111 @@
+/**
+ * ########################  SHENBAISE'S WORK  ##########################
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.sbs.goodcrawler.extractor.selector;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.extractor.selector.action.StringSelectorAction;
+
+/**
+ * @author whiteme
+ * @date 2013年10月11日
+ * @desc String 类型的选择器
+ */
+public class StringElementCssSelector extends ElementCssSelector<String> {
+	
+	private String content;
+	private List<StringSelectorAction> actions;
+	
+	public StringElementCssSelector() {
+		super();
+	}
+
+	public StringElementCssSelector(String name, String value, String attr,
+			boolean isRequired) {
+		super(name, value, attr, isRequired);
+	}
+
+	/**
+	 * 提取内容，并根据Action对内容做加工
+	 */
+	@Override
+	protected String getContent() {
+		// 同一个文档的2+次调用不用重新计算。
+		if(StringUtils.isNotBlank(this.content) && !newDoc){
+			return content;
+		}
+		// 抽取document中对应的Selector
+		if (super.document != null) {
+			Elements elements = super.document.select(value);
+			if(elements.isEmpty())
+				return null;
+			StringBuilder sb = new StringBuilder();
+			switch ($Attr) {
+			case text:
+				for (Element e : elements) {
+					sb.append(e.text()).append("\n");
+				}
+				break;
+			default:
+				for (Element e : elements) {
+					sb.append(e.attr(attr));
+				}
+				break;
+			}
+			if(StringUtils.isNotBlank(sb)){
+				String temp = sb.substring(0,sb.length()-1);
+				if(null!=actions){
+					for(StringSelectorAction action:actions){
+						this.content = action.doAction(temp);
+					}
+				}else {
+					this.content = sb.substring(0, sb.length()-1);
+				}
+			}
+		}
+		return "";
+	}
+
+	@Override
+	protected Map<String, String> getContentMap() {
+		if(StringUtils.isBlank(content) && newDoc){
+			getContent();
+		}
+		Map<String, String> m = new HashMap<String, String>(1);
+		m.put(name, this.content);
+		return m;
+	}
+
+	public List<StringSelectorAction> getActions() {
+		return actions;
+	}
+
+	public void setActions(List<StringSelectorAction> actions) {
+		this.actions = actions;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+	
+}

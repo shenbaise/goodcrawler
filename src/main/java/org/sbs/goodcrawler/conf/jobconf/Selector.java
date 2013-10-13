@@ -24,6 +24,8 @@ import java.util.List;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.extractor.selector.SelectorAttr;
+import org.sbs.goodcrawler.extractor.selector.SelectorType;
 import org.sbs.util.EnumUtils;
 
 import com.google.common.base.CharMatcher;

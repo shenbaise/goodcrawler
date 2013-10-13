@@ -19,8 +19,8 @@ package org.sbs.goodcrawler.fetcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
 import org.sbs.goodcrawler.exception.QueueException;
+import org.sbs.goodcrawler.jobconf.FetchConfig;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 
 /**

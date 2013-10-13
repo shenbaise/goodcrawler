@@ -15,31 +15,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.fetcher;
+package org.sbs.goodcrawler.extractor.selector.action.string;
 
-import org.sbs.goodcrawler.jobconf.FetchConfig;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.jasper.tagplugins.jstl.core.If;
+import org.sbs.goodcrawler.extractor.selector.action.StringSelectorAction;
 
 /**
  * @author whiteme
- * @date 2013年7月29日
- * @desc 
+ * @date 2013年10月13日
+ * @desc 截取在某个字符（串）之前的部分的action
  */
-public class FetcherInstance {
-	private static FetchConfig conf = new FetchConfig();
-	{
-		conf.setAgent("ipad");
-		conf.setSocketTimeoutMilliseconds(15000);
-		conf.setConnectionTimeout(5000);
-		conf.setMaxTotalConnections(10);
-		conf.setHttps(true);
+public class StringBeforeAction extends StringSelectorAction {
+	/**
+	 * 定位的String
+	 */
+	private String separator ;
+	/**
+	 * 构造器
+	 * @param befString
+	 */
+	public StringBeforeAction(String separator){
+		this.separator = separator;
 	}
-	
-	private static PageFetcher fetcher = null;
-	
-	public static PageFetcher getFetcher(){
-		if(null==fetcher){
-			fetcher = new PageFetcher(conf);
+	/**
+	 * 截取在beforeString之前的部分
+	 */
+	@Override
+	public String doAction(String content) {
+		if(StringUtils.isNotBlank(content)){
+			return StringUtils.substringBefore(content, this.separator);
 		}
-		return fetcher;
+		return "";
 	}
 }
