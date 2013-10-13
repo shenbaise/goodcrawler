@@ -42,7 +42,7 @@ import org.sbs.goodcrawler.urlmanager.PendingUrls;
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-3
- * bootstrap
+ * bootstrap   
  */
 public class BootStrap {
 	private static PropertyConfigurationHelper conHelper = PropertyConfigurationHelper.getInstance();
