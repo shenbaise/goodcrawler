@@ -20,9 +20,9 @@ package org.sbs.goodcrawler.bootstrap.foreman;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
 import org.sbs.goodcrawler.fetcher.DefaultFetchWorker;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
+import org.sbs.goodcrawler.jobconf.FetchConfig;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)

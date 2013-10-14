@@ -19,8 +19,8 @@ package org.sbs.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sbs.goodcrawler.conf.jobconf.SelectActionOperationType;
-import org.sbs.goodcrawler.conf.jobconf.SelectorAttr;
-import org.sbs.goodcrawler.conf.jobconf.SelectorType;
+import org.sbs.goodcrawler.extractor.selector.SelectorAttr;
+import org.sbs.goodcrawler.extractor.selector.SelectorType;
 import org.sbs.goodcrawler.storage.StorageType;
 
 /**

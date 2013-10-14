@@ -29,6 +29,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.conf.Configuration;
+import org.sbs.goodcrawler.extractor.selector.SplitAction;
 import org.sbs.util.EnumUtils;
 
 import com.google.common.collect.Lists;

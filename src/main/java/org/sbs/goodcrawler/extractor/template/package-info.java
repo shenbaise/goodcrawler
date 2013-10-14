@@ -15,31 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.fetcher;
-
-import org.sbs.goodcrawler.jobconf.FetchConfig;
-
 /**
  * @author whiteme
- * @date 2013年7月29日
+ * @date 2013年10月13日
  * @desc 
  */
-public class FetcherInstance {
-	private static FetchConfig conf = new FetchConfig();
-	{
-		conf.setAgent("ipad");
-		conf.setSocketTimeoutMilliseconds(15000);
-		conf.setConnectionTimeout(5000);
-		conf.setMaxTotalConnections(10);
-		conf.setHttps(true);
-	}
-	
-	private static PageFetcher fetcher = null;
-	
-	public static PageFetcher getFetcher(){
-		if(null==fetcher){
-			fetcher = new PageFetcher(conf);
-		}
-		return fetcher;
-	}
-}
+package org.sbs.goodcrawler.extractor.template;

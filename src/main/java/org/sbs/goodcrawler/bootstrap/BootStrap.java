@@ -31,10 +31,10 @@ import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.StoreForeman;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
 import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
-import org.sbs.goodcrawler.conf.jobconf.StoreConfig;
 import org.sbs.goodcrawler.fetcher.PendingPages;
+import org.sbs.goodcrawler.jobconf.FetchConfig;
+import org.sbs.goodcrawler.jobconf.StoreConfig;
 import org.sbs.goodcrawler.storage.PendingStore;
 import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
 import org.sbs.goodcrawler.urlmanager.PendingUrls;
@@ -42,7 +42,7 @@ import org.sbs.goodcrawler.urlmanager.PendingUrls;
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-3
- * bootstrap   
+ * bootstrap
  */
 public class BootStrap {
 	private static PropertyConfigurationHelper conHelper = PropertyConfigurationHelper.getInstance();

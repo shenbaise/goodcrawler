@@ -53,7 +53,7 @@ import org.apache.http.params.HttpProtocolParamBean;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 import org.sbs.crawler.Configurable;
-import org.sbs.goodcrawler.conf.jobconf.FetchConfig;
+import org.sbs.goodcrawler.jobconf.FetchConfig;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 import org.sbs.url.URLCanonicalizer;
 

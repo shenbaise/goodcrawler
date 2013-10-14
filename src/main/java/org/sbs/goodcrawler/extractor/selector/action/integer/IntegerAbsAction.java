@@ -15,31 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.fetcher;
+package org.sbs.goodcrawler.extractor.selector.action.integer;
 
-import org.sbs.goodcrawler.jobconf.FetchConfig;
+import org.sbs.goodcrawler.extractor.selector.action.IntegerSelectorAction;
 
 /**
  * @author whiteme
- * @date 2013年7月29日
- * @desc 
+ * @date 2013年10月13日
+ * @desc 求绝对值
  */
-public class FetcherInstance {
-	private static FetchConfig conf = new FetchConfig();
-	{
-		conf.setAgent("ipad");
-		conf.setSocketTimeoutMilliseconds(15000);
-		conf.setConnectionTimeout(5000);
-		conf.setMaxTotalConnections(10);
-		conf.setHttps(true);
+public class IntegerAbsAction extends IntegerSelectorAction {
+
+	/**
+	 * 求绝对值
+	 */
+	@Override
+	public int doAction(Integer i) {
+		return Math.abs(i);
 	}
-	
-	private static PageFetcher fetcher = null;
-	
-	public static PageFetcher getFetcher(){
-		if(null==fetcher){
-			fetcher = new PageFetcher(conf);
-		}
-		return fetcher;
-	}
+
 }
