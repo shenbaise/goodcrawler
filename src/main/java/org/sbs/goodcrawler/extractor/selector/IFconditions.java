@@ -15,55 +15,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.jobconf;
+package org.sbs.goodcrawler.extractor.selector;
 
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.Set;
 
-import org.sbs.goodcrawler.conf.Configuration;
-import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
+import org.apache.commons.lang3.StringUtils;
 
-
-/**
- * @author whiteme
- * @date 2013年10月13日
- * @desc 内容抽取配置对象
- */
-public class ExtractConfig extends Configuration {
-	/**
-	 * 默认使用个线程提取信息
-	 */
-	private int threadNum = 5;
-	
-	
-	
-	@Override
-	public String toString() {
-		return null;
-	}
-	
-	
-}
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
- * 
  * @author whiteme
  * @date 2013年10月15日
- * @desc 抽取模板，一个提取任务可以拥有多个收取模板
+ * @desc 条件判别，满足相应条件，则返回相应的选择器
  */
-class ExtractTemplate{
+public class IFconditions {
 	/**
-	 * 模板名称
+	 * 依赖检测的选择器
 	 */
-	private String name;
+	private Test depend;
 	/**
-	 * 该模板对应的模板模式，如果没有设置则，对所有页面以次模板提取信息
+	 * 条件，以AND OR = 分割
 	 */
-	private Pattern urlPattern;
+	private String conditions;
 	/**
-	 * 该模板对应的css选择器，使用jsoup进行提取。
+	 * 条件辨别式对应的一组选择器
 	 */
-	private List<ElementCssSelector<?>> cssSelectors;
+	protected List<ElementCssSelector> selectors = Lists.newArrayList();
 	
+	/**
+	 * 检测依赖的选择器是否满足条件
+	 * @param depend
+	 * @return
+	 */
+	public boolean test(ElementCssSelector depend){
+		
+		return false;
+	}
 	
+	public boolean totest(){
+		
+		
+		return false;
+	}
+	
+	public class Test{
+		Set<String> operations = Sets.newHashSet("=",">","<",">=","<=");
+		Set<String> cond = Sets.newHashSet("and","or","AND","OR");
+	}
 }

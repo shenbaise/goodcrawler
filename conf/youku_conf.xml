@@ -64,10 +64,10 @@
 	</fetch>
 
 	<!-- 定义extract -->
-	<extract>
+	<extract> 
 		<type>default</type>
 		<threadNum>1</threadNum>
-		<template>
+		<template name="movie">
 			<urls>
 				<url>http://.*.youku.com/show_page/.*</url>
 			</urls>

@@ -17,12 +17,9 @@
  */
 package org.sbs.goodcrawler.extractor.selector;
 
-import java.util.List;
 import java.util.Map;
 
 import org.jsoup.nodes.Document;
-
-import com.google.common.collect.Lists;
 
 /**
  * @author whiteme
@@ -56,10 +53,8 @@ public abstract class ElementCssSelector<T> {
 	 * 选择器要处理的文档
 	 */
 	protected Document document;
-	/**
-	 * 子选择器
-	 */
-	protected List<ElementCssSelector> childSelectors = Lists.newArrayList();
+	
+	
 	/**
 	 * 为true表示需要处理新的document<br>
 	 * false表示该document已经处理过
@@ -146,17 +141,6 @@ public abstract class ElementCssSelector<T> {
 		return this;
 	}
 
-	public List<ElementCssSelector> getChildSelectors() {
-		return childSelectors;
-	}
-
-	public void setChildSelectors(List<ElementCssSelector> childSelectors) {
-		this.childSelectors = childSelectors;
-	}
-	
-	public void addChildSelector(ElementCssSelector selector){
-		this.childSelectors.add(selector);
-	}
 
 	public SelectorAttr get$Attr() {
 		return $Attr;
