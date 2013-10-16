@@ -17,11 +17,23 @@
  */
 package org.sbs.goodcrawler.jobconf;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.conf.Configuration;
+import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
+import org.sbs.goodcrawler.extractor.selector.IFconditions;
+
+import com.google.common.collect.Lists;
 
 
 /**
@@ -29,13 +41,35 @@ import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
  * @date 2013年10月13日
  * @desc 内容抽取配置对象
  */
+//@SuppressWarnings("rawtypes")
 public class ExtractConfig extends Configuration {
 	/**
 	 * 默认使用个线程提取信息
 	 */
-	private int threadNum = 5;
+	private int threadNum = 10;
+	/**
+	 * 抽取信息的模板列表
+	 */
+	private List<ExtractTemplate> templates = Lists.newArrayList();
 	
-	
+	private ExtractConfig loadConfig(Document doc) throws ConfigurationException{
+		Elements extractElement = doc.select("extract");
+		String temp = extractElement.select("threadNum").text();
+		
+		if(StringUtils.isNotBlank(temp)){
+			this.threadNum = Integer.parseInt(temp);
+		}
+		
+		Elements templateElement = extractElement.select("extract").select("template");
+		Iterator<Element> it = templateElement.iterator();
+		while(it.hasNext()){
+			Element template = it.next();
+			ExtractTemplate extractTemplate = new ExtractTemplate();
+			
+		}
+		
+		return this;
+	}
 	
 	@Override
 	public String toString() {
@@ -43,6 +77,18 @@ public class ExtractConfig extends Configuration {
 	}
 	
 	
+	public static void main(String[] args) {
+		ExtractConfig extractConfig = new ExtractConfig();
+		Document document;
+		try {
+			document = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
+			extractConfig.loadConfig(document);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
+	}
 }
 
 /**
@@ -51,6 +97,7 @@ public class ExtractConfig extends Configuration {
  * @date 2013年10月15日
  * @desc 抽取模板，一个提取任务可以拥有多个收取模板
  */
+@SuppressWarnings("rawtypes")
 class ExtractTemplate{
 	/**
 	 * 模板名称
@@ -63,7 +110,42 @@ class ExtractTemplate{
 	/**
 	 * 该模板对应的css选择器，使用jsoup进行提取。
 	 */
-	private List<ElementCssSelector<?>> cssSelectors;
+	private List<ElementCssSelector> cssSelectors;
 	
-	
+	/**
+	 * 条件分支
+	 */
+	private List<IFconditions> conditions;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Pattern getUrlPattern() {
+		return urlPattern;
+	}
+
+	public void setUrlPattern(Pattern urlPattern) {
+		this.urlPattern = urlPattern;
+	}
+
+	public List<ElementCssSelector> getCssSelectors() {
+		return cssSelectors;
+	}
+
+	public void setCssSelectors(List<ElementCssSelector> cssSelectors) {
+		this.cssSelectors = cssSelectors;
+	}
+
+	public List<IFconditions> getConditions() {
+		return conditions;
+	}
+
+	public void setConditions(List<IFconditions> conditions) {
+		this.conditions = conditions;
+	}
 }
