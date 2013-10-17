@@ -15,46 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.conf.jobconf;
+package org.sbs.goodcrawler.extractor.selector.action.string;
 
 /**
  * @author whiteme
- * @date 2013年8月3日
- * @desc 选择器选择元素的预期类型
+ * @date 2013年10月17日
+ * @desc 字符处理的各种方式
  */
-public enum SelectorType {
-	/**
-	 * 字符，可以使用正则进行匹配
-	 */
-	$string,
-	/**
-	 * 整型，可带有区间、大小等限制
-	 */
-	$int,
-	/**
-	 * 该类型的选择器将被填充到list中
-	 */
-	$list,
-	/**
-	 * 该类型的选择器，将选择抽取的内入填充到set中
-	 */
-	$set,
-	/**
-	 * map
-	 */
-	$map,
-	/**
-	 * 该类型的选择器表明，其值是一个Url。该url会被再次抓取并抽取。
-	 * </br><i>注意:</i><b>只有该类型的选择器可以嵌套选择器</b>
-	 */
-	$url,
-	/**
-	 * 该类型的选择器表明其选择内容将是数值类型的。
-	 * </br>该选择器带有format
-	 */
-	$numerica,
-	/**
-	 * 该类型的选择器表明其选择的内容将是日期类型的。</br>该选择器带有format
-	 */
-	$date
+public enum StringActionType {
+	$after,
+	$afterLast,
+	$before,
+	$beforeLast,
+	$between,
+	$filter,
+	$replace,
+	$splite,
+	$sub
 }

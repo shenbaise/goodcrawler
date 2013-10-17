@@ -15,35 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.conf.jobconf;
+package org.sbs.goodcrawler.extractor.selector.action;
 
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author whiteme
- * @date 2013年8月3日
- * @desc 
+ * @date 2013年10月18日
+ * @desc 什么也不做
  */
-public class SplitAction extends SelectAction{
-	private String separator = ":";
-	private int retain = 0;
-	
-	
-	public SplitAction(String separator, int retain) {
-		super();
-		this.separator = separator;
-		this.retain = retain;
-	}
-
-
-	@Override
-	public String doAction(String content) {
-		if(StringUtils.isNotBlank(content)){
-			String[] s = content.split(separator);
-			if(s.length>retain){
-				return s[retain];
-			}
-		}
-		return null;
+public class EmptyAction implements SelectorAction{
+	public Object doAction(Object content) {
+		return content;
 	}
 }

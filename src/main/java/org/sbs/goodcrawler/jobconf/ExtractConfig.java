@@ -27,11 +27,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.conf.Configuration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.IFconditions;
+import org.sbs.goodcrawler.extractor.selector.factory.ElementCssSelectorFactory;
 
 import com.google.common.collect.Lists;
 
@@ -52,6 +54,12 @@ public class ExtractConfig extends Configuration {
 	 */
 	private List<ExtractTemplate> templates = Lists.newArrayList();
 	
+	/**
+	 * 从配置文件中加载抽取配置信息
+	 * @param doc
+	 * @return
+	 * @throws ConfigurationException
+	 */
 	private ExtractConfig loadConfig(Document doc) throws ConfigurationException{
 		Elements extractElement = doc.select("extract");
 		String temp = extractElement.select("threadNum").text();
@@ -65,7 +73,40 @@ public class ExtractConfig extends Configuration {
 		while(it.hasNext()){
 			Element template = it.next();
 			ExtractTemplate extractTemplate = new ExtractTemplate();
+			// 模板对应的Url规则，满足其一就使用该模板进行提取
+			Elements urlPatternElement = template.select("url");
+			List<Pattern> patterns = Lists.newArrayList();
+			for(Element urlElement :urlPatternElement){
+				patterns.add(Pattern.compile(urlElement.text()));
+			}
+			extractTemplate.setUrlPattern(patterns);
 			
+			// 提取元素
+			Elements selectElement = template.select("elements").first().children();
+			for(Element element:selectElement){
+				if("element".equals(element.tag())){
+					String name = element.attr("name");
+					String value = element.attr("value");
+					String type = element.attr("type");
+					String attr = element.attr("attr");
+					String required = element.attr("required");
+					boolean isRequired = true;
+					if(StringUtils.isNotBlank(required)){
+						isRequired = Boolean.parseBoolean(required);
+					}
+					ElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired);
+					extractTemplate.addCssSelector(selector);
+					
+				}else if("if".equals(element.tag())){
+					
+				}
+			}
+			
+			List<Node> nodes = template.childNodes();
+			Node elementsNode = nodes.get(5);
+			List<Node> cnodes = elementsNode.childNodes();
+			
+			System.out.println("...");
 		}
 		
 		return this;
@@ -106,16 +147,15 @@ class ExtractTemplate{
 	/**
 	 * 该模板对应的模板模式，如果没有设置则，对所有页面以次模板提取信息
 	 */
-	private Pattern urlPattern;
+	private List<Pattern> urlPattern = Lists.newArrayList();
 	/**
 	 * 该模板对应的css选择器，使用jsoup进行提取。
 	 */
-	private List<ElementCssSelector> cssSelectors;
-	
+	private List<ElementCssSelector> cssSelectors = Lists.newArrayList();
 	/**
 	 * 条件分支
 	 */
-	private List<IFconditions> conditions;
+	private List<IFconditions> conditions = Lists.newArrayList();
 
 	public String getName() {
 		return name;
@@ -125,27 +165,39 @@ class ExtractTemplate{
 		this.name = name;
 	}
 
-	public Pattern getUrlPattern() {
+	public List<Pattern> getUrlPattern() {
 		return urlPattern;
 	}
 
-	public void setUrlPattern(Pattern urlPattern) {
+	public void setUrlPattern(List<Pattern> urlPattern) {
 		this.urlPattern = urlPattern;
+	}
+	
+	public void addUrlPattern(Pattern urlPattern){
+		this.urlPattern.add(urlPattern);
 	}
 
 	public List<ElementCssSelector> getCssSelectors() {
 		return cssSelectors;
 	}
-
+	
 	public void setCssSelectors(List<ElementCssSelector> cssSelectors) {
 		this.cssSelectors = cssSelectors;
 	}
-
+	
+	public void addCssSelector(ElementCssSelector selector){
+		this.cssSelectors.add(selector);
+	}
+	
 	public List<IFconditions> getConditions() {
 		return conditions;
 	}
 
 	public void setConditions(List<IFconditions> conditions) {
 		this.conditions = conditions;
+	}
+	
+	public void addConditions(IFconditions condition){
+		this.conditions.add(condition);
 	}
 }

@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.conf.jobconf;
+package org.sbs.goodcrawler.extractor.selector.action.integer;
 
 /**
  * @author whiteme
- * @date 2013年8月3日
+ * @date 2013年10月18日
  * @desc 
  */
-public abstract class SelectAction {
-	public abstract Object doAction(String content);
+public enum IntegerActionType {
+	$abs,
+	$between
 }

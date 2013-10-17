@@ -52,5 +52,9 @@ public enum SelectorType {
 	/**
 	 * 该类型的选择器表明其选择的内容将是日期类型的。</br>该选择器带有format
 	 */
-	$date
+	$date,
+	/**
+	 * ajax方式的动态选择器
+	 */
+	$ajax
 }

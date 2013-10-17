@@ -35,7 +35,7 @@ public class StringAfterAction extends StringSelectorAction {
 	 * 构造器
 	 * @param separator
 	 */
-	private StringAfterAction(String separator){
+	public StringAfterAction(String separator){
 		this.separator = separator;
 	}
 	
