@@ -48,51 +48,51 @@ public class MultiThreadDownload {
 	/**
 	 * 缓冲区大小
 	 */
-	static int BUFFER_SIZE = 1024*100;
+	private static int BUFFER_SIZE = 1024*1024;
 	/**
 	 * 分块大小
 	 */
-	long blockSize = 1024*1024;
+	private long blockSize = 1024*1024;
 	/**
 	 *  如不设置blockSize，则需设置threadNum，如设置了threadNum，blockSize不需设置
 	 */
-	int threadNum = 3;
+	private int threadNum = 3;
 	/**
 	 * 链接超时时间
 	 */
-	int setConnectTimeout = 10000;
+	private int setConnectTimeout = 10000;
 	/**
 	 * 读取超时时间
 	 */
-	int setReadTimeout = 10000;
+	private int setReadTimeout = 10000;
 	/**
-	 * 文件的总长度
+	 * 已经下载的长度
 	 */
-	long totalLen = -1;
+	private long downLen = -1;
 	/**
-	 * 已经下载的文件长度
+	 * 文件总长度
 	 */
-	long downLoadLen = 0;
+	private long contentLen = 0;
 	/**
 	 * 开始下载的时间
 	 */
-	Date date ;
+	private Date date ;
 	/**
 	 * 执行下载的线程池
 	 */
-	DownLoadPool pool = DownLoadPool.getInstance();
+	private DownLoadPool pool = DownLoadPool.getInstance();
 	/**
 	 * 格式化百分比
 	 */
-	DecimalFormat decimalFormat = new DecimalFormat("##.##%");
+	private DecimalFormat decimalFormat = new DecimalFormat("##.##%");
 	/**
 	 * 是否下载完成
 	 */
-	boolean finished = false;
+	private boolean finished = false;
 	/**
 	 * lock
 	 */
-	final Object object = new Object();
+	private final Object object = new Object();
 	
 	public MultiThreadDownload(int threadNum,
 			int setConnectTimeout, int setReadTimeout) {
@@ -147,10 +147,33 @@ public class MultiThreadDownload {
 	}
 
 	public synchronized long addLen(int downSize){
-		this.totalLen = this.totalLen + downSize;
-		return this.totalLen;
+		this.downLen = this.downLen + downSize;
+		synchronized (object) {
+        	object.notify();
+		}
+		return this.downLen;
 	}
 	
+	/**
+	 * 下载网络文件（异步）
+	 * @param url
+	 * @param path
+	 * @param fileName
+	 */
+	@SuppressWarnings("rawtypes")
+	public void downFile(final URL url,final String path,final String fileName,boolean listen) throws DownLoadException{
+		Callable callable = new Callable() {
+			@Override
+			public Future call() throws Exception {
+				downLoad(url,path,fileName);
+				return null;
+			}
+		};
+		pool.submit(callable);
+		// 监听状态
+		if(listen)
+			listenStatus();
+	}
 	
 	/**
 	 * 下载文件
@@ -160,16 +183,17 @@ public class MultiThreadDownload {
 	 * @return
 	 * @throws DownLoadException
 	 */
+	@SuppressWarnings("unchecked")
 	public File downLoad(final URL url,String path,String fileName) throws DownLoadException{
 		// 重置状态
-		this.totalLen = -1;
-		this.downLoadLen = 0;
+		this.downLen = -1;
+		this.contentLen = 0;
 		this.date = new Date();
 		this.finished = false;
 		try {
 			URLConnection con = url.openConnection();
 			//获得资源长度
-			int contentLen = con.getContentLength();
+			this.contentLen = con.getContentLength();
 			//检查文件名
 			if(StringUtils.isBlank(fileName)){
 				fileName = StringUtils.substringAfterLast(url.getPath(), "/");
@@ -188,7 +212,7 @@ public class MultiThreadDownload {
 				final int pos = (int) (i*subLen);
 				final int end = (int) ((i+1)*subLen)-1;
 				final int current = pos;
-				Future<DownLoadBean> f = pool.submit(new Callable<DownLoadBean>() {
+				Future<DownLoadBean> f = (Future<DownLoadBean>) pool.submit(new Callable<DownLoadBean>() {
 					int $pos = pos;
 					int $end = end;
 					int $current = current;
@@ -224,9 +248,6 @@ public class MultiThreadDownload {
 				            }
 				            bis.close();
 				            fos.close();
-//				            synchronized (object) {
-//				            	object.notifyAll();
-//							}
 				        } catch (IOException ex) {
 				        	/* 异常时记录当前位置（不能保证准确，没事事务性）
 				        	StringBuffer sb = new StringBuffer();
@@ -247,7 +268,7 @@ public class MultiThreadDownload {
 				resultTotal += dInfo.getCurrent() - dInfo.getPos() ;
 			}
 			// 　判断文件是否完整下载
-			if(totalLen!=resultTotal-1){
+			if(contentLen!=resultTotal+1){
 				throw new DownLoadException("文件下载不完整");
 			}else {
 				finished = true;
@@ -266,7 +287,7 @@ public class MultiThreadDownload {
 	/**
 	 * 监听并打印下载状态
 	 */
-	public void listenStatus(){
+	private void listenStatus(){
 		new Runnable() {
 			@Override
 			public void run() {
@@ -274,7 +295,7 @@ public class MultiThreadDownload {
 					synchronized (object) {
 						while(true){
 							Thread.sleep(1000L);
-//							object.wait();
+							object.wait();
 							log.debug(getPercent()+"\t"+getSpeed());
 							if(finished()){
 								break;
@@ -292,10 +313,10 @@ public class MultiThreadDownload {
 	 * @return
 	 */
 	public String getPercent(){
-		if(this.downLoadLen==0){
+		if(this.downLen==0){
 			return decimalFormat.format(0f);
 		}
-		Float p = (float) (this.totalLen/this.downLoadLen);
+		Float p =  ((float)this.downLen/(float)this.contentLen);
 		return decimalFormat.format(p);
 	}
 	/**
@@ -304,7 +325,7 @@ public class MultiThreadDownload {
 	 */
 	public String getSpeed(){
 		int cost = ((int) (System.currentTimeMillis() - date.getTime()))/1000;
-		int s = (int) (this.downLoadLen/cost)/1024;
+		int s = (int) (this.downLen/cost)/1024;
 		return String.valueOf(s+"(KB)/s");
 	}
 	/**
@@ -320,13 +341,15 @@ public class MultiThreadDownload {
 			MultiThreadDownload multiThreadDownload = new MultiThreadDownload(1024*1024L);
 			URL url = new URL("http://zhangmenshiting.baidu.com/data2/music/65517089/307842151200128.mp3?xcode=53102624c6c63d206dbeaf3b8ae12d9080af3c8af038c7a6");
 //			URL url = new URL("http://www.baidu.com/img/bdlogo.gif");
-			multiThreadDownload.downLoad(url, "d:\\multidown\\", "");
-//			multiThreadDownload.listenStatus();
+			// 异步下载文件
+			multiThreadDownload.downFile(url, "d:\\multidown\\", "",true);
+			// 同步下载文件
+//			multiThreadDownload.downLoad(url, "d:\\multidown\\", "");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (DownLoadException e) {
 			e.printStackTrace();
-		}
+		} 
 	}
 }
 
