@@ -49,7 +49,7 @@ public class DownLoadPool {
 	 * 提交线程
 	 * @return 
 	 */
-	public Future<DownLoadBean> submit(Callable<DownLoadBean> call){
+	public Future<?> submit(Callable<?> call){
 		return pool.submit(call);
 	}
 }
