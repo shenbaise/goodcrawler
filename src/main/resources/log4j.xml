@@ -2,7 +2,7 @@
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
-	<appender name="debug-out" class="org.apache.log4j.RollingFileAppender">
+	<appender name="debug-out" class="org.apache.log4j.ConsoleAppender">
 		<param name="File" value="logs/debug.log" />
 		<param name="MaxFileSize" value="1024KB"/>
 		<param name="MaxBackupIndex" value="5"/>
@@ -15,7 +15,7 @@
 		</filter>
 	</appender>
 
-	<appender name="info-out" class="org.apache.log4j.RollingFileAppender">
+	<appender name="info-out" class="org.apache.log4j.ConsoleAppender">
 		<param name="File" value="logs/info.log" />
 		<param name="MaxFileSize" value="1024KB"/>
 		<param name="MaxBackupIndex" value="5"/>
@@ -29,7 +29,7 @@
 		</filter>
 	</appender>
 
-	<appender name="warn-out" class="org.apache.log4j.RollingFileAppender">
+	<appender name="warn-out" class="org.apache.log4j.ConsoleAppender">
 		<param name="File" value="logs/warn.log" />
 		<param name="MaxFileSize" value="1024KB"/>
 		<param name="MaxBackupIndex" value="5"/>
@@ -55,12 +55,26 @@
 			<param name="AcceptOnMatch" value="true" />
 		</filter>
 	</appender>
+	
+	<appender name="bootstrap" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="logs/bootstrap.log" />
+		<param name="MaxFileSize" value="1024KB"/>
+		<param name="MaxBackupIndex" value="5"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy.MM.dd HH:mm:ss} %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="error" />
+			<param name="AcceptOnMatch" value="false" />
+		</filter>
+	</appender>
 
 	<root>
-		<level value="info" />
+		<level value="debug" />
 		<appender-ref ref="debug-out" />
 		<appender-ref ref="info-out" />
 		<appender-ref ref="warn-out" />
 		<appender-ref ref="error-out" />
+		<appender-ref ref="bootstrap" />
 	</root>
 </log4j:configuration>
