@@ -30,7 +30,7 @@ import org.sbs.goodcrawler.extractor.selector.SetElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.StringElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.UrlElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
-import org.sbs.goodcrawler.extractor.selector.action.string.ActionFactor;
+import org.sbs.goodcrawler.extractor.selector.action.string.ActionFactory;
 
 /**
  * @author whiteme
@@ -40,7 +40,7 @@ import org.sbs.goodcrawler.extractor.selector.action.string.ActionFactor;
 public class ElementCssSelectorFactory {
 	
 	/**
-	 * 创建各种选择器
+	 * 创建各种选择器 
 	 * @param name
 	 * @param type
 	 * @param value
@@ -48,7 +48,7 @@ public class ElementCssSelectorFactory {
 	 * @param isRequired
 	 * @return
 	 */
-	public static ElementCssSelector<?> create(String name, String type,String value, String attr,
+	private static ElementCssSelector<?> create(String name, String type,String value, String attr,
 			boolean isRequired){
 		SelectorType $type = SelectorType.valueOf("$"+type);
 		switch ($type) {
@@ -72,29 +72,40 @@ public class ElementCssSelectorFactory {
 			return new StringElementCssSelector(name, value, attr, isRequired);
 		}
 	}
-	
+	/**
+	 * 构造器<b>该方法对Element不做检测，传递的Element必须是描述select的元素
+	 * @param element
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
 	public static ElementCssSelector create(Element element){
-		if("element".equals(element.tag())){
-			String name = element.attr("name");
-			String value = element.attr("value");
-			String type = element.attr("type");
-			String attr = element.attr("attr");
-			String required = element.attr("required");
-			boolean isRequired = true;
-			if(StringUtils.isNotBlank(required)){
-				isRequired = Boolean.parseBoolean(required);
+		String name = element.attr("name");
+		String value = element.attr("value");
+		String type = element.attr("type");
+		String attr = element.attr("attr");
+		String required = element.attr("required");
+		boolean isRequired = true;
+		if(StringUtils.isNotBlank(required)){
+			isRequired = Boolean.parseBoolean(required);
+		}
+		ElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired);
+		// 检测Action
+		Elements actionSelect = element.select("action");
+		for(Element e:actionSelect){
+			if("action".equals(e.tagName())){
+				SelectorAction action = ActionFactory.create(e, element.attr("type"));
+				selector.addAction(action);
 			}
-			ElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired);
-			// 检测Action
-			Elements actionSelect = element.select("action");
-			for(Element e:actionSelect){
-				if("action".equals(e.tagName())){
-					SelectorAction action = ActionFactor.create(e, element.attr("type"));
-					
+		}
+		// 检测是否是Url类型的选择器
+		if(SelectorType.$url.name().equals("$"+type.toLowerCase())){
+			Elements subElements = element.select("select");
+			for(Element e:subElements){
+				if("element".equals(e.tagName())){
+					((UrlElementCssSelector)selector).addSelector(create(e));
 				}
 			}
 		}
-		
-		return null;
+		return selector;
 	}
 }

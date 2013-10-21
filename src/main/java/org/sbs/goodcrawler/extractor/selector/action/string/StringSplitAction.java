@@ -35,6 +35,7 @@ public class StringSplitAction extends StringSelectorAction{
 	 * 分隔符
 	 */
 	private String split ;
+	private String newsplit = "|";
 	private Set<Integer> set = Sets.newHashSet();
 	/**
 	 * 构造器
@@ -51,11 +52,32 @@ public class StringSplitAction extends StringSelectorAction{
 			String is[] = index.split(",");
 			for(String i:is){
 				if(StringUtils.isNumeric(i)){
-					set.add(Integer.getInteger(i));
+					set.add(Integer.parseInt(i));
 				}
 			}
 		}
 	}
+	
+	public StringSplitAction(String split,String index,String newsplit){
+		if(StringUtils.isNotBlank(split)){
+			this.split = split;
+		}else {
+			this.split = ",";
+		}
+		if(StringUtils.isNotBlank(index)){
+			String is[] = index.split(",");
+			for(String i:is){
+				if(StringUtils.isNumeric(i)){
+					set.add(Integer.parseInt(i));
+				}
+			}
+			if (set.size()>0) {
+				if(StringUtils.isNotBlank(newsplit))
+					this.newsplit = newsplit;
+			}
+		}
+	}
+	
 	/**
 	 * 根据配置对提取内容进行Split操作，并返回指定位置的截取字串。</br>
 	 * 如果有多个位置(多个以，分隔)，则多个位置之间的的字串仍然按指定的分隔符连接。</br>
@@ -70,10 +92,11 @@ public class StringSplitAction extends StringSelectorAction{
 				for (Integer i :set) {
 					if(i<subs.length){
 						if(i>-1)
-							sb.append(subs[i]).append(this.split);
+							sb.append(subs[i]).append(newsplit);
 					}
 				}
-				return sb.substring(0,sb.length()-1);
+				if(sb.length()>0)
+					return sb.substring(0,sb.length()-1);
 			}else {
 				return StringUtils.split(content, this.split)[0];
 			}
@@ -82,12 +105,10 @@ public class StringSplitAction extends StringSelectorAction{
 	}
 	
 	public static void main(String[] args) {
-		String ixx = "3,,,";
-		String[] xx = ixx.split(",");	// 1
-		assert xx.length == 1;
-		ixx = "3,, ,";
-		xx = ixx.split(",");
-		assert xx.length == 3;
-		System.out.println(xx.length);
+		String s = "afdsoiru43gs45asa";
+		StringSplitAction action = new StringSplitAction("!", "1,2,3");
+		StringSplitAction action2 = new StringSplitAction("!",null);
+		System.out.println(action.doAction(s));
+		System.out.println(action2.doAction(s));
 	}
 }

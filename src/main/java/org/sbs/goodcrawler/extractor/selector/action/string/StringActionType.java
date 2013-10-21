@@ -30,6 +30,6 @@ public enum StringActionType {
 	$between,
 	$filter,
 	$replace,
-	$splite,
+	$split,
 	$sub
 }

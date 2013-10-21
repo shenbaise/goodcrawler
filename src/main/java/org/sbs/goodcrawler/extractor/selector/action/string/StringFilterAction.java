@@ -69,11 +69,11 @@ public class StringFilterAction extends StringSelectorAction{
 				content = CharMatcher.INVISIBLE.removeFrom(content);
 				
 			case BREAKING_WHITESPACE:
-				content = CharMatcher.INVISIBLE.removeFrom(content);
+				content = CharMatcher.BREAKING_WHITESPACE.removeFrom(content);
 			case DIGIT:
-				content = CharMatcher.INVISIBLE.removeFrom(content);
+				content = CharMatcher.DIGIT.removeFrom(content);
 			case LETTER:
-				content = CharMatcher.INVISIBLE.removeFrom(content);
+				content = CharMatcher.JAVA_LETTER.removeFrom(content);
 			default:
 				break;
 			}
@@ -98,7 +98,7 @@ public class StringFilterAction extends StringSelectorAction{
 	}
 	public static void main(String[] args) {
 		String string = "sssf</>dfdfdsfasfafdadgsadgsadafsdfgsdeisdfl";
-		String f = "afs</>";
-		System.out.println(CharMatcher.anyOf(f).removeFrom(string));
+		StringFilterAction action = new StringFilterAction("</", CharType.LETTER.name());
+		System.out.println(action.doAction(string));
 	}
 }

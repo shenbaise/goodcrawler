@@ -26,9 +26,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.IntegerSelectorAction;
+import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.collect.Lists;
 
 /**
  * @author whiteme
@@ -39,7 +42,7 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 
 	NumberFormat format;
 	Number content;
-	private List<IntegerSelectorAction> actions;
+	private List<IntegerSelectorAction> actions = Lists.newArrayList();
 
 	public NumericaElementCssSelector(String name, String value, String attr,
 			boolean isRequired) {
@@ -53,41 +56,45 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 	}
 	
 	@Override
-	protected Number getContent() {
-		// 如果content不为空且不是新文档，则表示是同一个document的2+次调用，不用重新计算
-		if (null != content && !newDoc) {
-			return content;
-		}
-		if (null != document) {
-			Elements elements = super.document.select(value);
-			if (elements.isEmpty())
-				return null;
-			String temp;
-			switch ($Attr) {
-			case text:
-				temp = CharMatcher.DIGIT.retainFrom(elements.text());
-				break;
-			default:
-				temp = CharMatcher.DIGIT.retainFrom(elements.attr(attr));
-				break;
-			}
-
-			if (StringUtils.isNotBlank(temp)) {
-				content = NumberUtils.createNumber(temp);
-				if(null!=actions){
-					for(IntegerSelectorAction action:actions){
-						this.content = action.doAction((Integer) content);
-					}
-				}
+	public Number getContent() throws ExtractException{
+		try {
+			// 如果content不为空且不是新文档，则表示是同一个document的2+次调用，不用重新计算
+			if (null != content && !newDoc) {
 				return content;
 			}
+			if (null != document) {
+				Elements elements = super.document.select(value);
+				if (elements.isEmpty())
+					return null;
+				String temp;
+				switch ($Attr) {
+				case text:
+					temp = CharMatcher.DIGIT.retainFrom(elements.text());
+					break;
+				default:
+					temp = CharMatcher.DIGIT.retainFrom(elements.attr(attr));
+					break;
+				}
+
+				if (StringUtils.isNotBlank(temp)) {
+					content = NumberUtils.createNumber(temp);
+					if(null!=actions){
+						for(IntegerSelectorAction action:actions){
+							this.content = action.doAction((Integer) content);
+						}
+					}
+					return content;
+				}
+			}
+		} catch (Exception e) {
+			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;
 	}
 
 
 	@Override
-	protected Map<String, Number> getContentMap() {
+	public Map<String, Number> getContentMap() throws ExtractException{
 		if(null==content && newDoc){
 			getContent();
 		}
@@ -100,7 +107,7 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 	 * 返回字符
 	 * @return
 	 */
-	public String getContentString(){
+	public String getContentString() throws ExtractException{
 		if(null==content && newDoc){
 			getContent();
 		}
@@ -129,5 +136,10 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 	
 	public static void main(String[] args) {
 		
+	}
+
+	@Override
+	public void addAction(SelectorAction action) {
+		this.actions.add((IntegerSelectorAction) action);
 	}
 }

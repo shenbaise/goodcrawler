@@ -23,9 +23,12 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.IntegerSelectorAction;
+import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.collect.Lists;
 
 /**
  * @author whiteme
@@ -35,7 +38,7 @@ import com.google.common.base.CharMatcher;
 public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 	
 	private Integer content;
-	private List<IntegerSelectorAction> actions;
+	private List<IntegerSelectorAction> actions = Lists.newArrayList();
 	
 	public IntegerElementCssSelector() {
 		super();
@@ -47,36 +50,40 @@ public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 	}
 
 	@Override
-	protected Integer getContent() {
-		// 如果content不为空且不是新文档，则表示是同一个document的2+次调用，不用重新计算
-		if(null!=content && !newDoc){
-			return content;
-		}
-		if(null!=document){
-			Elements elements = super.document.select(value);
-			if(elements.isEmpty())
-				return null;
-			String temp;
-			switch ($Attr) {
-			case text:
-				temp = CharMatcher.DIGIT.retainFrom(elements.text());
-				break;
-			default:
-				temp = CharMatcher.DIGIT.retainFrom(elements.attr(attr));
-				break;
-			}
-			
-			if(StringUtils.isNotBlank(temp)){
-				Integer integer = Integer.parseInt(temp);
-				if(null!=actions){
-					for(IntegerSelectorAction action:actions){
-						this.content = action.doAction(integer);
-					}
-				}else {
-					this.content = integer;
-				}
+	public Integer getContent() throws ExtractException{
+		try {
+			// 如果content不为空且不是新文档，则表示是同一个document的2+次调用，不用重新计算
+			if(null!=content && !newDoc){
 				return content;
 			}
+			if(null!=document){
+				Elements elements = super.document.select(value);
+				if(elements.isEmpty())
+					return null;
+				String temp;
+				switch ($Attr) {
+				case text:
+					temp = CharMatcher.DIGIT.retainFrom(elements.text());
+					break;
+				default:
+					temp = CharMatcher.DIGIT.retainFrom(elements.attr(attr));
+					break;
+				}
+				
+				if(StringUtils.isNotBlank(temp)){
+					Integer integer = Integer.parseInt(temp);
+					if(null!=actions){
+						for(IntegerSelectorAction action:actions){
+							this.content = action.doAction(integer);
+						}
+					}else {
+						this.content = integer;
+					}
+					return content;
+				}
+			}
+		} catch (Exception e) {
+			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;
 	}
@@ -85,7 +92,7 @@ public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 	 * 如果content为空，且是新文档，则重新计算。
 	 */
 	@Override
-	protected Map<String, Integer> getContentMap() {
+	public Map<String, Integer> getContentMap() throws ExtractException{
 		if(null==content && newDoc){
 			getContent();
 		}
@@ -104,6 +111,11 @@ public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 
 	public void setContent(Integer content) {
 		this.content = content;
+	}
+
+	@Override
+	public void addAction(SelectorAction action) {
+		this.actions.add((IntegerSelectorAction) action);
 	}
 	
 }

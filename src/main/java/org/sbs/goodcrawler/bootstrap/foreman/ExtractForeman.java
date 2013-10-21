@@ -22,9 +22,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.extractor.DefaultExtractWorker;
 import org.sbs.goodcrawler.extractor.DefaultExtractor;
+import org.sbs.goodcrawler.jobconf.ExtractConfig;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -33,9 +33,8 @@ import org.sbs.goodcrawler.extractor.DefaultExtractor;
  */
 public class ExtractForeman extends Foreman{
 	
-	public static void start(ExtractConfig conf){
+	public void start(ExtractConfig conf){
 		int threadNum = conf.getThreadNum();
-		
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 		for(int i=0;i<threadNum;i++){
 			try {
@@ -47,13 +46,4 @@ public class ExtractForeman extends Foreman{
 		}
 		executor.shutdown();
 	}
-
-	/**
-	 * @param args
-	 * @desc 
-	 */
-	public static void main(String[] args) {
-
-	}
-
 }

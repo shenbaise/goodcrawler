@@ -132,16 +132,15 @@ public class FailedPageBackup {
 			FileChannel fc = null;
 			byte[] b = new byte[] { (byte) 1, (byte) 1 };
 			if (Worker.stop)
-				// scheduler.shutdown();
 				if (!ignoreFailedPage) {
 					backFile = new File(config.getString(
 							GlobalConstants.failedPagesBackupPath, "")
 							+ File.pathSeparator + DateTimeUtil.getDate());
 					try {
+						fc = new FileOutputStream(backFile, true)
+						.getChannel();
 						if (flag) {
 							while (null != (page = Queue.poll())) {
-								fc = new FileOutputStream(backFile, true)
-										.getChannel();
 								fc.write(ByteBuffer.wrap(page.getContentData()));
 								fc.write(ByteBuffer.wrap(b));
 							}

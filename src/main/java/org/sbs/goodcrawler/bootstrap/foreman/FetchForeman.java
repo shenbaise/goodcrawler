@@ -20,6 +20,8 @@ package org.sbs.goodcrawler.bootstrap.foreman;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.fetcher.DefaultFetchWorker;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
@@ -30,8 +32,8 @@ import org.sbs.goodcrawler.jobconf.FetchConfig;
  * 这是个工头
  */
 public class FetchForeman extends Foreman{
-	
-	public static void start(FetchConfig conf){
+	static Log log = LogFactory.getLog(FetchForeman.class); 
+	public void start(FetchConfig conf){
 		int threadNum = conf.getThreadNum();
 		PageFetcher fetcher = new PageFetcher(conf);
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
@@ -40,22 +42,4 @@ public class FetchForeman extends Foreman{
 		}
 		executor.shutdown();
 	}
-	
-	/**
-	 * @param args
-	 * @desc 
-	 */
-	public static void main(String[] args) {
-		ExecutorService executor = Executors.newFixedThreadPool(10);
-		executor.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				System.out.println("////");
-			}
-		});
-		executor.shutdown();
-	}
-
 }

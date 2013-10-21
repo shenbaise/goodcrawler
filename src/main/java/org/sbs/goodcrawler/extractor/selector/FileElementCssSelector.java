@@ -25,26 +25,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
+import org.sbs.goodcrawler.extractor.selector.action.FileSelectAction;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
-import org.sbs.goodcrawler.extractor.selector.action.StringSelectorAction;
 
 import com.google.common.collect.Lists;
 
 /**
  * @author whiteme
- * @date 2013年10月11日
- * @desc String 类型的选择器
+ * @date 2013年10月20日
+ * @desc 该选择元素需要配置相应的Action完成文件下载功能。该选择元素本身仅返回网页中相应的文本信息。
+ * </br>该文本信息应该是一个Url格式的字符串，指向某个网络文件。
  */
-public class StringElementCssSelector extends ElementCssSelector<String> {
+public class FileElementCssSelector extends ElementCssSelector<String> {
 	
 	private String content;
-	private List<StringSelectorAction> actions = Lists.newArrayList();
 	
-	public StringElementCssSelector() {
-		super();
-	}
-
-	public StringElementCssSelector(String name, String value, String attr,
+	private List<FileSelectAction> actions = Lists.newArrayList();
+	
+	public FileElementCssSelector(String name, String value, String attr,
 			boolean isRequired) {
 		super(name, value, attr, isRequired);
 	}
@@ -80,7 +78,7 @@ public class StringElementCssSelector extends ElementCssSelector<String> {
 				if(StringUtils.isNotBlank(sb)){
 					String temp = sb.substring(0,sb.length()-1);
 					if(null!=actions){
-						for(StringSelectorAction action:actions){
+						for(FileSelectAction action:actions){
 							this.content = action.doAction(temp);
 						}
 					}else {
@@ -104,11 +102,11 @@ public class StringElementCssSelector extends ElementCssSelector<String> {
 		return m;
 	}
 
-	public List<StringSelectorAction> getActions() {
+	public List<FileSelectAction> getActions() {
 		return actions;
 	}
 
-	public void setActions(List<StringSelectorAction> actions) {
+	public void setActions(List<FileSelectAction> actions) {
 		this.actions = actions;
 	}
 
@@ -118,7 +116,7 @@ public class StringElementCssSelector extends ElementCssSelector<String> {
 
 	@Override
 	public void addAction(SelectorAction action) {
-		this.actions.add((StringSelectorAction) action);
+		this.actions.add((FileSelectAction) action);
 	}
-	
+
 }

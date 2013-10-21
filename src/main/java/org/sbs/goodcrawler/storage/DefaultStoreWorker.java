@@ -62,11 +62,13 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	@Override
 	public void onFailed(ExtractedPage<V, T> page) {
 		page = null;
+		pendingStore.failure.incrementAndGet();
 	}
 
 	@Override
 	public void onIgnored(ExtractedPage<V, T> page) {
 		page = null;
+		pendingStore.ignored.incrementAndGet();
 	}
 
 	@Override

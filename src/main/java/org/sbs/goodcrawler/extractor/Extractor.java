@@ -17,9 +17,9 @@
  */
 package org.sbs.goodcrawler.extractor;
 
-import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.fetcher.FetchWorker;
 import org.sbs.goodcrawler.job.Page;
+import org.sbs.goodcrawler.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.storage.PendingStore;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;

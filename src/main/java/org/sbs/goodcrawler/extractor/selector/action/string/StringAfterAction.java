@@ -46,4 +46,10 @@ public class StringAfterAction extends StringSelectorAction {
 		}
 		return "";
 	}
+	
+	public static void main(String[] args) {
+		String s = "asdfsfh354^$#^WEEAf ";
+		StringAfterAction action = new StringAfterAction("^$");
+		System.out.println(action.doAction(s));
+	}
 }

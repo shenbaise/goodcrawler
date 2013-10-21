@@ -21,21 +21,23 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.conf.Configuration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
+import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
-import org.sbs.goodcrawler.extractor.selector.IFconditions;
+import org.sbs.goodcrawler.extractor.selector.IFConditions;
 import org.sbs.goodcrawler.extractor.selector.factory.ElementCssSelectorFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 
 /**
@@ -52,18 +54,44 @@ public class ExtractConfig extends Configuration {
 	/**
 	 * 抽取信息的模板列表
 	 */
-	private List<ExtractTemplate> templates = Lists.newArrayList();
-	
+	private final List<ExtractTemplate> templates = Lists.newArrayList();
+	/**
+	 * 获取所有模板提取的信息
+	 * @param document
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> getContentAll(Document document) throws ExtractException{
+		Map<String, Object> content = Maps.newHashMap(); 
+		for(ExtractTemplate template:templates){
+			content.putAll(template.getConten(document));
+		}
+		return content;
+	}
+	/**
+	 * 获取所所有模板提取的信息，分开方式。<br>
+	 * 可以通过get(模板名称的方式获取到某个独立的模板提取的信息)
+	 * @param document
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> getContentSeprator(Document document) throws ExtractException{
+		Map<String, Object> content = Maps.newHashMap();
+		for(ExtractTemplate template : templates){
+			content.put(template.getName(), template.getConten(document));
+		}
+		return content;
+	}
 	/**
 	 * 从配置文件中加载抽取配置信息
 	 * @param doc
 	 * @return
 	 * @throws ConfigurationException
 	 */
-	private ExtractConfig loadConfig(Document doc) throws ConfigurationException{
+	public ExtractConfig loadConfig(Document doc) throws ConfigurationException{
 		Elements extractElement = doc.select("extract");
+		super.jobName = doc.select("job").attr("name");
 		String temp = extractElement.select("threadNum").text();
-		
 		if(StringUtils.isNotBlank(temp)){
 			this.threadNum = Integer.parseInt(temp);
 		}
@@ -84,46 +112,49 @@ public class ExtractConfig extends Configuration {
 			// 提取元素
 			Elements selectElement = template.select("elements").first().children();
 			for(Element element:selectElement){
-				if("element".equals(element.tag())){
-					String name = element.attr("name");
-					String value = element.attr("value");
-					String type = element.attr("type");
-					String attr = element.attr("attr");
-					String required = element.attr("required");
-					boolean isRequired = true;
-					if(StringUtils.isNotBlank(required)){
-						isRequired = Boolean.parseBoolean(required);
-					}
-					ElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired);
+				if("element".equals(element.tagName())){
+					ElementCssSelector<?> selector = ElementCssSelectorFactory.create(element);
 					extractTemplate.addCssSelector(selector);
-					
-				}else if("if".equals(element.tag())){
-					
+				}else if ("if".equals(element.tagName())) {
+					IFConditions ifConditions = IFConditions.create(element);
+					extractTemplate.addConditions(ifConditions);
 				}
 			}
-			
-			List<Node> nodes = template.childNodes();
-			Node elementsNode = nodes.get(5);
-			List<Node> cnodes = elementsNode.childNodes();
-			
-			System.out.println("...");
+			this.templates.add(extractTemplate);
 		}
-		
 		return this;
+	}
+	
+	public int getThreadNum() {
+		return threadNum;
+	}
+	public void setThreadNum(int threadNum) {
+		this.threadNum = threadNum;
+	}
+	public List<ExtractTemplate> getTemplates() {
+		return templates;
 	}
 	
 	@Override
 	public String toString() {
-		return null;
+		final int maxLen = 10;
+		StringBuilder builder = new StringBuilder();
+		builder.append("ExtractConfig [threadNum=")
+				.append(threadNum)
+				.append(", templates=")
+				.append(templates != null ? templates.subList(0,
+						Math.min(templates.size(), maxLen)) : null)
+				.append(", jobName=").append(jobName).append("]");
+		return builder.toString();
 	}
 	
-	
+	// test
 	public static void main(String[] args) {
 		ExtractConfig extractConfig = new ExtractConfig();
 		Document document;
 		try {
 			document = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
-			extractConfig.loadConfig(document);
+			System.out.println(extractConfig.loadConfig(document).toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ConfigurationException e) {
@@ -155,8 +186,43 @@ class ExtractTemplate{
 	/**
 	 * 条件分支
 	 */
-	private List<IFconditions> conditions = Lists.newArrayList();
-
+	private List<IFConditions> conditions = Lists.newArrayList();
+	/**
+	 * 以该模板的配置提取document的信息
+	 * @param document
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> getConten(Document document) throws ExtractException{
+		try {
+			Map<String, Object> content = Maps.newHashMap();
+			for(ElementCssSelector<?> selector:cssSelectors){
+				selector.setDocument(document);
+				content.putAll(selector.getContentMap());
+			}
+			for(IFConditions con:conditions){
+				if(con.test(content)){
+					content.putAll(con.getContent(document));
+				}
+			}
+			return content;
+		} catch (Exception e) {
+			throw new ExtractException("信息提取错误："+e.getMessage());
+		}
+	}
+	/**
+	 * 在提取信息之前过滤Url
+	 * @param url
+	 * @return
+	 */
+	public boolean urlFilter(String url){
+		for(Pattern pattern :urlPattern){
+			if(pattern.matcher(url).matches()){
+				return true;
+			}
+		}
+		return false;
+	}
 	public String getName() {
 		return name;
 	}
@@ -189,15 +255,15 @@ class ExtractTemplate{
 		this.cssSelectors.add(selector);
 	}
 	
-	public List<IFconditions> getConditions() {
+	public List<IFConditions> getConditions() {
 		return conditions;
 	}
 
-	public void setConditions(List<IFconditions> conditions) {
+	public void setConditions(List<IFConditions> conditions) {
 		this.conditions = conditions;
 	}
 	
-	public void addConditions(IFconditions condition){
+	public void addConditions(IFConditions condition){
 		this.conditions.add(condition);
 	}
 }

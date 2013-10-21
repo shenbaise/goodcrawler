@@ -17,7 +17,6 @@
 
 package org.sbs.goodcrawler.job;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,8 @@ import java.util.Map;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.google.common.collect.Lists;
 
 public class HtmlContentHandler extends DefaultHandler {
 
@@ -65,7 +66,7 @@ public class HtmlContentHandler extends DefaultHandler {
 	public HtmlContentHandler() {
 		isWithinBodyElement = false;
 		bodyText = new StringBuilder();
-		outgoingUrls = new ArrayList<>();
+		outgoingUrls = Lists.newArrayList();
 	}
 
 	@Override

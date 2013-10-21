@@ -57,12 +57,20 @@ public class PendingPages implements Serializable {
 	/**
 	 * 总共获得到的页面数，每爬到一个+1
 	 */
-	private AtomicLong count = new AtomicLong(0L);
+	public AtomicLong count = new AtomicLong(0L);
 
 	/**
 	 * 解析（抽取）失败的页面数
 	 */
-	private AtomicInteger failure = new AtomicInteger(0);
+	public AtomicInteger failure = new AtomicInteger(0);
+	/**
+	 * 提取成功的页面数
+	 */
+	public AtomicInteger success = new AtomicInteger(0);
+	/**
+	 * 忽略的页面数
+	 */
+	public AtomicInteger ignored = new AtomicInteger(0);
 
 	private PendingPages() {
 		init();
@@ -88,6 +96,10 @@ public class PendingPages implements Serializable {
 				oisUrl.close();
 				fisUrl.close();
 				Queue = instance.Queue;
+				failure = instance.failure;
+				success = instance.success;
+				count = instance.count;
+				ignored = instance.ignored;
 				System.out.println("recovery page queue..." + Queue.size());
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -112,22 +124,24 @@ public class PendingPages implements Serializable {
 		if (page != null) {
 			try {
 				Queue.put(page);
+				count.incrementAndGet();
 			} catch (InterruptedException e) {
+				ignored.incrementAndGet();
 				throw new QueueException("待处理页面加入操作中断");
 			}
-			count.incrementAndGet();
 		}
 	}
 	/**
-	 * 向队列中添加一个页面
+	 * 向队列中添加一个页面。超时后被丢弃 <b>不推荐使用
 	 * @param page
 	 * @param timeout
 	 * @throws QueueException
 	 */
+	@Deprecated
 	public boolean addPage(Page page,int timeout) throws QueueException {
 		if (page != null) {
 			try {
-				boolean b = Queue.offer(page, 1000, TimeUnit.MILLISECONDS);
+				boolean b = Queue.offer(page, timeout, TimeUnit.MILLISECONDS);
 				if(b){
 					count.incrementAndGet();
 				}
@@ -172,9 +186,11 @@ public class PendingPages implements Serializable {
 	}
 
 	public String pendingStatus() {
-		StringBuilder sb = new StringBuilder(32);
-		sb.append("队列中等待处理的Page有").append(Queue.size()).append("个，失败")
-				.append(failure.get()).append("个").append(Queue.isEmpty());
+		StringBuilder sb = new StringBuilder(64);
+		sb.append("队列中等待处理的Page有").append(Queue.size()).append("个，")
+		.append("截至目前共收到").append(count).append("个页面。已成功处理")
+		.append(success.get()).append("个，失败").append(failure.get())
+		.append("个，忽略").append(ignored.get()).append("个");
 		return sb.toString();
 	}
 

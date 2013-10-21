@@ -59,5 +59,11 @@ public class StringReplaceAction extends StringSelectorAction {
 	public String doAction(String content) {
 		return StringUtils.replace(content, searchString, replacement);
 	}
+	
+	public static void main(String[] args) {
+		String string  = "@#$%$FGDFGFGHS#@$$Y";
+		StringReplaceAction action = new StringReplaceAction("#", ",");
+		System.out.println(action.doAction(string));
+	}
 
 }

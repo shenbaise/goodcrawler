@@ -20,12 +20,15 @@ package org.sbs.goodcrawler.extractor.selector;
 import java.util.Map;
 
 import org.jsoup.nodes.Document;
+import org.sbs.goodcrawler.exception.ExtractException;
+import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 
 /**
  * @author whiteme
  * @param <T>
  * @date 2013年10月10日
- * @desc 元素选择器。基础属性包括名称、css选择器|xpath、属性、是否是必须的required
+ * @desc 元素选择器。基础属性包括名称、css选择器|xpath、属性、是否是必须的required.</br>
+ * <b>要获取新的document的内容必须先设置document。调用setDocument方法。
  */
 @SuppressWarnings("rawtypes")
 public abstract class ElementCssSelector<T> {
@@ -87,13 +90,14 @@ public abstract class ElementCssSelector<T> {
 	 * 获取该选择器从文档中抽取的内容
 	 * @return
 	 */
-	protected abstract T getContent();
+	public abstract T getContent() throws ExtractException;
 	/**
 	 * 获取该选择器从文档中抽取的内容，其中k为选择器名称，即name属性。v是选择器抽取到的内容。
 	 * @return
 	 */
-	protected abstract Map<String, T> getContentMap();
-
+	public abstract Map<String, T> getContentMap() throws ExtractException;
+	
+	public abstract void addAction(SelectorAction action);
 	
 	public String getName() {
 		return name;
@@ -162,5 +166,7 @@ public abstract class ElementCssSelector<T> {
 	protected void isNewDoc(){
 		this.newDoc = true;
 	}
+	
+	
 	
 }

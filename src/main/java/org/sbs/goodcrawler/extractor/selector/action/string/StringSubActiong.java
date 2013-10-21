@@ -33,21 +33,34 @@ public class StringSubActiong extends StringSelectorAction {
 	 */
 	int pos = 0;
 	/**
+	 * 字符位置
+	 */
+	String spos = "";
+	/**
 	 * 截取长度
 	 */
 	int lenth = 0;
 	/**
-	 * 构造器
+	 * 构造器"4,4"表示，从第四位起，截取4个字符.<br>
+	 * "4"表示从4开始截取到最后
 	 * @param subExpression
 	 */
 	public StringSubActiong(String subExpression){
 		if(StringUtils.isNotBlank(subExpression)){
 			String[] ss = StringUtils.split(subExpression, ",");
 			if(ss.length==1){
-				this.pos = Integer.getInteger(ss[0]);
+				if(StringUtils.isNumeric(ss[0])){
+					this.pos = Integer.parseInt(ss[0]);
+				}else {
+					this.spos=ss[0];
+				}
 			}else if (ss.length==2) {
-				this.pos = Integer.getInteger(ss[0]);
-				this.lenth = Integer.getInteger(ss[1]);
+				if(StringUtils.isNumeric(ss[0])){
+					this.pos = Integer.parseInt(ss[0]);
+				}else {
+					this.spos=ss[0];
+				}
+				this.lenth = Integer.parseInt(ss[1]);
 			}
 		}
 	}
@@ -58,15 +71,26 @@ public class StringSubActiong extends StringSelectorAction {
 	@Override
 	public String doAction(String content) {
 		if(StringUtils.isNotBlank(content)){
+			if(StringUtils.isNotBlank(spos)){
+				this.pos = content.indexOf(spos) + spos.length();
+			}
 			if(this.lenth==0 && this.pos>0){
 				content = StringUtils.substring(content, this.pos);
 			}else if (this.lenth>0 && this.pos>=0) {
 				content = StringUtils.substring(content, this.pos, this.pos+this.lenth);
-			}else{
-				return content;
 			}
+			return content;
 		}
 		return "";
 	}
-
+	
+	
+	public static void main(String[] args) {
+		String string= "234dfs454#$%gasfdjlkas";
+		StringSubActiong actiong = new StringSubActiong("3,4");
+		System.out.println(actiong.doAction(string));
+		
+		StringSubActiong action2 = new StringSubActiong("kas,4");
+		System.out.println(action2.doAction(string));
+	}
 }

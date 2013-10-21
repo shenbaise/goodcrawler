@@ -96,6 +96,10 @@ public class PendingUrls implements Serializable {
 				oisUrl.close();
 				fisUrl.close();
 				Queue = instance.Queue;
+				failure = instance.failure;
+				success = instance.success;
+				urlCount = instance.urlCount;
+				ignored = instance.ignored;
 				System.out.println("recovery url queue..." + Queue.size());
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -108,7 +112,7 @@ public class PendingUrls implements Serializable {
 		if(null==Queue)
 			Queue = new ArrayBlockingQueue<>(PropertyConfigurationHelper
 					.getInstance().getInt(GlobalConstants.pendingUrlsQueueSize,
-							2000));
+							1000000));
 	}
 
 	/**
@@ -127,16 +131,17 @@ public class PendingUrls implements Serializable {
 		}
 	}
 	/**
-	 * 加入一个待处理的URL，Url总数+1
+	 * 加入一个待处理的URL，Url总数+1。超时将导致Url被丢弃。
 	 * @param url
 	 * @param timeout (MILLISECONDS)
 	 * @return
 	 * @throws QueueException
 	 */
+	@Deprecated
 	public boolean addUrl(WebURL url,int timeout) throws QueueException {
 		if (url != null) {
 			try {
-				boolean b = Queue.offer(url, 1000, TimeUnit.MILLISECONDS);
+				boolean b = Queue.offer(url, timeout, TimeUnit.MILLISECONDS);
 				if(b){
 					urlCount.getAndIncrement();
 				}
@@ -253,7 +258,7 @@ public class PendingUrls implements Serializable {
 		sb.append("队列中等待处理的URL有").append(Queue.size()).append("个，")
 				.append("截至目前共爬到").append(urlCount).append("个链接。已成功处理")
 				.append(success.get()).append("个，失败").append(failure.get())
-				.append("个").append("忽略").append(ignored()).append("个");
+				.append("个，忽略").append(ignored()).append("个");
 		return sb.toString();
 	}
 }

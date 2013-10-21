@@ -23,7 +23,9 @@ import java.util.Map;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.ListSelectorAction;
+import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 
 import com.google.common.collect.Lists;
 
@@ -37,7 +39,7 @@ public class ListElementCssSelector extends ElementCssSelector<List<String>> {
 	
 	private List<String> contenList;
 	
-	private List<ListSelectorAction> actions;
+	private List<ListSelectorAction> actions = Lists.newArrayList();
 	
 	public ListElementCssSelector(){}
 	
@@ -48,44 +50,53 @@ public class ListElementCssSelector extends ElementCssSelector<List<String>> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected List<String> getContent() {
-		if(null!=contenList && !newDoc){
-			return contenList;
-		}
-		contenList = Lists.newArrayList();
-		if(document!=null){
-			Elements elements = super.document.select(value);
-			if(elements.isEmpty())
-				return null;
-			switch ($Attr) {
-			case text:
-				for (Element e : elements) {
-					contenList.add(e.text());
-				}
-				break;
-			default:
-				for (Element e : elements) {
-					contenList.add(e.attr(attr));
-				}
-				break;
+	public List<String> getContent() throws ExtractException{
+		try {
+			if(null!=contenList && !newDoc){
+				return contenList;
 			}
-			if(actions!=null&&actions.size()>0){
-				for(ListSelectorAction action:actions){
-					contenList = (List<String>) action.doAction(contenList);
+			contenList = Lists.newArrayList();
+			if(document!=null){
+				Elements elements = super.document.select(value);
+				if(elements.isEmpty())
+					return null;
+				switch ($Attr) {
+				case text:
+					for (Element e : elements) {
+						contenList.add(e.text());
+					}
+					break;
+				default:
+					for (Element e : elements) {
+						contenList.add(e.attr(attr));
+					}
+					break;
 				}
+				if(actions!=null&&actions.size()>0){
+					for(ListSelectorAction action:actions){
+						contenList = (List<String>) action.doAction(contenList);
+					}
+				}
+				return contenList;
 			}
-			return contenList;
+		} catch (Exception e) {
+			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;
 	}
 
 	@Override
-	protected Map<String, List<String>> getContentMap() {
+	public Map<String, List<String>> getContentMap() throws ExtractException{
 		if(contenList==null && newDoc)
 			getContent();
 		Map<String, List<String>> map = new HashMap<>(1);
 		map.put(name, this.contenList);
 		return null;
+	}
+
+	@Override
+	public void addAction(SelectorAction action) {
+		this.actions.add((ListSelectorAction) action);
 	}
 	
 }

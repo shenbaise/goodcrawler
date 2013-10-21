@@ -17,7 +17,6 @@
  */
 package org.sbs.goodcrawler.extractor.selector;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,7 +25,12 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.expression.SimpleExpression;
+import org.sbs.goodcrawler.extractor.selector.factory.ElementCssSelectorFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -39,14 +43,14 @@ import com.google.common.collect.Sets;
  * @desc 条件判别，满足相应条件，则返回相应的选择器
  */
 @SuppressWarnings("rawtypes")
-public class IFconditions {
+public class IFConditions {
 	
 	/**
 	 * 条件，以AND OR = 分割
 	 */
 	private String conditions;
 	
-	public IFconditions(String conditions) {
+	public IFConditions(String conditions) {
 		super();
 		this.conditions = conditions;
 	}
@@ -70,7 +74,7 @@ public class IFconditions {
 	 * @param depend
 	 * @return
 	 */
-	public boolean test(Map<String, String> selectContent) throws Exception{
+	public boolean test(Map<String, Object> selectContent) throws ExtractException{
 		TreeMap<Integer, String> conIndex = Maps.newTreeMap();
 		Queue<SimpleExpression> expressionQueue = Queues.newArrayDeque();
 		Queue<String> logicQueue = Queues.newArrayDeque();
@@ -91,9 +95,9 @@ public class IFconditions {
 				if (i > -1) {
 					String[] ss = subExp.split(op);
 					if(null==selectContent.get(ss[0].trim())){
-						throw new Exception("表达式依赖的选择提取内容为空：["+this.conditions + "] 中的"+ss[0]);
+						throw new ExtractException("表达式依赖的选择提取内容为空：["+this.conditions + "] 中的"+ss[0]);
 					}
-					expressionQueue.add(new SimpleExpression(StringUtils.trim(ss[0]), StringUtils.trim(ss[1]), op));
+					expressionQueue.add(new SimpleExpression(StringUtils.trim((String)selectContent.get(ss[0].trim())), StringUtils.trim(ss[1]), op));
 					logicQueue.add(entry.getValue());
 				}
 			}
@@ -105,7 +109,10 @@ public class IFconditions {
 			int i = subExp.indexOf(op);
 			if (i > -1) {
 				String[] ss = subExp.split(op);
-				expressionQueue.add(new SimpleExpression(StringUtils.trim(ss[0]), StringUtils.trim(ss[1]), op));
+				if(null==selectContent.get(ss[0].trim())){
+					throw new ExtractException("表达式依赖的选择提取内容为空：["+this.conditions + "] 中的"+ss[0]);
+				}
+				expressionQueue.add(new SimpleExpression(StringUtils.trim((String)selectContent.get(ss[0].trim())), StringUtils.trim(ss[1]), op));
 			}
 		}
 		boolean b;
@@ -121,6 +128,8 @@ public class IFconditions {
 		
 		return false;
 	}
+	
+	
 	/**
 	 * 一次逻辑运算
 	 * @return
@@ -137,6 +146,21 @@ public class IFconditions {
 		}
 		return false;
 	}
+	/**
+	 * 获取分支条件下选择器的选择内容
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> getContent(Document document) throws ExtractException{
+		if(null!=selectors && selectors.size()>0){
+			Map<String, Object> content = Maps.newHashMap();
+			for(ElementCssSelector<?> selector:selectors){
+				content.putAll(selector.setDocument(document).getContentMap());
+			}
+			return content;
+		}
+		return Maps.newHashMap();
+	}
 	
 	public List<ElementCssSelector> getSelectors() {
 		return selectors;
@@ -152,11 +176,37 @@ public class IFconditions {
 	public static void main(String[] args) {
 		String exp = "a= sd ea and  c= c bc d  and c=e and x=y";
 		
-		IFconditions ic = new IFconditions(exp);
+		IFConditions ic = new IFConditions(exp);
 		try {
-			System.out.println(ic.test(new HashMap<String, String>()));
+			Map<String, Object> map = Maps.newHashMap();
+			map.put("a", "sd");
+			map.put("c", "c bc d");
+//			map.put("x", "y");
+			System.out.println(ic.test(map));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	////////////////////////////////////////////////////////////////////
+	///			IFC 构造工厂
+	///////////////////////////////////////////////////////////////////
+	/**
+	 * 条件分支选择器创建方法<b>传入该方法的element必须是If分支的配置</br>
+	 * 该方法不做检测。
+	 * @param document
+	 * @return
+	 */
+	public static IFConditions create(Element element){
+		if(element!=null){
+			String exp = element.attr("test");
+			IFConditions iFconditions = new IFConditions(exp);
+			Elements selectElements = element.select("element");
+			for(Element e :selectElements){
+				iFconditions.addSelector(ElementCssSelectorFactory.create(e));
+			}
+			return iFconditions;
+		}
+		return null;
 	}
 }

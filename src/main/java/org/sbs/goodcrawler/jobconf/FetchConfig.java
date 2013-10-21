@@ -19,7 +19,6 @@ package org.sbs.goodcrawler.jobconf;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -132,7 +131,7 @@ public class FetchConfig extends Configuration{
 	/**
 	 * 种子地址
 	 */
-	private List<String> seeds = new ArrayList<>();
+	private List<String> seeds = Lists.newArrayList();
 	/**
 	 * 收集url的策略
 	 */
@@ -336,6 +335,7 @@ public class FetchConfig extends Configuration{
 	public FetchConfig loadConfig(Document confDoc) throws ConfigurationException{
 		try {
 			Document doc = confDoc;
+			super.jobName = doc.select("job").attr("name");
 			Elements e = doc.select("fetch");
 			this.type = e.select("type").text();
 			this.agent = e.select("agent").text();
@@ -351,7 +351,7 @@ public class FetchConfig extends Configuration{
 			
 			temp = e.select("maxDepthOfCrawling").text();
 			if(StringUtils.isNotBlank(temp)){
-				this.maxDepthOfCrawling = Integer.getInteger(temp);
+				this.maxDepthOfCrawling = Integer.parseInt(temp);
 			}
 			
 			temp = e.select("fetchBinaryContent").text();
@@ -428,7 +428,9 @@ public class FetchConfig extends Configuration{
 			Elements seeds = doc.select("fetch seeds seed");
 			for(Element element:seeds){
 				WebURL url = new WebURL();
-				url.setURL(element.text());
+				String seed = element.text();
+				this.seeds.add(seed);
+				url.setURL(seed);
 				try {
 					PendingUrls.getInstance().addUrl(url);
 					BloomfilterHelper.getInstance().add(url.getURL());
@@ -459,43 +461,73 @@ public class FetchConfig extends Configuration{
 		return this;
 	}
 
+
 	@Override
 	public String toString() {
+		final int maxLen = 10;
 		StringBuilder builder = new StringBuilder();
-		builder.append("FetchConfig [log=").append(log).append(", type=")
-				.append(type).append(", threadNum=").append(threadNum)
+		builder.append("FetchConfig [log=")
+				.append(log)
+				.append(", type=")
+				.append(type)
+				.append(", threadNum=")
+				.append(threadNum)
 				.append(", socketTimeoutMilliseconds=")
 				.append(socketTimeoutMilliseconds)
-				.append(", connectionTimeout=").append(connectionTimeout)
-				.append(", delayBetweenRequests=").append(delayBetweenRequests)
-				.append(", maxDepthOfCrawling=").append(maxDepthOfCrawling)
+				.append(", connectionTimeout=")
+				.append(connectionTimeout)
+				.append(", delayBetweenRequests=")
+				.append(delayBetweenRequests)
+				.append(", maxDepthOfCrawling=")
+				.append(maxDepthOfCrawling)
 				.append(", maxOutgoingLinksToFollow=")
 				.append(maxOutgoingLinksToFollow)
-				.append(", fetchBinaryContent=").append(fetchBinaryContent)
-				.append(", fileSuffix=").append(fileSuffix).append(", agent=")
-				.append(agent).append(", https=").append(https)
-				.append(", onlyDomain=").append(onlyDomain).append(", robots=")
-				.append(robots).append(", maxTotalConnections=")
-				.append(maxTotalConnections).append(", maxConnectionsPerHost=")
+				.append(", fetchBinaryContent=")
+				.append(fetchBinaryContent)
+				.append(", fileSuffix=")
+				.append(fileSuffix)
+				.append(", agent=")
+				.append(agent)
+				.append(", https=")
+				.append(https)
+				.append(", onlyDomain=")
+				.append(onlyDomain)
+				.append(", robots=")
+				.append(robots)
+				.append(", maxTotalConnections=")
+				.append(maxTotalConnections)
+				.append(", maxConnectionsPerHost=")
 				.append(maxConnectionsPerHost)
 				.append(", maxDownloadSizePerPage=")
-				.append(maxDownloadSizePerPage).append(", proxyHost=")
-				.append(proxyHost).append(", proxyPort=").append(proxyPort)
-				.append(", proxyUsername=").append(proxyUsername)
-				.append(", proxyPassword=").append(proxyPassword)
-				.append(", seeds=").append(seeds).append(", fetchUrlFilters=")
-				.append(fetchUrlFilters).append(", extractUrlfilters=")
-				.append(extractUrlfilters).append("]");
+				.append(maxDownloadSizePerPage)
+				.append(", proxyHost=")
+				.append(proxyHost)
+				.append(", proxyPort=")
+				.append(proxyPort)
+				.append(", proxyUsername=")
+				.append(proxyUsername)
+				.append(", proxyPassword=")
+				.append(proxyPassword)
+				.append(", seeds=")
+				.append(seeds != null ? seeds.subList(0,
+						Math.min(seeds.size(), maxLen)) : null)
+				.append(", fetchUrlFilters=")
+				.append(fetchUrlFilters != null ? fetchUrlFilters.subList(0,
+						Math.min(fetchUrlFilters.size(), maxLen)) : null)
+				.append(", extractUrlfilters=")
+				.append(extractUrlfilters != null ? extractUrlfilters.subList(
+						0, Math.min(extractUrlfilters.size(), maxLen)) : null)
+				.append("]");
 		return builder.toString();
 	}
-	
+
 	// test
 	public static void main(String[] args) {
 		FetchConfig fetchConfig = new FetchConfig();
 		Document document;
 		try {
 			document = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
-			fetchConfig.loadConfig(document);
+			System.out.println(fetchConfig.loadConfig(document).toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ConfigurationException e) {

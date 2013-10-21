@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sbs.goodcrawler.bootstrap.BootStrap;
 import org.sbs.goodcrawler.bootstrap.CrawlerStatus;
+import org.sbs.goodcrawler.exception.ConfigurationException;
 
 /**
  * Servlet implementation class Start
@@ -32,12 +33,18 @@ public class Start extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("start");
 		if(!CrawlerStatus.running){
-			BootStrap.start();
+			try {
+				BootStrap.start();
+				request.setAttribute("start", "程序正在运行中。。。");
+				request.setAttribute("jobs", BootStrap.getJobsNames());
+				request.setAttribute("status", CrawlerStatus.getStatus());
+				request.getRequestDispatcher("index.jsp").forward(request, response);
+			} catch (ConfigurationException e) {
+				e.printStackTrace();
+				request.setAttribute("status", e.getMessage());
+				request.getRequestDispatcher("index.jsp").forward(request, response);
+			}
 		}
-		request.setAttribute("start", "程序正在运行中。。。");
-		request.setAttribute("jobs", BootStrap.getJobsNames());
-		request.setAttribute("status", CrawlerStatus.getStatus());
-		request.getRequestDispatcher("index.jsp").forward(request, response);
 	}
 
 }

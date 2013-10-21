@@ -42,8 +42,8 @@ public class IntegerBetweenAction extends IntegerSelectorAction {
 			if(ss.length!=2){
 				throw new IntegerBetweenExpressionException("数值区间表示错误");
 			}else {
-				max = Integer.getInteger(ss[1]);
-				min = Integer.getInteger(ss[0]);
+				max = Integer.parseInt(ss[1]);
+				min = Integer.parseInt(ss[0]);
 				if(max<min){
 					int i = max;
 					max = min;
@@ -52,7 +52,7 @@ public class IntegerBetweenAction extends IntegerSelectorAction {
 			}
 		}
 		if(StringUtils.isNotBlank(def)){
-			this.def = Integer.getInteger(def);
+			this.def = Integer.parseInt(def);
 		}
 	}
 	/**

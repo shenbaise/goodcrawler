@@ -19,19 +19,20 @@ package org.sbs.goodcrawler.extractor;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.conf.jobconf.Template;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
+import org.sbs.goodcrawler.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.util.MapUtils;
-
-import com.google.common.collect.Maps;
+import org.sbs.goodcrawler.urlmanager.WebURL;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -41,7 +42,6 @@ import com.google.common.collect.Maps;
 public class DefaultExtractor extends Extractor {
 	
 	private Log log = LogFactory.getLog(this.getClass());
-	private int count = 0;
 	public DefaultExtractor(ExtractConfig conf) {
 		super(conf);
 	}
@@ -51,29 +51,38 @@ public class DefaultExtractor extends Extractor {
 		if(null!=page){
 			try {
 				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
+				
+				// 提取Url，放入待抓取Url队列
+				Elements links = doc.getElementsByTag("a"); 
+		        if (!links.isEmpty()) { 
+		            for (Element link : links) { 
+		                String linkHref = link.absUrl("href"); 
+		                if(filterUrls(linkHref)){
+		                	WebURL url = new WebURL();
+		                	url.setURL(linkHref);
+		                	url.setJobName(conf.jobName);
+		                	try {
+		                		// TODO 考虑队列容量，调整Url策略。
+								pendingUrls.addUrl(url);
+							} catch (QueueException e) {
+								 log.error(e.getMessage());
+							}
+		                }
+		            }
+		        }
 		        // 抽取信息
-				HashMap<String, Object> result = Maps.newHashMap();
-				for(Template template:conf.getTemplates()){
-					if(template.matches(page.getWebURL().getURL())){
-						HashMap<String, Object> m = template.extract(doc);
-						if(template.isGiveup()){
-							return null;
-						}
-						if(null!=m && m.size()>0){
-							result = MapUtils.mager(result, m);
-						}
-					}
-				}
-				ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
-				epage.setUrl(page.getWebURL());
-				epage.setMessages(result);
 				try {
+					Map<String, Object> result = conf.getContentSeprator(doc);
+					ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
+					epage.setUrl(page.getWebURL());
+					epage.setMessages((HashMap<String, Object>) result);
 					pendingStore.addExtracedPage(epage);
-					count++;
+					return epage;
 				} catch (QueueException e) {
 					 log.error(e.getMessage());
-				}
-				return epage;
+				} catch (ExtractException e) {
+					e.printStackTrace();
+				} 
 			} catch (UnsupportedEncodingException e) {
 				 log.error(e.getMessage());
 			} 

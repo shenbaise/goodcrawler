@@ -17,9 +17,13 @@
  */
 package org.sbs.goodcrawler.jobconf;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.conf.Configuration;
@@ -27,7 +31,7 @@ import org.sbs.goodcrawler.conf.Configuration;
 /**
  * @author whiteme
  * @date 2013年8月3日
- * @desc 
+ * @desc 存储配置对象，默认使用es
  */
 public class StoreConfig extends Configuration {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -39,7 +43,7 @@ public class StoreConfig extends Configuration {
 	
 	public StoreConfig loadConfig(Document confDoc){
 		Document doc = confDoc;
-		jobName = doc.select("job name").text();
+		jobName = doc.select("job").attr("name");
 		
 		Elements e = doc.select("store");
 		this.type = e.select("type").text();
@@ -75,8 +79,21 @@ public class StoreConfig extends Configuration {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuilder builder = new StringBuilder();
+		builder.append("StoreConfig [log=").append(log).append(", type=")
+				.append(type).append(", threadNum=").append(threadNum)
+				.append(", jobName=").append(jobName).append("]");
+		return builder.toString();
 	}
-
+	
+	public static void main(String[] args) {
+		StoreConfig extractConfig = new StoreConfig();
+		Document document;
+		try {
+			document = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
+			System.out.println(extractConfig.loadConfig(document).toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

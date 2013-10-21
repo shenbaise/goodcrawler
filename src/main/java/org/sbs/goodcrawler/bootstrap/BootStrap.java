@@ -24,15 +24,18 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoup.nodes.Document;
 import org.sbs.crawler.Worker;
 import org.sbs.goodcrawler.bootstrap.foreman.ExtractForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.StoreForeman;
+import org.sbs.goodcrawler.conf.JobConfigurationManager;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
-import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.conf.jobconf.JobConfigurationManager;
+import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.fetcher.PendingPages;
+import org.sbs.goodcrawler.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
 import org.sbs.goodcrawler.jobconf.StoreConfig;
 import org.sbs.goodcrawler.storage.PendingStore;
@@ -45,6 +48,7 @@ import org.sbs.goodcrawler.urlmanager.PendingUrls;
  * bootstrap
  */
 public class BootStrap {
+	private static Log log = LogFactory.getLog("bootStrap");
 	private static PropertyConfigurationHelper conHelper = PropertyConfigurationHelper.getInstance();
 	private static String jobs = "";
 	/**
@@ -52,14 +56,18 @@ public class BootStrap {
 	 * @desc 
 	 */
 	public static void main(String[] args) {
-		start();
-//		stop();
+		try {
+			start();
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * 启动任务
 	 * @param jobConf
+	 * @throws ConfigurationException 
 	 */
-	public static void start(){
+	public static void start() throws ConfigurationException{
 		JobConfigurationManager.init();
 		JobConfigurationManager manager = JobConfigurationManager.getInstance();
 		List<Document> configDocs = manager.getConfigDoc();
@@ -67,23 +75,27 @@ public class BootStrap {
 		for(Document doc:configDocs){
 			// fetcher
 			FetchConfig fConfig = new FetchConfig();
-			fConfig = fConfig.loadConfig(doc);
-			FetchForeman.start(fConfig);
+			FetchForeman fetchForeman = new FetchForeman();
+			fetchForeman.start(fConfig.loadConfig(doc));
+			log.info("正在加载任务:"+fConfig.jobName);
+			log.info("Fetch加载完成");
 			
 			// extract
 			ExtractConfig eConfig = new ExtractConfig();
-			eConfig.loadConfig(doc);
-			ExtractForeman.start(eConfig);
-			
+			ExtractForeman extractForeman = new ExtractForeman();
+			extractForeman.start(eConfig.loadConfig(doc));
+			log.info("Extract加载完成");
 			// store
 			StoreConfig sConfig = new StoreConfig();
-			sConfig.loadConfig(doc);
-			StoreForeman.start(sConfig);
-			
+			StoreForeman storeForeman = new StoreForeman();
+			storeForeman.start(sConfig.loadConfig(doc));
+			log.info("Store加载完成");
 			BootStrap.jobs += sConfig.jobName + ";";
 		}
 		
-		
+		/**
+		 * 状态监听
+		 */
 		Runnable runnable = new Runnable() {
 			PendingUrls pendingUrls = PendingUrls.getInstance();
 			PendingPages pendingPages = PendingPages.getInstace();
@@ -92,7 +104,7 @@ public class BootStrap {
 			public void run() {
 				while(!Worker.stop){
 					try {
-						Thread.sleep(10000L);
+						Thread.sleep(20000L);
 					} catch (InterruptedException e) {
 					}
 					System.out.println(pendingUrls.pendingStatus());

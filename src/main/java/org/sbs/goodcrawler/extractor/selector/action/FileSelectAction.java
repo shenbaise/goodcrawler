@@ -1,5 +1,5 @@
 /**
- * ##########################  GoodCrawler  ############################
+ * ########################  SHENBAISE'S WORK  ##########################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,35 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.urlmanager;
+package org.sbs.goodcrawler.extractor.selector.action;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-import com.google.common.collect.Lists;
+import org.sbs.goodcrawler.extractor.selector.exception.DownLoadException;
 
 /**
- * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-6-30
- * Url正则匹配器
+ * @author whiteme
+ * @date 2013年10月20日
+ * @desc FileSelectAction接口
  */
-public class UlrFilters {
-	
-	List<Pattern> patterns = Lists.newArrayList();
-	
-	public void init(){
-//		Pattern pattern = Pattern.compile(regex);
-	}
-	
-	
-	
+public abstract class FileSelectAction implements SelectorAction {
 	/**
-	 * @param args
-	 * @desc 
+	 * 返回文件下载后的本地路径
+	 * @param remoteFile
+	 * @return
+	 * @throws DownLoadException
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
+	public abstract String doAction(String remoteFile) throws DownLoadException;
 }

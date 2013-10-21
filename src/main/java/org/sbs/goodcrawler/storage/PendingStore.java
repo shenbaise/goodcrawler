@@ -26,6 +26,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,8 +48,11 @@ public class PendingStore implements Serializable {
 	@SuppressWarnings("rawtypes")
 	private BlockingQueue<ExtractedPage> Queue = null;
 	private static PendingStore instance = null;
-
-	private PendingStore() {
+	public AtomicLong count = new AtomicLong(0L);
+	public AtomicInteger failure = new AtomicInteger(0);
+	public AtomicInteger success = new AtomicInteger(0);
+	public AtomicInteger ignored = new AtomicInteger(0);
+	public PendingStore() {
 		init();
 	}
 
@@ -78,6 +83,10 @@ public class PendingStore implements Serializable {
 				oisUrl.close();
 				fisUrl.close();
 				Queue = instance.Queue;
+				failure = instance.failure;
+				success = instance.success;
+				count = instance.count;
+				ignored = instance.ignored;
 				System.out.println("recovery store queue..." + Queue.size());
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -98,6 +107,7 @@ public class PendingStore implements Serializable {
 		try {
 			if (null != store && null!=store.getMessages() && store.getMessages().size()>0) {
 				Queue.put(store);
+				count.incrementAndGet();
 			}
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());
@@ -126,7 +136,10 @@ public class PendingStore implements Serializable {
 
 	public String pendingStatus() {
 		StringBuilder sb = new StringBuilder(32);
-		sb.append("队列中等待处理的Store有").append(Queue.size()).append("个");
+		sb.append("队列中等待处理的Store有").append(Queue.size()).append("个，")
+		.append("截至目前共收到").append(count).append("个页面。已成功处理")
+		.append(success.get()).append("个，失败").append(failure.get())
+		.append("个，忽略").append(ignored.get()).append("个");
 		return sb.toString();
 	}
 

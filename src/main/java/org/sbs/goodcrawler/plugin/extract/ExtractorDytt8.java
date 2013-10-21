@@ -28,16 +28,13 @@ import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.conf.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.conf.jobconf.JobConfigurationX;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
+import org.sbs.goodcrawler.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.WebURL;
-import org.sbs.util.StringUtil;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)

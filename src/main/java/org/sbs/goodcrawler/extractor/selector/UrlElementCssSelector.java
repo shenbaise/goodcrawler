@@ -21,6 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sbs.goodcrawler.exception.ExtractException;
+import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
+
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -32,7 +36,7 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 	/**
 	 * 该Url选择器下的选择器
 	 */
-	List<ElementCssSelector<?>> selectors;
+	List<ElementCssSelector<?>> selectors = Lists.newArrayList();
 	/**
 	 * 该Url选择器下提取到的内容
 	 */
@@ -62,7 +66,7 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 		this.selectors.add(selector);
 	}
 	@Override
-	protected HashMap<String, Object> getContent() {
+	public HashMap<String, Object> getContent() throws ExtractException{
 		if (null != content && !newDoc) {
 			return content;
 		}
@@ -76,12 +80,17 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 	}
 	
 	@Override
-	protected Map<String, HashMap<String, Object>> getContentMap() {
+	public Map<String, HashMap<String, Object>> getContentMap() throws ExtractException{
 		if(null==content){
 			getContent();
 		}
 		HashMap<String, HashMap<String, Object>> map = new HashMap<>(1);
 		map.put(name, content);
 		return map;
+	}
+
+	@Override
+	public void addAction(SelectorAction action) {
+		
 	}
 }

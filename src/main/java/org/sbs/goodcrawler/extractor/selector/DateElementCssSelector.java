@@ -26,6 +26,8 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.exception.ExtractException;
+import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Sets;
@@ -76,37 +78,41 @@ public class DateElementCssSelector extends ElementCssSelector<Date> {
 	}
 
 	@Override
-	protected Date getContent() {
-		if(null!=this.date && !newDoc){
-			return date;
-		}
-		if(null!=document){
-			Elements elements = super.document.select(value);
-			if(elements.isEmpty())
-				return null;
-			String temp;
-			switch ($Attr) {
-			case text:
-				temp = CharMatcher.DIGIT.retainFrom(elements.text());
-				break;
-			default:
-				temp = CharMatcher.DIGIT.retainFrom(elements.attr(attr));
-				break;
+	public Date getContent() throws ExtractException{
+		try {
+			if(null!=this.date && !newDoc){
+				return date;
 			}
-			if(StringUtils.isNotBlank(temp)){
-				try {
-					this.date = DateUtils.parseDate(temp, patterns.toArray(new String[0]));
-				} catch (ParseException e) {
-					e.printStackTrace();
+			if(null!=document){
+				Elements elements = super.document.select(value);
+				if(elements.isEmpty())
+					return null;
+				String temp;
+				switch ($Attr) {
+				case text:
+					temp = CharMatcher.DIGIT.retainFrom(elements.text());
+					break;
+				default:
+					temp = CharMatcher.DIGIT.retainFrom(elements.attr(attr));
+					break;
 				}
+				if(StringUtils.isNotBlank(temp)){
+					try {
+						this.date = DateUtils.parseDate(temp, patterns.toArray(new String[0]));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+				return this.date;
 			}
-			return this.date;
+		} catch (Exception e) {
+			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;
 	}
 
 	@Override
-	protected Map<String, Date> getContentMap() {
+	public Map<String, Date> getContentMap() throws ExtractException{
 		if(date == null && newDoc)
 			getContent();
 		HashMap<String, Date> map = new HashMap<>(1);
@@ -124,5 +130,10 @@ public class DateElementCssSelector extends ElementCssSelector<Date> {
 
 	public void addPattern(String pattern){
 		this.patterns.add(pattern);
+	}
+
+	@Override
+	public void addAction(SelectorAction action) {
+		
 	}
 }

@@ -80,6 +80,8 @@ public abstract class StoreWorker<V, T> extends Worker{
 			default:
 				break;
 			}
+		}else {
+			onFailed(page);
 		}
 	}
 	

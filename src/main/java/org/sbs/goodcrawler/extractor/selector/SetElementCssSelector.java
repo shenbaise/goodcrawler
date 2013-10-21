@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.exception.ExtractException;
+import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 
 import com.google.common.collect.Sets;
 
@@ -46,39 +48,48 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 	}
 
 	@Override
-	protected Set<String> getContent() {
-		if(null!=content && !newDoc){
-			return content;
-		}
-		content = Sets.newHashSet();
-		if(document!=null){
-			Elements elements = super.document.select(value);
-			if(elements.isEmpty())
-				return null;
-			switch ($Attr) {
-			case text:
-				for (Element e : elements) {
-					content.add(e.text());
-				}
-				break;
-			default:
-				for (Element e : elements) {
-					content.add(e.attr(attr));
-				}
-				break;
+	public Set<String> getContent() throws ExtractException{
+		try {
+			if(null!=content && !newDoc){
+				return content;
 			}
-			return content;
+			content = Sets.newHashSet();
+			if(document!=null){
+				Elements elements = super.document.select(value);
+				if(elements.isEmpty())
+					return null;
+				switch ($Attr) {
+				case text:
+					for (Element e : elements) {
+						content.add(e.text());
+					}
+					break;
+				default:
+					for (Element e : elements) {
+						content.add(e.attr(attr));
+					}
+					break;
+				}
+				return content;
+			}
+		} catch (Exception e) {
+			throw new ExtractException(SetElementCssSelector.class.getSimpleName()+"信息提取错误:"+e.getMessage());
 		}
 		return null;
 	}
 
 	@Override
-	protected Map<String, Set<String>> getContentMap() {
+	public Map<String, Set<String>> getContentMap() throws ExtractException{
 		if(content==null && newDoc)
 			getContent();
 		Map<String, Set<String>> map = new HashMap<>(1);
 		map.put(name, this.content);
 		return null;
+	}
+
+	@Override
+	public void addAction(SelectorAction action) {
+		
 	}
 
 }

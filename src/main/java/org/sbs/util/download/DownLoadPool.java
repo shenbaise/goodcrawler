@@ -1,5 +1,5 @@
 /**
- * ##########################  GoodCrawler  ############################
+ * ########################  SHENBAISE'S WORK  ##########################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,32 +15,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.bootstrap.foreman;
+package org.sbs.util.download;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.sbs.goodcrawler.jobconf.StoreConfig;
-import org.sbs.goodcrawler.plugin.storage.ElasticSearchStorage;
-import org.sbs.goodcrawler.storage.DefaultStoreWorker;
+import java.util.concurrent.Future;
 
 /**
- * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-7-4
- * 存储工头
+ * @author whiteme
+ * @date 2013年10月20日
+ * @desc 用于提交下载任务的线程池
  */
-public class StoreForeman {
-
-	public StoreForeman() {
+public class DownLoadPool {
+	/**
+	 * 线程池
+	 */
+	public ExecutorService pool;
+	
+	private static DownLoadPool instance;
+	
+	private DownLoadPool(){
+		pool = Executors.newFixedThreadPool(10);
 	}
 	
-	@SuppressWarnings("rawtypes")
-	public void start(StoreConfig conf){
-		int threadNum = conf.getThreadNum();
-		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-		for(int i=0;i<threadNum;i++){
-			executor.submit(new DefaultStoreWorker(conf,new ElasticSearchStorage(conf.jobName)));
+	public static DownLoadPool getInstance(){
+		if(instance == null){
+			instance = new DownLoadPool();
 		}
-		executor.shutdown();
+		return instance;
+	}
+	/**
+	 * 提交线程
+	 * @return 
+	 */
+	public Future<DownLoadBean> submit(Callable<DownLoadBean> call){
+		return pool.submit(call);
 	}
 }
