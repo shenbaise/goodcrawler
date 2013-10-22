@@ -23,13 +23,13 @@ package org.sbs.goodcrawler.extractor.selector.action.string;
  * @desc 字符处理的各种方式
  */
 public enum StringActionType {
-	$after,
-	$afterLast,
-	$before,
-	$beforeLast,
-	$between,
-	$filter,
-	$replace,
-	$split,
-	$sub
+	after,
+	afterLast,
+	before,
+	beforeLast,
+	between,
+	filter,
+	replace,
+	split,
+	sub
 }

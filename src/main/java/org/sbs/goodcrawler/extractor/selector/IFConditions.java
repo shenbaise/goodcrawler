@@ -66,7 +66,7 @@ public class IFConditions {
 	/**
 	 * 简单与或关系
 	 */
-	private Set<String> cond = Sets.newHashSet("and", "or", "AND", "OR");
+	private Set<String> cond = Sets.newHashSet(" and ", " or ", " AND ", " OR ");
 
 	/**
 	 * 检测依赖的选择器是否满足条件
@@ -98,7 +98,7 @@ public class IFConditions {
 						throw new ExtractException("表达式依赖的选择提取内容为空：["+this.conditions + "] 中的"+ss[0]);
 					}
 					expressionQueue.add(new SimpleExpression(StringUtils.trim((String)selectContent.get(ss[0].trim())), StringUtils.trim(ss[1]), op));
-					logicQueue.add(entry.getValue());
+					logicQueue.add(StringUtils.trim(entry.getValue()));
 				}
 			}
 			index = entry.getKey()+entry.getValue().length();
@@ -155,7 +155,19 @@ public class IFConditions {
 		if(null!=selectors && selectors.size()>0){
 			Map<String, Object> content = Maps.newHashMap();
 			for(ElementCssSelector<?> selector:selectors){
-				content.putAll(selector.setDocument(document).getContentMap());
+				if(selector instanceof FileElementCssSelector){
+					Map m = ((FileElementCssSelector)selector).setResult(content)
+							.setDocument(document)
+							.getContentMap();
+					if(null==m || m.size()>0 && selector.isRequired())
+						return null;
+					content.putAll(m);
+				}else{
+					Map m = selector.setDocument(document).getContentMap();
+					if(null==m || m.size()>0 && selector.isRequired())
+						return null;
+					content.putAll(m);
+				}
 			}
 			return content;
 		}

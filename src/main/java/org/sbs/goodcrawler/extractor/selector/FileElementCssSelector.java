@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.FileSelectAction;
@@ -46,7 +45,9 @@ public class FileElementCssSelector extends ElementCssSelector<String> {
 			boolean isRequired) {
 		super(name, value, attr, isRequired);
 	}
-
+	
+	private Map<String, Object> result = null;
+	
 	/**
 	 * 提取内容，并根据Action对内容做加工
 	 */
@@ -54,7 +55,7 @@ public class FileElementCssSelector extends ElementCssSelector<String> {
 	public String getContent() throws ExtractException{
 		try {
 			// 同一个文档的2+次调用不用重新计算。
-			if(StringUtils.isNotBlank(this.content) && !newDoc){
+			if(StringUtils.isNotBlank(this.content)){
 				return content;
 			}
 			// 抽取document中对应的Selector
@@ -62,29 +63,29 @@ public class FileElementCssSelector extends ElementCssSelector<String> {
 				Elements elements = super.document.select(value);
 				if(elements.isEmpty())
 					return null;
-				StringBuilder sb = new StringBuilder();
 				switch ($Attr) {
 				case text:
-					for (Element e : elements) {
-						sb.append(e.text()).append("\n");
-					}
+					this.content = elements.first().text();
 					break;
 				default:
-					for (Element e : elements) {
-						sb.append(e.attr(attr));
-					}
+					this.content = elements.first().attr(attr);
 					break;
 				}
-				if(StringUtils.isNotBlank(sb)){
-					String temp = sb.substring(0,sb.length()-1);
-					if(null!=actions){
-						for(FileSelectAction action:actions){
-							this.content = action.doAction(temp);
-						}
-					}else {
-						this.content = sb.substring(0, sb.length()-1);
+				newDoc = false;
+				if(null!=actions && actions.size()>0 && StringUtils.isNotBlank(content)){
+					String temp = this.content;
+					for(FileSelectAction action:actions){
+						temp = action.doAction(result, temp);
+					}
+					this.content = temp;
+				}else {
+					if(StringUtils.isNotBlank(content))
+						return content;
+					else {
+						return null;
 					}
 				}
+				return this.content;
 			}
 		} catch (Exception e) {
 			throw new ExtractException(StringElementCssSelector.class.getSimpleName()+"信息提取错误:"+e.getMessage());
@@ -97,6 +98,8 @@ public class FileElementCssSelector extends ElementCssSelector<String> {
 		if(StringUtils.isBlank(content) && newDoc){
 			getContent();
 		}
+		if(StringUtils.isBlank(content))
+			return null;
 		Map<String, String> m = new HashMap<String, String>(1);
 		m.put(name, this.content);
 		return m;
@@ -119,4 +122,13 @@ public class FileElementCssSelector extends ElementCssSelector<String> {
 		this.actions.add((FileSelectAction) action);
 	}
 
+	public Map<String, Object> getResult() {
+		return result;
+	}
+
+	public FileElementCssSelector setResult(Map<String, Object> result) {
+		this.result = result;
+		return this;
+	}
+	
 }

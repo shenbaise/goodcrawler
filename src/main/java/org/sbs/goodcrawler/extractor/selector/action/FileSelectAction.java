@@ -17,6 +17,8 @@
  */
 package org.sbs.goodcrawler.extractor.selector.action;
 
+import java.util.Map;
+
 import org.sbs.goodcrawler.extractor.selector.exception.DownLoadException;
 
 /**
@@ -31,5 +33,5 @@ public abstract class FileSelectAction implements SelectorAction {
 	 * @return
 	 * @throws DownLoadException
 	 */
-	public abstract String doAction(String remoteFile) throws DownLoadException;
+	public abstract String doAction(Map<String, Object> result,String remoteFile) throws DownLoadException;
 }

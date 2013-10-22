@@ -15,14 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.extractor.selector.action.integer;
+package org.sbs.goodcrawler.extractor.selector.action.file;
 
 /**
  * @author whiteme
- * @date 2013年10月18日
- * @desc 
+ * @date 2013年10月22日
+ * @desc 文件类型元素处理种类
  */
-public enum IntegerActionType {
-	abs,
-	between
+public enum FileActionType {
+	/**
+	 * 下载
+	 */
+	download,
+	/**
+	 * 下载并压缩，针对图片
+	 */
+	download_resize
 }

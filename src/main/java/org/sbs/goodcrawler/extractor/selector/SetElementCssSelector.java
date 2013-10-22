@@ -70,6 +70,7 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 					}
 					break;
 				}
+				newDoc = false;
 				return content;
 			}
 		} catch (Exception e) {
@@ -82,9 +83,11 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 	public Map<String, Set<String>> getContentMap() throws ExtractException{
 		if(content==null && newDoc)
 			getContent();
+		if(content == null || content.size()==0)
+			return null;
 		Map<String, Set<String>> map = new HashMap<>(1);
 		map.put(name, this.content);
-		return null;
+		return map;
 	}
 
 	@Override

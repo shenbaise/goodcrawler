@@ -103,6 +103,7 @@ public class DateElementCssSelector extends ElementCssSelector<Date> {
 						e.printStackTrace();
 					}
 				}
+				newDoc = false;
 				return this.date;
 			}
 		} catch (Exception e) {
@@ -115,6 +116,8 @@ public class DateElementCssSelector extends ElementCssSelector<Date> {
 	public Map<String, Date> getContentMap() throws ExtractException{
 		if(date == null && newDoc)
 			getContent();
+		if(null == date)
+			return  null;
 		HashMap<String, Date> map = new HashMap<>(1);
 		map.put(name, date);
 		return map;

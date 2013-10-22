@@ -76,6 +76,7 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 			selector.setDocument(document);
 			content.put(selector.getName(), selector.setDocument(document).getContent());
 		}
+		newDoc = false;
 		return content;
 	}
 	
@@ -84,6 +85,8 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 		if(null==content){
 			getContent();
 		}
+		if(content == null)
+			return null;
 		HashMap<String, HashMap<String, Object>> map = new HashMap<>(1);
 		map.put(name, content);
 		return map;

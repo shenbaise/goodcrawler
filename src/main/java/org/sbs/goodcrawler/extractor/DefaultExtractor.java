@@ -73,11 +73,13 @@ public class DefaultExtractor extends Extractor {
 		        // 抽取信息
 				try {
 					Map<String, Object> result = conf.getContentSeprator(doc);
-					ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
-					epage.setUrl(page.getWebURL());
-					epage.setMessages((HashMap<String, Object>) result);
-					pendingStore.addExtracedPage(epage);
-					return epage;
+					if(null!=result && result.size()>0){
+						ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
+						epage.setUrl(page.getWebURL());
+						epage.setMessages((HashMap<String, Object>) result);
+						pendingStore.addExtracedPage(epage);
+						return epage;
+					}
 				} catch (QueueException e) {
 					 log.error(e.getMessage());
 				} catch (ExtractException e) {

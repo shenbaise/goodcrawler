@@ -56,5 +56,9 @@ public enum SelectorType {
 	/**
 	 * ajax方式的动态选择器
 	 */
-	$ajax
+	$ajax,
+	/**
+	 * 文件
+	 */
+	$file
 }

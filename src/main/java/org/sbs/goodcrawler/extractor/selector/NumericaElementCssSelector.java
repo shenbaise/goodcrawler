@@ -59,7 +59,7 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 	public Number getContent() throws ExtractException{
 		try {
 			// 如果content不为空且不是新文档，则表示是同一个document的2+次调用，不用重新计算
-			if (null != content && !newDoc) {
+			if (null != content) {
 				return content;
 			}
 			if (null != document) {
@@ -83,6 +83,7 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 							this.content = action.doAction((Integer) content);
 						}
 					}
+					newDoc = false;
 					return content;
 				}
 			}
@@ -98,6 +99,8 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 		if(null==content && newDoc){
 			getContent();
 		}
+		if(null==content)
+			return null;
 		Map<String, Number> m = new HashMap<String, Number>(1);
 		m.put(name, this.content);
 		return m;

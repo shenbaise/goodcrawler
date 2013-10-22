@@ -79,6 +79,7 @@ public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 					}else {
 						this.content = integer;
 					}
+					newDoc = false;
 					return content;
 				}
 			}
@@ -96,6 +97,8 @@ public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 		if(null==content && newDoc){
 			getContent();
 		}
+		if(null==content)
+			return null;
 		Map<String, Integer> m = new HashMap<String, Integer>(1);
 		m.put(name, this.content);
 		return m;

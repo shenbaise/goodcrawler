@@ -22,6 +22,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.extractor.selector.DateElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
+import org.sbs.goodcrawler.extractor.selector.FileElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.IntegerElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.ListElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.NumericaElementCssSelector;
@@ -66,6 +67,8 @@ public class ElementCssSelectorFactory {
 			return new NumericaElementCssSelector(name, value, attr, isRequired);
 		case $date:
 			return new DateElementCssSelector(name, value, attr, isRequired);
+		case $file:
+			return new FileElementCssSelector(name, value, attr, isRequired);
 		case $ajax:
 //			return new AjaxElementCssSelector(name, value, attr, isRequired);
 		default:
@@ -84,7 +87,7 @@ public class ElementCssSelectorFactory {
 		String type = element.attr("type");
 		String attr = element.attr("attr");
 		String required = element.attr("required");
-		boolean isRequired = true;
+		boolean isRequired = false;
 		if(StringUtils.isNotBlank(required)){
 			isRequired = Boolean.parseBoolean(required);
 		}
@@ -94,7 +97,8 @@ public class ElementCssSelectorFactory {
 		for(Element e:actionSelect){
 			if("action".equals(e.tagName())){
 				SelectorAction action = ActionFactory.create(e, element.attr("type"));
-				selector.addAction(action);
+				if(action!=null)
+					selector.addAction(action);
 			}
 		}
 		// 检测是否是Url类型的选择器

@@ -10,7 +10,7 @@
 		<type>default</type>
 		<agent>Kindle</agent>
 		<!-- 爬取线程数 -->
-		<threadNum>4</threadNum>
+		<threadNum>1</threadNum>
 		<!-- 同一线程两次请求之间的间隔 -->
 		<delayBetweenRequests>50</delayBetweenRequests>
 		<!-- Url爬取深度 -1表示不限深度 -->
@@ -65,7 +65,7 @@
 	<!-- 定义extract -->
 	<extract> 
 		<type>default</type>
-		<threadNum>6</threadNum>
+		<threadNum>1</threadNum>
 		<template name="movie">
 			<!-- 模板对应的Url规则 -->
 			<urls>
@@ -81,7 +81,9 @@
 					例如<if test="category=电影">表示category为电影则使用if包起来的选择器。
 				 -->
 				<if test="category=电影">
-					<element name="year" type="int" value=".title .pub" attr="text"/>
+					<element name="year" type="int" value=".title .pub" attr="text">
+						<action operation="between" exp="1800,2020" def="1900"/>
+					</element>
 					<element name="score" type="int" value=".ratingstar .num" attr="text"/>
 					<element name="alias" type="string" value=".alias" attr="text">
 						<!-- 
@@ -116,11 +118,9 @@
 					<element name="duration" type="int" value=".row2 .duration" attr="text" />
 					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
 					<element name="summary" type="string" value=".detail .long" attr="text" />
-					<element name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download" dir="./{category}/{type}/{md5}"></action>
-						<action operation="resize" width="200" height="240" proportion="true" deleteOldFile="true"/>
+					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
+						<action operation="download_resize" dir="./{category}/{type}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
-					
 					<element name="play1" type="url" value=".btnplayposi" attr="href">
 						<element name="online1" type="set" value="#link2" attr="value" />
 					</element>
@@ -144,8 +144,7 @@
 					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
 					<element name="summary" type="string" value="#show_info_short" attr="text" />
 					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download" dir="./{category}/{type}/{md5}"></action>
-						<action operation="resize" width="200" height="240" proportion="true" deleteOldFile="true"/>
+						<action operation="download_resize" dir="./{category}/{type}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<!-- 剧集超过40需要模拟点击 #研究中 -->
 					<element name="play1" type="url" value="#episode a" attr="href">
@@ -163,9 +162,9 @@
 					<element name="host" type="string" value=".row1 .host a" attr="text"/>
 					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
 					<element name="summary" type="string" value="#show_info_short" attr="text" />
-					<element name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download" dir="./{category}/{type}/{md5}"></action>
-						<action operation="resize" width="200" height="240" proportion="true" deleteOldFile="true"/>
+					<!-- 对于File类型的Element，可以有download 和  download_resize的处理，前者针对任意文件，后者针对图片文件。-->
+					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
+						<action operation="download_resize" dir="./{category}/{type}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<!-- 剧集超过40需要模拟点击 #研究中 -->
 					<element name="play1" type="url" value="#episode a" attr="href">
@@ -182,111 +181,8 @@
 					<element name="type" type="set" value=".row2 .type a" attr="text" required="true" />
 					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
 					<element name="summary" type="string" value=".detail .long" attr="text" />
-					<element name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download" dir="./{category}/{type}/{md5}"></action>
-						<action operation="resize" width="200" height="240" proportion="true" deleteOldFile="true"/>
-					</element>
-					<element name="play1" type="url" value="#episode a" attr="href">
-						<element name="online" type="set" value="#link2" attr="value" />
-					</element>
-				</if>
-			</elements>
-		</template>
-		
-		<template name="comment">
-			<!-- 模板对应的Url规则 -->
-			<urls>
-				<url>http://.*.youku.com/show_page/.*</url>
-			</urls>
-			<elements>
-				<element name="title" type="string" value=".title .name" attr="text" required="true" />
-				<element name="category" type="string" value=".title .type a" attr="text" required="true"/>
-				<!-- 判定分支 -->
-				<if test="category=电影" ref="category">
-					<element name="year" type="int" value=".title .pub" attr="text"/>
-					<element name="score" type="int" value=".ratingstar .num" attr="text"/>
-					<element name="alias" type="string" value=".alias" attr="text">
-						<action operation="split" split=":" index="1"></action>
-					</element>
-					<element name="area" type="string" value=".row2 .area a" attr="text"/>
-					<element name="lang" type="string" value=".lang" attr="text">
-						<action operation="split" split=":" index="1"></action>
-					</element>
-					<element name="type" type="set" value=".row2 .type a" attr="text" required="true"/>
-					<element name="director" type="string" value=".row2 .director a" attr="text" />
-					<element name="actors" type="set" value=".actor a" attr="text" />
-					<element name="duration" type="int" value=".row2 .duration" attr="text" />
-					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
-					<element name="summary" type="string" value=".detail .long" attr="text" />
-					<element name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download" dir="./{category}/{type}/{md5}"></action>
-						<action operation="resize" width="200" height="240" proportion="true" deleteOldFile="true"/>
-					</element>
-					
-					<element name="play1" type="url" value=".btnplayposi" attr="href">
-						<element name="online1" type="set" value="#link2" attr="value" />
-					</element>
-					<element name="play2" type="url" value=".btnplaytrailer" attr="value">
-						<element name="online2" type="set" value="#link2" attr="value" />
-					</element>
-				</if>
-				<if test="category=电视剧">
-					<element name="year" type="int" value=".title .pub" attr="text" required="true"/>
-					<element name="score" type="int" value=".ratingstar .num" attr="text"/>
-					<element name="alias" type="string" value=".alias" attr="text">
-						<action operation="split" split=":" index="1"></action>
-					</element>
-					<element name="area" type="string" value=".row2 .area a" attr="text"/>
-					<element name="lang" type="string" value=".lang" attr="text">
-						<action operation="split" split=":" index="1"></action>
-					</element>
-					<element name="type" type="set" value=".row2 .type a" attr="text" required="true"/>
-					<element name="director" type="string" value=".row2 .director a" attr="text" />
-					<element name="actors" type="set" value=".actor a" attr="text"/>
-					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
-					<element name="summary" type="string" value="#show_info_short" attr="text" />
-					<element name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download" dir="./{category}/{type}/{md5}"></action>
-						<action operation="resize" width="200" height="240" proportion="true" deleteOldFile="true"/>
-					</element>
-					<!-- 剧集超过40需要模拟点击 #研究中 -->
-					<element name="play1" type="url" value="#episode a" attr="href">
-						<element name="online" type="set" value="#link2" attr="value" />
-					</element>
-				</if>
-				<if test="category=综艺">
-					<element name="year" type="int" value=".title .pub" attr="text"/>
-					<element name="score" type="int" value=".ratingstar .num" attr="text" />
-					<element name="area" type="string" value=".row2 .area a" attr="text" />
-					<element name="type" type="set" value=".row1 .type .a" attr="text" required="true"/>
-					<element name="lang" type="string" value=".lang" attr="text">
-						<action operation="split" split=":" index="1"></action>
-					</element>
-					<element name="host" type="string" value=".row1 .host a" attr="text"/>
-					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
-					<element name="summary" type="string" value="#show_info_short" attr="text" />
-					<element name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download" dir="./{category}/{type}/{md5}"></action>
-						<action operation="resize" width="200" height="240" proportion="true" deleteOldFile="true"/>
-					</element>
-					<!-- 剧集超过40需要模拟点击 #研究中 -->
-					<element name="play1" type="url" value="#episode a" attr="href">
-						<element name="online" type="set" value="#link2" attr="value" />
-					</element>
-				</if>
-				<if test="category=动漫">
-					<element name="year" type="int" value=".title .pub" attr="text" required="true"/>
-					<element name="score" type="int" value=".ratingstar .num" attr="text"/>
-					<element name="alias" type="string" value=".alias" attr="text">
-						<action operation="split" split=":" index="1"></action>
-					</element>
-					<element name="area" type="string" value=".row2 .area a" attr="text"/>
-					<element name="type" type="set" value=".row2 .type a" attr="text" required="true" />
-					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
-					<element name="summary" type="string" value=".detail .long" attr="text" />
-					<element name="thumbnail" type="string" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download" dir="./{category}/{type}/{md5}"></action>
-						<action operation="resize" width="200" height="240" proportion="true" deleteOldFile="true"/>
+					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
+						<action operation="download_resize" dir="./{category}/{type}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<element name="play1" type="url" value="#episode a" attr="href">
 						<element name="online" type="set" value="#link2" attr="value" />
@@ -298,6 +194,6 @@
 	<!-- 存储配置 -->
 	<store>
 		<type>elasticsearch</type>
-		<threadNum>2</threadNum>
+		<threadNum>1</threadNum>
 	</store>
 </job>

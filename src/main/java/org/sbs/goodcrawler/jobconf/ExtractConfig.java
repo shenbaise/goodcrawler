@@ -19,6 +19,7 @@ package org.sbs.goodcrawler.jobconf;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,9 @@ public class ExtractConfig extends Configuration {
 	public Map<String, Object> getContentAll(Document document) throws ExtractException{
 		Map<String, Object> content = Maps.newHashMap(); 
 		for(ExtractTemplate template:templates){
-			content.putAll(template.getConten(document));
+			Map<String, Object> m = template.getConten(document);
+			if(m!=null && m.size()>0)
+				content.putAll(m);
 		}
 		return content;
 	}
@@ -78,7 +81,9 @@ public class ExtractConfig extends Configuration {
 	public Map<String, Object> getContentSeprator(Document document) throws ExtractException{
 		Map<String, Object> content = Maps.newHashMap();
 		for(ExtractTemplate template : templates){
-			content.put(template.getName(), template.getConten(document));
+			Map<String, Object> m = template.getConten(document);
+			if(m!=null && m.size()>0)
+				content.put(template.getName(), m);
 		}
 		return content;
 	}
@@ -108,7 +113,7 @@ public class ExtractConfig extends Configuration {
 				patterns.add(Pattern.compile(urlElement.text()));
 			}
 			extractTemplate.setUrlPattern(patterns);
-			
+			extractTemplate.setName(template.attr("name"));
 			// 提取元素
 			Elements selectElement = template.select("elements").first().children();
 			for(Element element:selectElement){
@@ -155,9 +160,13 @@ public class ExtractConfig extends Configuration {
 		try {
 			document = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
 			System.out.println(extractConfig.loadConfig(document).toString());
+			Map<String, Object> r=extractConfig.getContentSeprator(Jsoup.parse(new URL("http://www.youku.com/show_page/id_z59617246746d11e0a046.html"), 10000));
+			System.out.println(r);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		} catch (ExtractException e) {
 			e.printStackTrace();
 		}
 	}
@@ -193,16 +202,34 @@ class ExtractTemplate{
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> getConten(Document document) throws ExtractException{
 		try {
 			Map<String, Object> content = Maps.newHashMap();
 			for(ElementCssSelector<?> selector:cssSelectors){
 				selector.setDocument(document);
-				content.putAll(selector.getContentMap());
+				Map<String, ?> m = selector.getContentMap();
+				if((null==m || m.size()==0) && selector.isRequired()){
+					return null;
+				}else {
+					if(null!=m && m.size()>0)
+						content.putAll(m);
+				}
 			}
 			for(IFConditions con:conditions){
 				if(con.test(content)){
-					content.putAll(con.getContent(document));
+					for(ElementCssSelector<?> selector:con.getSelectors()){
+						if("thumbnail".equals(selector.getName())){
+							System.out.println("..");
+						}
+						Map<String, Object> m = selector.setDocument(document).getContentMap();
+						if((null==m || m.size()==0) && selector.isRequired()){
+							return null;
+						}else {
+							if(null!=m && m.size()>0)
+								content.putAll(m);
+						}
+					}
 				}
 			}
 			return content;
@@ -251,7 +278,7 @@ class ExtractTemplate{
 		this.cssSelectors = cssSelectors;
 	}
 	
-	public void addCssSelector(ElementCssSelector selector){
+	public void addCssSelector(ElementCssSelector<?> selector){
 		this.cssSelectors.add(selector);
 	}
 	
@@ -265,5 +292,10 @@ class ExtractTemplate{
 	
 	public void addConditions(IFConditions condition){
 		this.conditions.add(condition);
+	}
+	
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 }

@@ -15,14 +15,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.extractor.selector.action.integer;
+package org.sbs.util.image;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * @author whiteme
- * @date 2013年10月18日
- * @desc 
+ * @date 2013年10月22日
+ * @desc 一个简单的线程池，用于提交图片压缩任务的线程
  */
-public enum IntegerActionType {
-	abs,
-	between
+public class ImageResizePool {
+	/**
+	 * 线程池
+	 */
+	public ExecutorService pool;
+	
+	private static ImageResizePool instance;
+	
+	private ImageResizePool(){
+		pool = Executors.newFixedThreadPool(10);
+	}
+	
+	public static ImageResizePool getInstance(){
+		if(instance == null){
+			instance = new ImageResizePool();
+		}
+		return instance;
+	}
+	/**
+	 * 提交线程
+	 * @return 
+	 */
+	public Future<?> submit(Callable<?> call){
+		return pool.submit(call);
+	}
 }

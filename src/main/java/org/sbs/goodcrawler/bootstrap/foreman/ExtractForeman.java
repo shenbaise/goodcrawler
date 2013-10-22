@@ -17,11 +17,9 @@
  */
 package org.sbs.goodcrawler.bootstrap.foreman;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.sbs.goodcrawler.extractor.DefaultExtractWorker;
 import org.sbs.goodcrawler.extractor.DefaultExtractor;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
@@ -37,12 +35,7 @@ public class ExtractForeman extends Foreman{
 		int threadNum = conf.getThreadNum();
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 		for(int i=0;i<threadNum;i++){
-			try {
-				executor.submit(new DefaultExtractWorker(conf,new DefaultExtractor((ExtractConfig) BeanUtils.cloneBean(conf))));
-			} catch (IllegalAccessException | InstantiationException
-					| InvocationTargetException | NoSuchMethodException e) {
-				e.printStackTrace();
-			}
+			executor.submit(new DefaultExtractWorker(conf,new DefaultExtractor(conf)));
 		}
 		executor.shutdown();
 	}

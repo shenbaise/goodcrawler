@@ -31,10 +31,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 import org.sbs.goodcrawler.extractor.selector.exception.DownLoadException;
+import org.sbs.util.image.ImageResize;
 
 import com.google.common.collect.Lists;
 
@@ -45,6 +48,7 @@ import com.google.common.collect.Lists;
  */
 public class MultiThreadDownload {
 	private static final Log log = LogFactory.getLog(MultiThreadDownload.class);
+	private static final String down_error_log_file = PropertyConfigurationHelper.getInstance().getString("status.save.path.down.error", "status/down-error.log");
 	/**
 	 * 缓冲区大小
 	 */
@@ -105,11 +109,13 @@ public class MultiThreadDownload {
 	public MultiThreadDownload(long blockSize) {
 		super();
 		this.blockSize = blockSize;
+		this.threadNum = 0;
 	}
 	
 	public MultiThreadDownload(int threadNum) {
 		super();
 		this.threadNum = threadNum;
+		this.blockSize = 0;
 	}
 	
 	public MultiThreadDownload(){}
@@ -174,7 +180,67 @@ public class MultiThreadDownload {
 		if(listen)
 			listenStatus();
 	}
+	/**
+	 * 下载一个图片然后压缩，异步进行
+	 * @param url
+	 * @param path
+	 * @param fileName
+	 * @param listen
+	 * @throws DownLoadException
+	 */
+	@SuppressWarnings("rawtypes")
+	public void downImageThenResizeAsyn(final URL url,final String path,final String fileName,final int width,final float quality) throws DownLoadException{
+		Callable callable = new Callable() {
+			@Override
+			public Future call() throws Exception {
+				File img = downLoad(url,path,fileName);
+				ImageResize imageResize = new ImageResize();
+				imageResize.resizeAsynchronous(img, width, quality, true);
+				return null;
+			}
+		};
+		pool.submit(callable);
+	}
 	
+	/**
+	 * 异步下载压缩
+	 * @param url
+	 * @param path
+	 * @param fileName
+	 * @param width
+	 * @param height
+	 * @param quality
+	 * @param del
+	 * @throws DownLoadException
+	 */
+	@SuppressWarnings("rawtypes")
+	public void downImageThenResizeAsyn(final URL url,final String path,final String fileName,final int width,final float quality,final boolean del) throws DownLoadException{
+		Callable callable = new Callable() {
+			@Override
+			public Future call() throws Exception {
+				File img = downLoad(url,path,fileName);
+				ImageResize imageResize = new ImageResize();
+				imageResize.resizeAsynchronous(img, width ,quality, del);
+				return null;
+			}
+		};
+		pool.submit(callable);
+	}
+	
+	/**
+	 * 同步下载压缩图片
+	 * @param url
+	 * @param path
+	 * @param fileName
+	 * @param width
+	 * @param quality
+	 * @throws DownLoadException
+	 */
+	public void downImageThenResizeSyn(final URL url,final String path,final String fileName,final int width,final float quality) throws DownLoadException{
+		File img = downLoad(url,path,fileName);
+		ImageResize imageResize = new ImageResize();
+		imageResize.resizeAsynchronous(img, width, quality, true);
+	}
 	/**
 	 * 下载文件
 	 * @param url
@@ -206,6 +272,9 @@ public class MultiThreadDownload {
 			final File file = new File(path+File.separator+fileName);
 			if(file.exists())
 				file.delete();
+			if(this.threadNum==0&&this.blockSize>0){
+				this.threadNum = (int) (contentLen /blockSize);
+			}
 			long subLen = contentLen / threadNum; 
 			List<Future<DownLoadBean>> result = Lists.newArrayList();
 			for(int i=0;i<threadNum;i++){
@@ -269,16 +338,20 @@ public class MultiThreadDownload {
 			}
 			// 　判断文件是否完整下载
 			if(contentLen!=resultTotal+1){
+				// 记录下载错误的链接，从而可以从中恢复
+				FileUtils.write(new File(down_error_log_file), url.toString()+"\n", true);
 				throw new DownLoadException("文件下载不完整");
 			}else {
 				finished = true;
 				return file;
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}  catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (IOException | InterruptedException | ExecutionException e) {
+			// 记录下载错误的链接
+			try {
+				FileUtils.write(new File(down_error_log_file), url.toString()+"\n", true);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 		return null;

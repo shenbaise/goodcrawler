@@ -28,8 +28,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.elasticsearch.ElasticSearchException;
-import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
-import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
@@ -61,8 +60,8 @@ public class EsClient {
 	public static Client getClient() {
 		if (null == client) {
 			client = new TransportClient(settings)
-					.addTransportAddress(new InetSocketTransportAddress(
-							"127.0.0.1", 9300));
+			.addTransportAddress(new InetSocketTransportAddress(
+					"127.0.0.1", 9300));
 		}
 		return client;
 	}
@@ -215,10 +214,15 @@ public class EsClient {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		SearchResponse response = EsClient.search("movie", "魔境仙踪[国语高清]");
+		SearchResponse response = EsClient.search("movie", "魔境仙踪[国语高清]");
 //		System.out.println(response.toString());
 //		response.getHits().getTotalHits();
-		createIndexAndMapping("movie", "0", mapping);
+//		createIndexAndMapping("movie", "0", mapping);
+		GetResponse get =client.prepareGet("movie", "0","魔境仙踪[国语高清]" )
+		.execute()
+		.actionGet();
+		
+		System.out.println(get.toString());
 	}
 
 }

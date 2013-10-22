@@ -34,9 +34,9 @@ import com.google.common.collect.Lists;
 /**
  * @author whiteme
  * @date 2013年10月20日
- * @desc 下载文件（必须同步进行，如果文件下载不完成，不能执行下面的不走）
+ * @desc 下载图片然后压缩
  */
-public class DownLoadFileAction extends FileSelectAction {
+public class DownLoadImageResizeAction extends FileSelectAction {
 	/**
 	 * 下载文件的存储路径
 	 */
@@ -57,12 +57,49 @@ public class DownLoadFileAction extends FileSelectAction {
 	 * 多线程下载时分块的大小
 	 */
 	long blockSize = 1024*1024L;
+	
+	private int w = 200;
+	private int h = 240;
+	private float quality = 0.6f;
+	private boolean deleteOldFile = true;
+	
+	/**
+	 * 构造函数
+	 * @param dir
+	 * @param md5File
+	 * @param asynchronous
+	 * @param blockSize
+	 * @param w
+	 * @param h
+	 * @param quality
+	 * @param deleteOldFile
+	 */
+	public DownLoadImageResizeAction(String dir, boolean md5File,
+			boolean asynchronous, long blockSize, int w, int h,
+			Float quality, boolean deleteOldFile) {
+		if(!dir.contains("{")){
+			this.dir = new File(dir);
+			if(!this.dir.exists()){
+				this.dir.mkdir();
+			}
+		}else {
+			this.dynamicPath = Lists.newArrayList(StringUtils.substringsBetween(dir, "{", "}"));
+		}
+		this.md5File = md5File;
+		this.asynchronous = asynchronous;
+		this.blockSize = blockSize;
+		this.w = w;
+		this.h = h;
+		this.quality = quality;
+		this.deleteOldFile = deleteOldFile;
+	}
 	/**
 	 * 构造函数
 	 * @param dir
 	 * @param md5File
 	 */
-	public DownLoadFileAction(String dir, boolean md5File) {
+	public DownLoadImageResizeAction(String dir, boolean md5File) {
+		super();
 		if(!dir.contains("{")){
 			this.dir = new File(dir);
 			if(!this.dir.exists()){
@@ -79,7 +116,7 @@ public class DownLoadFileAction extends FileSelectAction {
 	 * @param md5File
 	 * @param asynchronous
 	 */
-	public DownLoadFileAction(String dir, boolean md5File,boolean asynchronous) {
+	public DownLoadImageResizeAction(String dir, boolean md5File,boolean asynchronous) {
 		super();
 		if(!dir.contains("{")){
 			this.dir = new File(dir);
@@ -98,7 +135,6 @@ public class DownLoadFileAction extends FileSelectAction {
 	 */
 	@Override
 	public String doAction(Map<String, Object> result,String remoteFile) throws DownLoadException {
-		// 首先确认文件存放的本地路径
 		String path = getDownDir(result);
 		URL url;
 		try {
@@ -118,13 +154,14 @@ public class DownLoadFileAction extends FileSelectAction {
 		}
 		MultiThreadDownload download = new MultiThreadDownload(1024*1024L);
 		if(asynchronous){
-			download.downFile(url, path, fileName, false);
+			download.downImageThenResizeAsyn(url, path, fileName, w, quality);
 		}else {
-			download.downLoad(url, path, fileName);
+			download.downImageThenResizeSyn(url, path, fileName, w, quality);
 		}
 		// 返回路径
 		return StringUtils.replace(path + fileName, "\\", "/");
 	}
+	
 	
 	/**
 	 * 首先确认文件存放的本地路径
@@ -146,9 +183,55 @@ public class DownLoadFileAction extends FileSelectAction {
 		return "";
 	}
 	
+	public File getDir() {
+		return dir;
+	}
+	public boolean isMd5File() {
+		return md5File;
+	}
+	public void setMd5File(boolean md5File) {
+		this.md5File = md5File;
+	}
+	public boolean isAsynchronous() {
+		return asynchronous;
+	}
+	public void setAsynchronous(boolean asynchronous) {
+		this.asynchronous = asynchronous;
+	}
+	public long getBlockSize() {
+		return blockSize;
+	}
+	public void setBlockSize(long blockSize) {
+		this.blockSize = blockSize;
+	}
+	public int getW() {
+		return w;
+	}
+	public void setW(int w) {
+		this.w = w;
+	}
+	public int getH() {
+		return h;
+	}
+	public void setH(int h) {
+		this.h = h;
+	}
+	
+	public float getQuality() {
+		return quality;
+	}
+	public void setQuality(float quality) {
+		this.quality = quality;
+	}
+	public boolean isDeleteOldFile() {
+		return deleteOldFile;
+	}
+	public void setDeleteOldFile(boolean deleteOldFile) {
+		this.deleteOldFile = deleteOldFile;
+	}
 	public static void main(String[] args) {
 //		System.out.println(StringUtils.substringAfterLast("sdfasd.asdfaf.gif", "."));
-		DownLoadFileAction downLoadFileAction = new DownLoadFileAction("d:/multidown", true);
+		DownLoadImageResizeAction downLoadFileAction = new DownLoadImageResizeAction("d:/multidown", true);
 		try {
 			downLoadFileAction.doAction(null,"http://zhangmenshiting.baidu.com/data2/music/65517089/307842151200128.mp3?xcode=53102624c6c63d206dbeaf3b8ae12d9080af3c8af038c7a6");
 		} catch (DownLoadException e) {

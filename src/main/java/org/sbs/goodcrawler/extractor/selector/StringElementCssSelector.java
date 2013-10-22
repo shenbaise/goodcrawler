@@ -78,14 +78,17 @@ public class StringElementCssSelector extends ElementCssSelector<String> {
 					break;
 				}
 				if(StringUtils.isNotBlank(sb)){
-					String temp = sb.substring(0,sb.length()-1);
-					if(null!=actions){
+					if(null!=actions && actions.size()>0){
+						String temp = sb.substring(0,sb.length()-1);
 						for(StringSelectorAction action:actions){
-							this.content = action.doAction(temp);
+							temp = action.doAction(temp);
 						}
+						this.content = temp;
 					}else {
 						this.content = sb.substring(0, sb.length()-1);
 					}
+					newDoc = false;
+					return this.content;
 				}
 			}
 		} catch (Exception e) {
@@ -99,6 +102,8 @@ public class StringElementCssSelector extends ElementCssSelector<String> {
 		if(StringUtils.isBlank(content) && newDoc){
 			getContent();
 		}
+		if(StringUtils.isBlank(this.content))
+			return null;
 		Map<String, String> m = new HashMap<String, String>(1);
 		m.put(name, this.content);
 		return m;

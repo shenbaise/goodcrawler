@@ -52,7 +52,7 @@ public class ListElementCssSelector extends ElementCssSelector<List<String>> {
 	@Override
 	public List<String> getContent() throws ExtractException{
 		try {
-			if(null!=contenList && !newDoc){
+			if(null!=contenList){
 				return contenList;
 			}
 			contenList = Lists.newArrayList();
@@ -77,6 +77,7 @@ public class ListElementCssSelector extends ElementCssSelector<List<String>> {
 						contenList = (List<String>) action.doAction(contenList);
 					}
 				}
+				newDoc = false;
 				return contenList;
 			}
 		} catch (Exception e) {
@@ -89,6 +90,8 @@ public class ListElementCssSelector extends ElementCssSelector<List<String>> {
 	public Map<String, List<String>> getContentMap() throws ExtractException{
 		if(contenList==null && newDoc)
 			getContent();
+		if(null==contenList || contenList.size()==0)
+			return null;
 		Map<String, List<String>> map = new HashMap<>(1);
 		map.put(name, this.contenList);
 		return null;
