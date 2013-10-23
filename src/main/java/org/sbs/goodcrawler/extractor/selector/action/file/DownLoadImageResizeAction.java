@@ -179,7 +179,7 @@ public class DownLoadImageResizeAction extends FileSelectAction {
 			}else if(null!=dynamicPath){
 				StringBuilder sb = new StringBuilder();
 				for(String p:dynamicPath){
-					sb.append((String)map.get(p)).append(File.separator);
+					sb.append(String.valueOf(map.get(p))).append(File.separator);
 				}
 				return sb.toString();
 			}

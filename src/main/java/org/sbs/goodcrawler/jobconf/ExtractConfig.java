@@ -34,6 +34,7 @@ import org.sbs.goodcrawler.conf.Configuration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
+import org.sbs.goodcrawler.extractor.selector.FileElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.IFConditions;
 import org.sbs.goodcrawler.extractor.selector.factory.ElementCssSelectorFactory;
 
@@ -160,7 +161,8 @@ public class ExtractConfig extends Configuration {
 		try {
 			document = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
 			System.out.println(extractConfig.loadConfig(document).toString());
-			Map<String, Object> r=extractConfig.getContentSeprator(Jsoup.parse(new URL("http://www.youku.com/show_page/id_z59617246746d11e0a046.html"), 10000));
+			Map<String, Object> r=extractConfig
+					.getContentSeprator(Jsoup.parse(new URL("http://www.youku.com/show_page/id_z59617246746d11e0a046.html"), 10000));
 			System.out.println(r);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -222,12 +224,25 @@ class ExtractTemplate{
 						if("thumbnail".equals(selector.getName())){
 							System.out.println("..");
 						}
-						Map<String, Object> m = selector.setDocument(document).getContentMap();
-						if((null==m || m.size()==0) && selector.isRequired()){
-							return null;
-						}else {
-							if(null!=m && m.size()>0)
-								content.putAll(m);
+						
+						if(selector instanceof FileElementCssSelector){
+							Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
+									.setDocument(document)
+									.getContentMap();
+							if((null==m || m.size()==0) && selector.isRequired()){
+								return null;
+							}else {
+								if(null!=m && m.size()>0)
+									content.putAll(m);
+							}
+						}else{
+							Map<String, Object> m = selector.setDocument(document).getContentMap();
+							if((null==m || m.size()==0) && selector.isRequired()){
+								return null;
+							}else {
+								if(null!=m && m.size()>0)
+									content.putAll(m);
+							}
 						}
 					}
 				}

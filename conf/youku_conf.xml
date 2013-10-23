@@ -119,7 +119,7 @@
 					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
 					<element name="summary" type="string" value=".detail .long" attr="text" />
 					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download_resize" dir="./{category}/{type}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
+						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<element name="play1" type="url" value=".btnplayposi" attr="href">
 						<element name="online1" type="set" value="#link2" attr="value" />
@@ -144,7 +144,7 @@
 					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
 					<element name="summary" type="string" value="#show_info_short" attr="text" />
 					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download_resize" dir="./{category}/{type}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
+						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<!-- 剧集超过40需要模拟点击 #研究中 -->
 					<element name="play1" type="url" value="#episode a" attr="href">
@@ -164,7 +164,7 @@
 					<element name="summary" type="string" value="#show_info_short" attr="text" />
 					<!-- 对于File类型的Element，可以有download 和  download_resize的处理，前者针对任意文件，后者针对图片文件。-->
 					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download_resize" dir="./{category}/{type}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
+						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<!-- 剧集超过40需要模拟点击 #研究中 -->
 					<element name="play1" type="url" value="#episode a" attr="href">
@@ -182,7 +182,7 @@
 					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
 					<element name="summary" type="string" value=".detail .long" attr="text" />
 					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
-						<action operation="download_resize" dir="./{category}/{type}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
+						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<element name="play1" type="url" value="#episode a" attr="href">
 						<element name="online" type="set" value="#link2" attr="value" />

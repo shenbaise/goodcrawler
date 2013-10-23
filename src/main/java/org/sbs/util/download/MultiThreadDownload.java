@@ -274,6 +274,9 @@ public class MultiThreadDownload {
 				file.delete();
 			if(this.threadNum==0&&this.blockSize>0){
 				this.threadNum = (int) (contentLen /blockSize);
+				if(this.threadNum==0){
+					this.threadNum = 1;
+				}
 			}
 			long subLen = contentLen / threadNum; 
 			List<Future<DownLoadBean>> result = Lists.newArrayList();
@@ -337,7 +340,7 @@ public class MultiThreadDownload {
 				resultTotal += dInfo.getCurrent() - dInfo.getPos() ;
 			}
 			// 　判断文件是否完整下载
-			if(contentLen!=resultTotal+1){
+			if(contentLen>resultTotal+1){
 				// 记录下载错误的链接，从而可以从中恢复
 				FileUtils.write(new File(down_error_log_file), url.toString()+"\n", true);
 				throw new DownLoadException("文件下载不完整");
