@@ -146,7 +146,11 @@ public class DownLoadImageResizeAction extends FileSelectAction {
 		if(md5File){
 			try {
 				fileName = MD5Utils.createMD5(remoteFile);
-				fileName = fileName +"."+ StringUtils.substringAfterLast(url.getPath(), ".");
+				String suffix = StringUtils.substringAfterLast(url.getPath(), ".");
+				if(StringUtils.isBlank(suffix)){
+					suffix = "jpg";
+				}
+				fileName = fileName +"."+ suffix;
 			} catch (Exception e) {
 			}
 		}else {
