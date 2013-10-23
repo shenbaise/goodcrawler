@@ -81,7 +81,7 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 
 	@Override
 	public Map<String, Set<String>> getContentMap() throws ExtractException{
-		if(content==null && newDoc)
+		if(newDoc)
 			getContent();
 		if(content == null || content.size()==0)
 			return null;

@@ -57,6 +57,8 @@ public class ElasticSearchStorage extends Storage {
 			// 处理Result
 			HashMap<String, Object> data = page.getMessages();
 			HashMap<String, Object> content = (HashMap<String, Object>) data.get(index);
+			System.out.println("###"+page.getUrl().getURL());
+			System.out.println("@@@"+content);
 			// 判断是否已存在
 			GetResponse get = client.prepareGet(index, "0",(String)content.get("title") )
 					.execute()

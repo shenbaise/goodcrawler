@@ -55,7 +55,7 @@ public class FileElementCssSelector extends ElementCssSelector<String> {
 	public String getContent() throws ExtractException{
 		try {
 			// 同一个文档的2+次调用不用重新计算。
-			if(StringUtils.isNotBlank(this.content)){
+			if(StringUtils.isNotBlank(this.content) && !newDoc){
 				return content;
 			}
 			// 抽取document中对应的Selector
@@ -95,7 +95,7 @@ public class FileElementCssSelector extends ElementCssSelector<String> {
 
 	@Override
 	public Map<String, String> getContentMap() throws ExtractException{
-		if(StringUtils.isBlank(content) && newDoc){
+		if(newDoc){
 			getContent();
 		}
 		if(StringUtils.isBlank(content))

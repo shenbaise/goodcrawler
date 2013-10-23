@@ -114,7 +114,7 @@ public class DateElementCssSelector extends ElementCssSelector<Date> {
 
 	@Override
 	public Map<String, Date> getContentMap() throws ExtractException{
-		if(date == null && newDoc)
+		if(newDoc)
 			getContent();
 		if(null == date)
 			return  null;

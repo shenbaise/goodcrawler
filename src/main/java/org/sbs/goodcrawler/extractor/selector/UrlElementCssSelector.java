@@ -82,7 +82,7 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 	
 	@Override
 	public Map<String, HashMap<String, Object>> getContentMap() throws ExtractException{
-		if(null==content){
+		if(newDoc){
 			getContent();
 		}
 		if(content == null)

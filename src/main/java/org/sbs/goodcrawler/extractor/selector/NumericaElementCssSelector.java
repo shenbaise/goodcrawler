@@ -59,7 +59,7 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 	public Number getContent() throws ExtractException{
 		try {
 			// 如果content不为空且不是新文档，则表示是同一个document的2+次调用，不用重新计算
-			if (null != content) {
+			if (null != content && !newDoc) {
 				return content;
 			}
 			if (null != document) {
@@ -96,7 +96,7 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 
 	@Override
 	public Map<String, Number> getContentMap() throws ExtractException{
-		if(null==content && newDoc){
+		if(newDoc){
 			getContent();
 		}
 		if(null==content)

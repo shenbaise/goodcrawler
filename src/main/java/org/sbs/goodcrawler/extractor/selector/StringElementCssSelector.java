@@ -99,7 +99,7 @@ public class StringElementCssSelector extends ElementCssSelector<String> {
 
 	@Override
 	public Map<String, String> getContentMap() throws ExtractException{
-		if(StringUtils.isBlank(content) && newDoc){
+		if(newDoc){
 			getContent();
 		}
 		if(StringUtils.isBlank(this.content))

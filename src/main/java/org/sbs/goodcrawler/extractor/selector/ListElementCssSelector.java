@@ -52,7 +52,7 @@ public class ListElementCssSelector extends ElementCssSelector<List<String>> {
 	@Override
 	public List<String> getContent() throws ExtractException{
 		try {
-			if(null!=contenList){
+			if(null!=contenList && !newDoc){
 				return contenList;
 			}
 			contenList = Lists.newArrayList();
@@ -88,7 +88,7 @@ public class ListElementCssSelector extends ElementCssSelector<List<String>> {
 
 	@Override
 	public Map<String, List<String>> getContentMap() throws ExtractException{
-		if(contenList==null && newDoc)
+		if(newDoc)
 			getContent();
 		if(null==contenList || contenList.size()==0)
 			return null;

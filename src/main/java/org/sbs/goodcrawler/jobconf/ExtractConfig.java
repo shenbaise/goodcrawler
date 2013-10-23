@@ -209,13 +209,25 @@ class ExtractTemplate{
 		try {
 			Map<String, Object> content = Maps.newHashMap();
 			for(ElementCssSelector<?> selector:cssSelectors){
-				selector.setDocument(document);
-				Map<String, ?> m = selector.getContentMap();
-				if((null==m || m.size()==0) && selector.isRequired()){
-					return null;
-				}else {
-					if(null!=m && m.size()>0)
-						content.putAll(m);
+				
+				if(selector instanceof FileElementCssSelector){
+					Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
+							.setDocument(document)
+							.getContentMap();
+					if((null==m || m.size()==0) && selector.isRequired()){
+						return null;
+					}else {
+						if(null!=m && m.size()>0)
+							content.putAll(m);
+					}
+				}else{
+					Map<String, Object> m = selector.setDocument(document).getContentMap();
+					if((null==m || m.size()==0) && selector.isRequired()){
+						return null;
+					}else {
+						if(null!=m && m.size()>0)
+							content.putAll(m);
+					}
 				}
 			}
 			for(IFConditions con:conditions){

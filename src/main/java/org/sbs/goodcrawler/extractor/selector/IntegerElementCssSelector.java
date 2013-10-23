@@ -94,7 +94,7 @@ public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 	 */
 	@Override
 	public Map<String, Integer> getContentMap() throws ExtractException{
-		if(null==content && newDoc){
+		if(newDoc){
 			getContent();
 		}
 		if(null==content)

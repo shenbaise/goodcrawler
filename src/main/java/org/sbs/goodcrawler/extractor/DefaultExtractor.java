@@ -51,7 +51,6 @@ public class DefaultExtractor extends Extractor {
 		if(null!=page){
 			try {
 				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
-				
 				// 提取Url，放入待抓取Url队列
 				Elements links = doc.getElementsByTag("a"); 
 		        if (!links.isEmpty()) { 
