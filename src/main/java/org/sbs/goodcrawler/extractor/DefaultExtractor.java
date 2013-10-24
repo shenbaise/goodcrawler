@@ -48,6 +48,7 @@ public class DefaultExtractor extends Extractor {
 
 	@Override
 	public ExtractedPage<String, Object> onExtract(Page page) {
+		System.out.println("@@");
 		if(null!=page){
 			try {
 				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));

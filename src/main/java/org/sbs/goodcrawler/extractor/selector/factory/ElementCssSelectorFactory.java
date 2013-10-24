@@ -103,7 +103,7 @@ public class ElementCssSelectorFactory {
 		}
 		// 检测是否是Url类型的选择器
 		if(SelectorType.$url.name().equals("$"+type.toLowerCase())){
-			Elements subElements = element.select("select");
+			Elements subElements = element.children();
 			for(Element e:subElements){
 				if("element".equals(e.tagName())){
 					((UrlElementCssSelector)selector).addSelector(create(e));

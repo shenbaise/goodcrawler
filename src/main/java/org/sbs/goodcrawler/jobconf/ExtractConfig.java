@@ -233,8 +233,8 @@ class ExtractTemplate{
 			for(IFConditions con:conditions){
 				if(con.test(content)){
 					for(ElementCssSelector<?> selector:con.getSelectors()){
-						if("thumbnail".equals(selector.getName())){
-							System.out.println("..");
+						if("play1".equals(selector.getName())){
+							System.out.println("断点哦");
 						}
 						
 						if(selector instanceof FileElementCssSelector){
