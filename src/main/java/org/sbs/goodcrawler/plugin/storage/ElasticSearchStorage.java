@@ -28,6 +28,7 @@ import org.sbs.goodcrawler.plugin.EsClient;
 import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.storage.Storage;
 import org.sbs.goodcrawler.storage.StoreResult;
+import org.sbs.goodcrawler.storage.StoreResult.Status;
 import org.sbs.util.MapUtils;
 
 /**
@@ -52,31 +53,43 @@ public class ElasticSearchStorage extends Storage {
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	public StoreResult onStore(ExtractedPage page) {
+		StoreResult storeResult = null;
 		try {
-			StoreResult storeResult = new StoreResult();
+			storeResult = new StoreResult();
 			// 处理Result
 			HashMap<String, Object> data = page.getMessages();
 			HashMap<String, Object> content = (HashMap<String, Object>) data.get(index);
 			System.out.println("###"+page.getUrl().getURL());
 			System.out.println("@@@"+content);
-			// 判断是否已存在
-			GetResponse get = client.prepareGet(index, "0",(String)content.get("title") )
-					.execute()
-					.actionGet();
 			
-			if(get.isExists()){
+			// 判断是否已存在
+			GetResponse get = null;
+			try {
+				get = client.prepareGet(index, "0",(String)content.get("title") )
+						.execute()
+						.actionGet();
+			} catch (Exception e) {
+				e.printStackTrace();
+				// index不存在？？
+				EsClient.index(index, "0", content);
+			}
+			
+			if(null!=get && get.isExists()){
 				Map<String, Object> m = get.getSource();
-				m = MapUtils.mager((HashMap<String, Object>) m, data);
+				m = MapUtils.mager((HashMap<String, Object>) m, content);
 				EsClient.index(index, "0", m);
 			}else{
-				EsClient.index(index, "0", data);
+				EsClient.index(index, "0", content);
 			}
 			data.clear();
+			storeResult.setStatus(Status.success);
 			return storeResult;
 		} catch (Exception e) {
 			e.printStackTrace();
+			log.info(e.getMessage());
+			storeResult.setStatus(Status.failed);
+			return storeResult;
 		}
-		return null;
 	}
 
 	@Override
