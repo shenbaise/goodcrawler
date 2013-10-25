@@ -17,10 +17,15 @@
  */
 package org.sbs.goodcrawler.extractor.selector;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 
@@ -41,6 +46,10 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 	 * 该Url选择器下提取到的内容
 	 */
 	HashMap<String, Object> content;
+	/**
+	 * 选择器提取的URL
+	 */
+	private String url = "";
 	/**
 	 * 返回该Url选择器下子选择器提取到的内容
 	 */
@@ -65,19 +74,66 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 	public void addSelector(ElementCssSelector<?> selector){
 		this.selectors.add(selector);
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public HashMap<String, Object> getContent() throws ExtractException{
 		if (null != content && !newDoc) {
 			return content;
 		}
-		content = Maps.newHashMap();
-		if(selectors!=null)
-		for(ElementCssSelector<?> selector :selectors){
-			selector.setDocument(document);
-			content.put(selector.getName(), selector.setDocument(document).getContent());
+		// 获取连接，然后拿到document。
+		if(StringUtils.isNotBlank(this.url) && !newDoc){
+			return content;
+		}
+		
+		// 抽取document中对应的Selector
+		if (super.document != null) {
+			Elements elements = super.document.select(value);
+			if(elements.isEmpty())
+				return null;
+			switch ($Attr) {
+			case text:
+				this.url = elements.first().text();
+				break;
+			default:
+				this.url = elements.first().attr(attr);
+				break;
+			}
+		}
+		if(StringUtils.isNotBlank(this.url)){
+			Document doc = null;
+			try {
+				doc = Jsoup.connect(this.url).get();
+			} catch (IOException e) {
+				throw new ExtractException(e.getMessage());
+			}
+					
+			content = Maps.newHashMap();
+			if(selectors!=null)
+			for(ElementCssSelector<?> selector :selectors){
+				if(selector instanceof FileElementCssSelector){
+					Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
+							.setDocument(doc)
+							.getContentMap();
+					if((null==m || m.size()==0) && selector.isRequired()){
+						return null;
+					}else {
+						if(null!=m && m.size()>0)
+							content.putAll(m);
+					}
+				}else{
+					Map<String, Object> m = selector.setDocument(doc).getContentMap();
+					if((null==m || m.size()==0) && selector.isRequired()){
+						return null;
+					}else {
+						if(null!=m && m.size()>0)
+							content.putAll(m);
+					}
+				}
+			}
+			return content;
 		}
 		newDoc = false;
-		return content;
+		return null;
 	}
 	
 	@Override

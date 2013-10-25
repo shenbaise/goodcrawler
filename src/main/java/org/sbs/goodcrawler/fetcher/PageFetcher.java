@@ -252,8 +252,6 @@ public class PageFetcher extends Configurable {
 		return httpClient;
 	}
 	
-	
-	
 	private static class GzipDecompressingEntity extends HttpEntityWrapper {
 
 		public GzipDecompressingEntity(final HttpEntity entity) {

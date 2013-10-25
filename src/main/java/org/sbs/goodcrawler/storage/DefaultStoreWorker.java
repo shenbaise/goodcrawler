@@ -57,6 +57,7 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	@Override
 	public void onSuccessed(ExtractedPage<V, T> page) {
 		page = null;
+		pendingStore.success.incrementAndGet();
 	}
 
 	@Override
