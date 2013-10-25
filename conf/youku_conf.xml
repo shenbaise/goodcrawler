@@ -10,7 +10,7 @@
 		<type>default</type>
 		<agent>Kindle</agent>
 		<!-- 爬取线程数 -->
-		<threadNum>1</threadNum>
+		<threadNum>10</threadNum>
 		<!-- 同一线程两次请求之间的间隔 -->
 		<delayBetweenRequests>50</delayBetweenRequests>
 		<!-- Url爬取深度 -1表示不限深度 -->
@@ -65,7 +65,7 @@
 	<!-- 定义extract -->
 	<extract> 
 		<type>default</type>
-		<threadNum>1</threadNum>
+		<threadNum>10</threadNum>
 		<template name="movie">
 			<!-- 模板对应的Url规则 -->
 			<urls>
@@ -194,6 +194,6 @@
 	<!-- 存储配置 -->
 	<store>
 		<type>elasticsearch</type>
-		<threadNum>1</threadNum>
+		<threadNum>2</threadNum>
 	</store>
 </job>
