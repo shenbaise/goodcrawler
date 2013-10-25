@@ -107,6 +107,7 @@ public class DateElementCssSelector extends ElementCssSelector<Date> {
 				return this.date;
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;

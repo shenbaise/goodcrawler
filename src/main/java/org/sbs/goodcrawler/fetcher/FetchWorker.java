@@ -90,7 +90,7 @@ public abstract class FetchWorker extends Worker {
 	 */
 	public FetchWorker(FetchConfig conf){
 		this.conf = conf;
-		parser = new Parser(conf);
+		parser = new Parser(conf.isFetchBinaryContent());
 		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
 		robotstxtConfig.setCacheSize(1000);
 		robotstxtConfig.setEnabled(conf.isRobots());
@@ -114,7 +114,7 @@ public abstract class FetchWorker extends Worker {
 	public FetchWorker(FetchConfig conf,PageFetcher fetcher){
 		this.fetcher = fetcher;
 		this.conf = conf;
-		parser = new Parser(conf);
+		parser = new Parser(conf.isFetchBinaryContent());
 		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
 		robotstxtConfig.setCacheSize(1000);
 		robotstxtConfig.setEnabled(conf.isRobots());

@@ -84,6 +84,7 @@ public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;

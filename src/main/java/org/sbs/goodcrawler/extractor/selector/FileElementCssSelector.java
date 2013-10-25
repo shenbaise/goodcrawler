@@ -88,6 +88,7 @@ public class FileElementCssSelector extends ElementCssSelector<String> {
 				return this.content;
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ExtractException(StringElementCssSelector.class.getSimpleName()+"信息提取错误:"+e.getMessage());
 		}
 		return "";

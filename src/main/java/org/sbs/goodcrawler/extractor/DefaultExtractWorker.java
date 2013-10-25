@@ -68,7 +68,7 @@ public class DefaultExtractWorker extends ExtractWorker {
 	@Override
 	public void onIgnored(Page page) {
 		pendingPages.ignored.incrementAndGet();
-		log.warn( conf+ "任务，忽略了一个链接："+ page.getWebURL().getURL());
+		log.warn("忽略了一个链接："+ page.getWebURL().getURL());
 	}
 
 	@Override

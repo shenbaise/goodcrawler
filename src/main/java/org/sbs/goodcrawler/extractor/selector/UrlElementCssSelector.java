@@ -23,11 +23,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
+import org.sbs.goodcrawler.fetcher.CustomFetchStatus;
+import org.sbs.goodcrawler.fetcher.Fetcher;
+import org.sbs.goodcrawler.fetcher.PageFetchResult;
+import org.sbs.goodcrawler.job.Page;
+import org.sbs.goodcrawler.job.Parser;
+import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.util.UrlUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -50,6 +58,8 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 	 * 选择器提取的URL
 	 */
 	private String url = "";
+	private Parser parser = new Parser(false);
+	private UrlUtils urlUtils = new UrlUtils();
 	/**
 	 * 返回该Url选择器下子选择器提取到的内容
 	 */
@@ -102,8 +112,28 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 		if(StringUtils.isNotBlank(this.url)){
 			Document doc = null;
 			try {
-				doc = Jsoup.connect(this.url).get();
+				WebURL webUrl = new WebURL();
+				webUrl.setURL(this.url);
+				PageFetchResult result = Fetcher.fetchHeader(webUrl);
+				// 获取状态
+				int statusCode = result.getStatusCode();
+				if (statusCode == CustomFetchStatus.PageTooBig) {
+					return null;
+				}
+				if (statusCode != HttpStatus.SC_OK){
+					return null;
+				}else {
+					Page page = new Page(webUrl);
+					if (!result.fetchContent(page)) {
+						return null;
+					}
+					if (!parser.parse(page, webUrl.getURL())) {
+						return null;
+					}
+				doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
+				}
 			} catch (IOException e) {
+				e.printStackTrace();
 				throw new ExtractException(e.getMessage());
 			}
 					

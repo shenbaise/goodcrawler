@@ -18,27 +18,24 @@
 package org.sbs.goodcrawler.job;
 
 import org.apache.log4j.Logger;
-import org.sbs.crawler.Configurable;
-import org.sbs.goodcrawler.jobconf.FetchConfig;
 import org.sbs.util.Util;
 
 
 /**
  * @author Yasser Ganjisaffar <lastname at gmail dot com>
  */
-public class Parser extends Configurable {
+public class Parser {
 
 	protected static final Logger logger = Logger.getLogger(Parser.class.getName());
-	private FetchConfig config;
-	public Parser(FetchConfig config) {
-		super(config);
-		this.config = config;
+	private boolean isFetchBinaryContent;
+	public Parser(Boolean isFetchBinaryContent) {
+		this.isFetchBinaryContent = isFetchBinaryContent;
 	}
 
 	public boolean parse(Page page, String contextURL) {
 
 		if (Util.hasBinaryContent(page.getContentType())) {
-			if (!this.config.isFetchBinaryContent()) {
+			if (!this.isFetchBinaryContent) {
 				return false;
 			}
 

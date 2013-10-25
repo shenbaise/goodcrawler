@@ -81,6 +81,7 @@ public class ListElementCssSelector extends ElementCssSelector<List<String>> {
 				return contenList;
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;

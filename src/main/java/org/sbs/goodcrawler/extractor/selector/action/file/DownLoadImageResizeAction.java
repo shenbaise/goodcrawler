@@ -140,6 +140,7 @@ public class DownLoadImageResizeAction extends FileSelectAction {
 		try {
 			url = new URL(remoteFile);
 		} catch (MalformedURLException e) {
+			e.printStackTrace();
 			throw new DownLoadException("下载异常："+e.getMessage());
 		}
 		String fileName = "";

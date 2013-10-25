@@ -42,6 +42,7 @@ public class IdleConnectionMonitorThread extends Thread {
                     // Optionally, close connections
                     // that have been idle longer than 30 sec
                     connMgr.closeIdleConnections(30, TimeUnit.SECONDS);
+                    System.out.println("#getAvailable="+connMgr.getTotalStats().getAvailable());
                 }
             }
         } catch (InterruptedException ex) {

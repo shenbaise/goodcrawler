@@ -208,7 +208,6 @@ public class PageFetcher extends Configurable {
 					get.abort();
 					return fetchResult;
 				}
-
 				fetchResult.setStatusCode(HttpStatus.SC_OK);
 				return fetchResult;
 			}
@@ -217,12 +216,18 @@ public class PageFetcher extends Configurable {
 		} catch (IOException e) {
 			logger.error("Fatal transport error: " + e.getMessage() + " while fetching " + toFetchURL
 					+ " (link found in doc #" + webUrl.getParentDocid() + ")");
+			if(null!=get)
+				get.abort();
 			fetchResult.setStatusCode(CustomFetchStatus.FatalTransportError);
 			return fetchResult;
 		} catch (IllegalStateException e) {
 			// ignoring exceptions that occur because of not registering https
 			// and other schemes
+			if(null!=get)
+				get.abort();
 		} catch (Exception e) {
+			if(null!=get)
+				get.abort();
 			if (e.getMessage() == null) {
 				logger.error("Error while fetching " + webUrl.getURL());
 			} else {

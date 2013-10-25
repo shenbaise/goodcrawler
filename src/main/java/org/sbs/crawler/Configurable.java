@@ -25,10 +25,10 @@ import org.sbs.goodcrawler.conf.Configuration;
  */
 public abstract class Configurable {
 
-	protected Configuration config;
+	protected static Configuration config;
 	
 	protected Configurable(Configuration config) {
-		this.config = config;
+		Configurable.config = config;
 	}
 	
 	public Configuration getConfig() {

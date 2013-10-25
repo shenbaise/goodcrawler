@@ -74,6 +74,7 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 				return content;
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ExtractException(SetElementCssSelector.class.getSimpleName()+"信息提取错误:"+e.getMessage());
 		}
 		return null;

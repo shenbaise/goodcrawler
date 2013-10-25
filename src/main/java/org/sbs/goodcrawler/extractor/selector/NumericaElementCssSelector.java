@@ -88,6 +88,7 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;

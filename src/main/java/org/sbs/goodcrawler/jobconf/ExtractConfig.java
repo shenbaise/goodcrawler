@@ -233,9 +233,9 @@ class ExtractTemplate{
 			for(IFConditions con:conditions){
 				if(con.test(content)){
 					for(ElementCssSelector<?> selector:con.getSelectors()){
-						if("play1".equals(selector.getName())){
-							System.out.println("断点哦");
-						}
+//						if("play1".equals(selector.getName())){
+//							System.out.println("断点哦");
+//						}
 						
 						if(selector instanceof FileElementCssSelector){
 							Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
@@ -261,6 +261,7 @@ class ExtractTemplate{
 			}
 			return content;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ExtractException("信息提取错误："+e.getMessage());
 		}
 	}
