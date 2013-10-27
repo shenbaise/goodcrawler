@@ -30,9 +30,9 @@
 			<!-- http链接超时时间 -->
 			<socketTimeoutMilliseconds>20000</socketTimeoutMilliseconds>
 			<!-- 从http链接池中获取到可用链接的超时时间 -->
-			<connectionTimeout>2000</connectionTimeout>
-			<maxTotalConnections>120</maxTotalConnections>
-			<maxConnectionsPerHost>100</maxConnectionsPerHost>
+			<connectionTimeout>10000</connectionTimeout>
+			<maxTotalConnections>400</maxTotalConnections>
+			<maxConnectionsPerHost>400</maxConnectionsPerHost>
 		</connection>
 		<!-- 代理设置 -->
 		<proxy>
@@ -65,7 +65,7 @@
 	<!-- 定义extract -->
 	<extract> 
 		<type>default</type>
-		<threadNum>10</threadNum>
+		<threadNum>15</threadNum>
 		<template name="movie">
 			<!-- 模板对应的Url规则 -->
 			<urls>
