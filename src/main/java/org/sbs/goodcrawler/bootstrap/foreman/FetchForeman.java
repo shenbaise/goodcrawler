@@ -32,10 +32,11 @@ import org.sbs.goodcrawler.jobconf.FetchConfig;
  * 这是个工头
  */
 public class FetchForeman extends Foreman{
-	static Log log = LogFactory.getLog(FetchForeman.class); 
+	static Log log = LogFactory.getLog(FetchForeman.class);
+	public static PageFetcher fetcher ;
 	public void start(FetchConfig conf){
 		int threadNum = conf.getThreadNum();
-		PageFetcher fetcher = new PageFetcher(conf);
+		fetcher = new PageFetcher(conf);
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 		for(int i=0;i<threadNum;i++){
 			executor.submit(new DefaultFetchWorker(conf,fetcher));

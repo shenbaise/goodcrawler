@@ -27,6 +27,7 @@ import org.apache.http.HttpStatus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 import org.sbs.goodcrawler.fetcher.CustomFetchStatus;
@@ -114,7 +115,7 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 			try {
 				WebURL webUrl = new WebURL();
 				webUrl.setURL(this.url);
-				PageFetchResult result = Fetcher.fetchHeader(webUrl);
+				PageFetchResult result = FetchForeman.fetcher.fetchHeader(webUrl);
 				// 获取状态
 				int statusCode = result.getStatusCode();
 				if (statusCode == CustomFetchStatus.PageTooBig) {

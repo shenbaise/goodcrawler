@@ -17,6 +17,7 @@
 
 package org.sbs.goodcrawler.fetcher;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
@@ -52,7 +53,9 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParamBean;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
-import org.sbs.crawler.Configurable;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 import org.sbs.url.URLCanonicalizer;
@@ -63,7 +66,7 @@ import org.sbs.url.URLCanonicalizer;
  * @date 2013-7-1
  * 页面抓取器
  */
-public class Fetcher extends Configurable {
+public class Fetcher {
 
 	protected static final Logger logger = Logger.getLogger(Fetcher.class);
 
@@ -76,9 +79,21 @@ public class Fetcher extends Configurable {
 	protected static long lastFetchTime = 0;
 
 	protected static IdleConnectionMonitorThread connectionMonitorThread = null;
+	
+	private static FetchConfig config;
 
-	public Fetcher(FetchConfig config) {
-		super(config);
+	public void init(File fetchConfFile) {
+		FetchConfig fetchConfig = new FetchConfig();
+		Document document;
+		try {
+			document = Jsoup.parse(fetchConfFile, "utf-8");
+			Fetcher.config = fetchConfig.loadConfig(document);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		}
+		
 		HttpParams params = new BasicHttpParams();
 		HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
 		paramsBean.setVersion(HttpVersion.HTTP_1_1);
@@ -151,8 +166,8 @@ public class Fetcher extends Configurable {
 			get = new HttpGet(toFetchURL);
 			synchronized (mutex) {
 				long now = (new Date()).getTime();
-				if (now - lastFetchTime < ((FetchConfig)config).getDelayBetweenRequests()) {
-					Thread.sleep(((FetchConfig)config).getDelayBetweenRequests() - (now - lastFetchTime));
+				if (now - lastFetchTime < config.getDelayBetweenRequests()) {
+					Thread.sleep(config.getDelayBetweenRequests() - (now - lastFetchTime));
 				}
 				lastFetchTime = (new Date()).getTime();
 			}
