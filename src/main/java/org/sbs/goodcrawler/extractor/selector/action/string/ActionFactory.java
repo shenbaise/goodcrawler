@@ -64,7 +64,11 @@ public class ActionFactory {
 			case split:
 				return new StringSplitAction(element.attr("split"),element.attr("index"));
 			case sub:
-				return new StringSubActiong(element.attr("exp"));
+				return new StringSubAction(element.attr("exp"));
+			case suffix:
+				return new StringSuffixAction(element.attr("suffix"));
+			case perfix:
+				return new StringPerfixAction(element.attr("perfix"));
 			default:
 				break;
 			}

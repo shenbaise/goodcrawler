@@ -27,7 +27,7 @@ import org.sbs.goodcrawler.extractor.selector.action.StringSelectorAction;
  * 如，"4,4"表示，从第四位起，截取4个字符.<br>
  * "4"表示从4开始截取到最后
  */
-public class StringSubActiong extends StringSelectorAction {
+public class StringSubAction extends StringSelectorAction {
 	/**
 	 * 截取位置
 	 */
@@ -45,7 +45,7 @@ public class StringSubActiong extends StringSelectorAction {
 	 * "4"表示从4开始截取到最后
 	 * @param subExpression
 	 */
-	public StringSubActiong(String subExpression){
+	public StringSubAction(String subExpression){
 		if(StringUtils.isNotBlank(subExpression)){
 			String[] ss = StringUtils.split(subExpression, ",");
 			if(ss.length==1){
@@ -87,10 +87,10 @@ public class StringSubActiong extends StringSelectorAction {
 	
 	public static void main(String[] args) {
 		String string= "234dfs454#$%gasfdjlkas";
-		StringSubActiong actiong = new StringSubActiong("3,4");
+		StringSubAction actiong = new StringSubAction("3,4");
 		System.out.println(actiong.doAction(string));
 		
-		StringSubActiong action2 = new StringSubActiong("kas,4");
+		StringSubAction action2 = new StringSubAction("kas,4");
 		System.out.println(action2.doAction(string));
 	}
 }

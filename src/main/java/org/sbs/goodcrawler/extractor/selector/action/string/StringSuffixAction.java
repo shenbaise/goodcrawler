@@ -17,21 +17,31 @@
  */
 package org.sbs.goodcrawler.extractor.selector.action.string;
 
+import org.apache.commons.lang3.StringUtils;
+import org.sbs.goodcrawler.extractor.selector.action.StringSelectorAction;
+
 /**
  * @author whiteme
- * @date 2013年10月17日
- * @desc 字符处理的各种方式
+ * @date 2013年10月29日
+ * @desc 追加字符串
  */
-public enum StringActionType {
-	after,
-	afterLast,
-	before,
-	beforeLast,
-	between,
-	filter,
-	replace,
-	split,
-	sub,
-	suffix,
-	perfix
+public class StringSuffixAction extends StringSelectorAction {
+	
+	/**
+	 * 追加字符
+	 */
+	String suffix = "";
+	
+	
+	public StringSuffixAction(String suffix){
+		this.suffix = suffix;
+	}
+	
+	@Override
+	public String doAction(String content) {
+		if(StringUtils.isNotBlank(content)){
+			return content + this.suffix;
+		}
+		return "";
+	}
 }
