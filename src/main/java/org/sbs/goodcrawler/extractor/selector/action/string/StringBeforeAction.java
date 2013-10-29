@@ -18,7 +18,6 @@
 package org.sbs.goodcrawler.extractor.selector.action.string;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jasper.tagplugins.jstl.core.If;
 import org.sbs.goodcrawler.extractor.selector.action.StringSelectorAction;
 
 /**
