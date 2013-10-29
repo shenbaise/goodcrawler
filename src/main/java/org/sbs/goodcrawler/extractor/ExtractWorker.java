@@ -78,6 +78,8 @@ public abstract class ExtractWorker extends Worker {
 			default:
 				break;
 			}
+		}else {
+			
 		}
 	}
 }

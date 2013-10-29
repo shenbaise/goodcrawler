@@ -49,6 +49,7 @@ public class DefaultExtractor extends Extractor {
 	@Override
 	public ExtractedPage<String, Object> onExtract(Page page) {
 		if(null!=page){
+			ExtractedPage<String,Object> epage = null;
 			try {
 				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
 				// 提取Url，放入待抓取Url队列
@@ -71,26 +72,27 @@ public class DefaultExtractor extends Extractor {
 		        }
 		        // 抽取信息
 				try {
+					epage = pendingStore.new ExtractedPage<String, Object>();
 					Map<String, Object> result = conf.getContentSeprator(doc);
 					if(null!=result && result.size()>0){
-						ExtractedPage<String,Object> epage = pendingStore.new ExtractedPage<String, Object>();
 						epage.setUrl(page.getWebURL());
 						epage.setMessages((HashMap<String, Object>) result);
 						pendingStore.addExtracedPage(epage);
+						epage.setResult(ExtractResult.success);
 						return epage;
-					}else {
-						pendingStore.ignored.getAndIncrement();
 					}
+					epage.setResult(ExtractResult.ignored);
 				} catch (QueueException e) {
 					 log.error(e.getMessage());
 				} catch (ExtractException e) {
 					e.printStackTrace();
-				} 
+				}
+				
 			} catch (UnsupportedEncodingException e) {
 				log.error(e.getMessage());
-			} 
+			}
+			return epage;
 		}
-		pendingStore.failure.getAndIncrement();
 		return null;
 	}
 

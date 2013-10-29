@@ -232,7 +232,7 @@ class ExtractTemplate{
 			}
 			for(IFConditions con:conditions){
 				if(con.test(content)){
-					if(!con.getConditions().contains("电影")){
+					if(con.getConditions().contains("电视剧")){
 						System.out.println("..");
 					}
 					for(ElementCssSelector<?> selector:con.getSelectors()){

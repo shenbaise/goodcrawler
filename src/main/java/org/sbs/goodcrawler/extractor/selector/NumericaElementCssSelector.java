@@ -78,7 +78,7 @@ public class NumericaElementCssSelector extends ElementCssSelector<Number> {
 
 				if (StringUtils.isNotBlank(temp)) {
 					content = NumberUtils.createNumber(temp);
-					if(null!=actions){
+					if(null!=actions && actions.size()>0){
 						for(IntegerSelectorAction action:actions){
 							this.content = action.doAction((Integer) content);
 						}

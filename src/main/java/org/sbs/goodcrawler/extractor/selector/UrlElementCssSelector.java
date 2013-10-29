@@ -31,7 +31,6 @@ import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 import org.sbs.goodcrawler.fetcher.CustomFetchStatus;
-import org.sbs.goodcrawler.fetcher.Fetcher;
 import org.sbs.goodcrawler.fetcher.PageFetchResult;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.job.Parser;
@@ -95,7 +94,6 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 		if(StringUtils.isNotBlank(this.url) && !newDoc){
 			return content;
 		}
-		
 		// 抽取document中对应的Selector
 		if (super.document != null) {
 			Elements elements = super.document.select(value);
@@ -112,27 +110,24 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 		}
 		if(StringUtils.isNotBlank(this.url)){
 			Document doc = null;
+			PageFetchResult result = null;
 			try {
 				WebURL webUrl = new WebURL();
 				webUrl.setURL(this.url);
-				PageFetchResult result = FetchForeman.fetcher.fetchHeader(webUrl);
+				result = FetchForeman.fetcher.fetchHeader(webUrl);
 				// 获取状态
 				int statusCode = result.getStatusCode();
 				if (statusCode == CustomFetchStatus.PageTooBig) {
-					result.discardContentIfNotConsumed();
 					return null;
 				}
 				if (statusCode != HttpStatus.SC_OK){
-					result.discardContentIfNotConsumed();
 					return null;
 				}else {
 					Page page = new Page(webUrl);
 					if (!result.fetchContent(page)) {
-						result.discardContentIfNotConsumed();
 						return null;
 					}
 					if (!parser.parse(page, webUrl.getURL())) {
-						result.discardContentIfNotConsumed();
 						return null;
 					}
 				doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
@@ -140,6 +135,9 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new ExtractException(e.getMessage());
+			}finally{
+				if(result!=null)
+					result.discardContentIfNotConsumed();
 			}
 					
 			content = Maps.newHashMap();

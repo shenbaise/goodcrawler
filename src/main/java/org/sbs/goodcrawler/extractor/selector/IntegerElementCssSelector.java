@@ -72,7 +72,7 @@ public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
 				
 				if(StringUtils.isNotBlank(temp)){
 					Integer integer = Integer.parseInt(temp);
-					if(null!=actions){
+					if(null!=actions && actions.size()>0){
 						for(IntegerSelectorAction action:actions){
 							this.content = action.doAction(integer);
 						}

@@ -18,8 +18,6 @@
 package org.sbs.goodcrawler.fetcher;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -187,41 +185,34 @@ public abstract class FetchWorker extends Worker {
 	 */
 	public void fetchPage(WebURL url){
 		PageFetchResult result = null;
-		if(null!=url && StringUtils.isNotBlank(url.getURL())){
-			// 是否需要爬
-			if(fetchFilter(url.getURL())){
-				result = fetcher.fetchHeader(url);
-				// 获取状态
-				int statusCode = result.getStatusCode();
-				if (statusCode == CustomFetchStatus.PageTooBig) {
-					onIgnored(url);
-					result.discardContentIfNotConsumed();
-					return ;
-				}
-				if (statusCode != HttpStatus.SC_OK){
-					result.discardContentIfNotConsumed();
-					onFailed(url);
-				}else {
-					Page page = new Page(url);
-					pendingUrls.processedSuccess();
-					if (!result.fetchContent(page)) {
-						onFailed(url);
-						result.discardContentIfNotConsumed();
-						return;
+		try {
+			if(null!=url && StringUtils.isNotBlank(url.getURL())){
+				// 是否需要爬
+				if(fetchFilter(url.getURL())){
+					result = fetcher.fetchHeader(url);
+					// 获取状态
+					int statusCode = result.getStatusCode();
+					if (statusCode == CustomFetchStatus.PageTooBig) {
+						onIgnored(url);
+						return ;
 					}
-					if (!parser.parse(page, url.getURL())) {
+					if (statusCode != HttpStatus.SC_OK){
 						onFailed(url);
-						result.discardContentIfNotConsumed();
-						return;
-					}
-					try {
+					}else {
+						Page page = new Page(url);
+						pendingUrls.processedSuccess();
+						if (!result.fetchContent(page)) {
+							onFailed(url);
+							return;
+						}
+						if (!parser.parse(page, url.getURL())) {
+							onFailed(url);
+							return;
+						}
 						// 是否加入抽取队列
 						if(extractFilter(url.getURL())){
 							pendingPages.addPage(page);
 						}
-//						else {
-//							onIgnored(url);
-//						}
 						
 						// 提取Url，放入待抓取Url队列
 						Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
@@ -245,19 +236,18 @@ public abstract class FetchWorker extends Worker {
 				                }
 				            }
 				        }
-					} catch (QueueException e) {
-						log.warn("一个页面加入待处理队列时失败" + e.getMessage());
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}finally{
-						result.discardContentIfNotConsumed();
 					}
+				} else {
+					onIgnored(url);
 				}
-			} else {
-				onIgnored(url);
 			}
+		} catch (Exception e) {
+			onFailed(url);
+		} catch (QueueException e) {
+			onFailed(url);
+		}finally{
+			if(null!=result)
+				result.discardContentIfNotConsumed();
 		}
 	}
 	
