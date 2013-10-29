@@ -82,6 +82,7 @@ public class Fetcher {
 	
 	private static FetchConfig config;
 
+	
 	public void init(File fetchConfFile) {
 		FetchConfig fetchConfig = new FetchConfig();
 		Document document;
