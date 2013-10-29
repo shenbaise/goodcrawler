@@ -165,6 +165,41 @@ public class ActionFactory {
 			default:
 				break;
 			}
+		}else {
+			StringActionType $type = EnumUtils.getEnum(StringActionType.class, element.attr("operation"));
+			if(null == $type){
+				try {
+					throw new Exception("配置文件错误："+element.tagName()+"请检查元素的operation属性");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			switch ($type) {
+			case after:
+				return new StringAfterAction(element.attr("split"));
+			case afterLast:
+				return new StringAfterLastAction(element.attr("split"));
+			case before:
+				return new StringBeforeAction(element.attr("split"));
+			case beforeLast:
+				return new StringBeforeLastAction(element.attr("split"));
+			case between:
+				return new StringBetweenAction(element.attr("exp"));
+			case filter:
+				return new StringFilterAction(element.attr("filter"), element.attr("charType"));
+			case replace:
+				return new StringReplaceAction(element.attr("search"),element.attr("replacement"));
+			case split:
+				return new StringSplitAction(element.attr("split"),element.attr("index"));
+			case sub:
+				return new StringSubAction(element.attr("exp"));
+			case suffix:
+				return new StringSuffixAction(element.attr("suffix"));
+			case perfix:
+				return new StringPerfixAction(element.attr("perfix"));
+			default:
+				break;
+			}
 		}
 		return null;
 	}

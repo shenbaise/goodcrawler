@@ -221,9 +221,11 @@ public class IFConditions {
 		if(element!=null){
 			String exp = element.attr("test");
 			IFConditions iFconditions = new IFConditions(exp);
-			Elements selectElements = element.select("element");
+			Elements selectElements = element.children();
 			for(Element e :selectElements){
-				iFconditions.addSelector(ElementCssSelectorFactory.create(e));
+				if(e.tagName().equals("element")){
+					iFconditions.addSelector(ElementCssSelectorFactory.create(e));
+				}
 			}
 			return iFconditions;
 		}

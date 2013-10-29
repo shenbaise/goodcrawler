@@ -72,8 +72,9 @@ public class DefaultExtractor extends Extractor {
 		        }
 		        // 抽取信息
 				try {
+					
 					epage = pendingStore.new ExtractedPage<String, Object>();
-					Map<String, Object> result = conf.getContentSeprator(doc);
+					Map<String, Object> result = conf.getContentSeprator(doc,page.getWebURL().getURL());
 					if(null!=result && result.size()>0){
 						epage.setUrl(page.getWebURL());
 						epage.setMessages((HashMap<String, Object>) result);

@@ -18,6 +18,7 @@
 package org.sbs.goodcrawler.extractor.selector;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +26,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
+import org.sbs.goodcrawler.extractor.selector.action.StringSelectorAction;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -37,7 +40,7 @@ import com.google.common.collect.Sets;
 public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 	
 	private Set<String> content;
-	
+	private List<StringSelectorAction> actions = Lists.newArrayList();
 	public SetElementCssSelector() {
 		super();
 	}
@@ -70,6 +73,16 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 					}
 					break;
 				}
+				if(null!=actions && actions.size()>0){
+					Set<String> newSet = Sets.newTreeSet();
+					for(String string : content){
+						String temp = "";
+						for(StringSelectorAction action:actions){
+							temp = action.doAction(temp);
+						}
+						this.content = temp;
+					}
+				}
 				newDoc = false;
 				return content;
 			}
@@ -93,7 +106,14 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 
 	@Override
 	public void addAction(SelectorAction action) {
-		
+		this.actions.add((StringSelectorAction) action);
+	}
+	
+	public List<StringSelectorAction> getActions() {
+		return actions;
 	}
 
+	public void setActions(List<StringSelectorAction> actions) {
+		this.actions = actions;
+	}
 }

@@ -30,6 +30,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.conf.Configuration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.exception.ExtractException;
@@ -72,19 +73,23 @@ public class ExtractConfig extends Configuration {
 		}
 		return content;
 	}
+
 	/**
 	 * 获取所所有模板提取的信息，分开方式。<br>
 	 * 可以通过get(模板名称的方式获取到某个独立的模板提取的信息)
 	 * @param document
+	 * @param url
 	 * @return
-	 * @throws Exception
+	 * @throws ExtractException
 	 */
-	public Map<String, Object> getContentSeprator(Document document) throws ExtractException{
+	public Map<String, Object> getContentSeprator(Document document,String url) throws ExtractException{
 		Map<String, Object> content = Maps.newHashMap();
 		for(ExtractTemplate template : templates){
-			Map<String, Object> m = template.getConten(document);
-			if(m!=null && m.size()>0)
-				content.put(template.getName(), m);
+			if(template.urlFilter(url)){
+				Map<String, Object> m = template.getConten(document);
+				if(m!=null && m.size()>0)
+					content.put(template.getName(), m);
+			}
 		}
 		return content;
 	}
@@ -157,12 +162,17 @@ public class ExtractConfig extends Configuration {
 	// test
 	public static void main(String[] args) {
 		ExtractConfig extractConfig = new ExtractConfig();
+		FetchConfig fetchConfig = new FetchConfig();
 		Document document;
 		try {
 			document = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
+//			String url = "http://v.youku.com/v_show/id_XNTgwNDUxNTQw.html";
+			String url = "http://www.youku.com/show_page/id_zd4edea60e0d011df97c0.html";
 			System.out.println(extractConfig.loadConfig(document).toString());
+			FetchForeman fetchForeman = new FetchForeman();
+			fetchForeman.start(fetchConfig.loadConfig(document));
 			Map<String, Object> r=extractConfig
-					.getContentSeprator(Jsoup.parse(new URL("http://www.youku.com/show_page/id_z59617246746d11e0a046.html"), 10000));
+					.getContentSeprator(Jsoup.parse(new URL(url), 10000),url);
 			System.out.println(r);
 		} catch (IOException e) {
 			e.printStackTrace();

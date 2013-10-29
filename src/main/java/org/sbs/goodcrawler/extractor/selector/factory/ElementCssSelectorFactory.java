@@ -92,22 +92,17 @@ public class ElementCssSelectorFactory {
 			isRequired = Boolean.parseBoolean(required);
 		}
 		ElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired);
-		// 检测Action
-		Elements actionSelect = element.select("action");
-		for(Element e:actionSelect){
+		// 检测子元素
+		Elements children = element.children();
+		for(Element e : children){
 			if("action".equals(e.tagName())){
 				SelectorAction action = ActionFactory.create(e, element.attr("type"));
 				if(action!=null)
 					selector.addAction(action);
 			}
-		}
-		// 检测是否是Url类型的选择器
-		if(SelectorType.$url.name().equals("$"+type.toLowerCase())){
-			Elements subElements = element.children();
-			for(Element e:subElements){
-				if("element".equals(e.tagName())){
-					((UrlElementCssSelector)selector).addSelector(create(e));
-				}
+			// 只有Url类型的选择器嵌套自选择器
+			else if("element".equals(e.tagName())){
+				((UrlElementCssSelector)selector).addSelector(create(e));
 			}
 		}
 		return selector;
