@@ -185,6 +185,14 @@ public class IFConditions {
 		this.selectors.add(selector);
 	}
 	
+	public String getConditions() {
+		return conditions;
+	}
+
+	public void setConditions(String conditions) {
+		this.conditions = conditions;
+	}
+	
 	public static void main(String[] args) {
 		String exp = "a= sd ea and  c= c bc d  and c=e and x=y";
 		

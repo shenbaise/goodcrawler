@@ -232,6 +232,9 @@ class ExtractTemplate{
 			}
 			for(IFConditions con:conditions){
 				if(con.test(content)){
+					if(!con.getConditions().contains("电影")){
+						System.out.println("..");
+					}
 					for(ElementCssSelector<?> selector:con.getSelectors()){
 //						if("play1".equals(selector.getName())){
 //							System.out.println("断点哦");

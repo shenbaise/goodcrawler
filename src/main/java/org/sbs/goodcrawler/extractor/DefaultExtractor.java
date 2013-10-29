@@ -78,6 +78,8 @@ public class DefaultExtractor extends Extractor {
 						epage.setMessages((HashMap<String, Object>) result);
 						pendingStore.addExtracedPage(epage);
 						return epage;
+					}else {
+						pendingStore.ignored.getAndIncrement();
 					}
 				} catch (QueueException e) {
 					 log.error(e.getMessage());
@@ -85,9 +87,10 @@ public class DefaultExtractor extends Extractor {
 					e.printStackTrace();
 				} 
 			} catch (UnsupportedEncodingException e) {
-				 log.error(e.getMessage());
+				log.error(e.getMessage());
 			} 
 		}
+		pendingStore.failure.getAndIncrement();
 		return null;
 	}
 
