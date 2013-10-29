@@ -137,7 +137,6 @@ public class PendingUrls implements Serializable {
 	 * @return
 	 * @throws QueueException
 	 */
-	@Deprecated
 	public boolean addUrl(WebURL url,int timeout) throws QueueException {
 		if (url != null) {
 			try {

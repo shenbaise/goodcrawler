@@ -195,19 +195,23 @@ public abstract class FetchWorker extends Worker {
 				int statusCode = result.getStatusCode();
 				if (statusCode == CustomFetchStatus.PageTooBig) {
 					onIgnored(url);
+					result.discardContentIfNotConsumed();
 					return ;
 				}
 				if (statusCode != HttpStatus.SC_OK){
+					result.discardContentIfNotConsumed();
 					onFailed(url);
 				}else {
 					Page page = new Page(url);
 					pendingUrls.processedSuccess();
 					if (!result.fetchContent(page)) {
 						onFailed(url);
+						result.discardContentIfNotConsumed();
 						return;
 					}
 					if (!parser.parse(page, url.getURL())) {
 						onFailed(url);
+						result.discardContentIfNotConsumed();
 						return;
 					}
 					try {
@@ -247,6 +251,8 @@ public abstract class FetchWorker extends Worker {
 						e.printStackTrace();
 					} catch (IOException e) {
 						e.printStackTrace();
+					}finally{
+						result.discardContentIfNotConsumed();
 					}
 				}
 			} else {

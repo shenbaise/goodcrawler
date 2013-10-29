@@ -119,16 +119,20 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 				// 获取状态
 				int statusCode = result.getStatusCode();
 				if (statusCode == CustomFetchStatus.PageTooBig) {
+					result.discardContentIfNotConsumed();
 					return null;
 				}
 				if (statusCode != HttpStatus.SC_OK){
+					result.discardContentIfNotConsumed();
 					return null;
 				}else {
 					Page page = new Page(webUrl);
 					if (!result.fetchContent(page)) {
+						result.discardContentIfNotConsumed();
 						return null;
 					}
 					if (!parser.parse(page, webUrl.getURL())) {
+						result.discardContentIfNotConsumed();
 						return null;
 					}
 				doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
