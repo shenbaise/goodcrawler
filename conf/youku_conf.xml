@@ -146,9 +146,12 @@
 					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
 						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
-					<!-- 剧集超过40需要模拟点击 #研究中 -->
 					<element name="play1" type="url" value="#episode a" attr="href">
-						<element name="online" type="set" value="#link2" attr="value" />
+						<element name="online" type="set" value="[name=tvlist]" attr="id" >
+							<action operation="sub" exp="5"/>
+							<action operation="perfix" perfix="http://player.youku.com/player.php/sid/"/>
+							<action operation="suffix" suffix="/v.swf"/>
+						</element>
 					</element>
 				</if>
 				<if test="category=综艺">
