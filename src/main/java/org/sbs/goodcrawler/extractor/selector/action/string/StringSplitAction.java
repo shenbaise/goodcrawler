@@ -36,7 +36,7 @@ public class StringSplitAction extends StringSelectorAction{
 	 */
 	private String split ;
 	private String newsplit = "|";
-	private Set<Integer> set = Sets.newHashSet();
+	private Set<Integer> set = Sets.newLinkedHashSet();
 	/**
 	 * 构造器
 	 * @param split

@@ -212,7 +212,7 @@ public class Extractor66ys extends Extractor {
 								// 下载地址 （会有多个网站下载地址）
 								// html body div.wrap div.mainleft div.contentinfo div#text table tbody tr td anchor a
 								Elements elements2 = elements.select("td a");
-								Set<String> downList = Sets.newHashSet();
+								Set<String> downList = Sets.newLinkedHashSet();
 								for(Element download:elements2){
 									downList.add(download.attr("href"));
 								}
@@ -271,13 +271,13 @@ public class Extractor66ys extends Extractor {
 				String type = (String)result.get("type");
 				if(StringUtils.isNotBlank(type)){
 					type = StringHelper.removeAB12Blank(type);
-					result.put("type", Sets.newHashSet(Splitter.on(CharMatcher.anyOf("/\\、，,|")).omitEmptyStrings().split(type)));
+					result.put("type", Sets.newLinkedHashSet(Splitter.on(CharMatcher.anyOf("/\\、，,|")).omitEmptyStrings().split(type)));
 				}
 				// 转actors为set
 				String actor = (String)result.get("actors");
 				if(StringUtils.isNotBlank(actor)){
 					actor = StringHelper.removeAB12(actor);
-					result.put("actors", Sets.newHashSet(Splitter.on(CharMatcher.anyOf("/\\、，,| ")).omitEmptyStrings().split(actor)));
+					result.put("actors", Sets.newLinkedHashSet(Splitter.on(CharMatcher.anyOf("/\\、，,| ")).omitEmptyStrings().split(actor)));
 				}
 				// 转换片长、级数
 				String duration = (String)result.get("duration");

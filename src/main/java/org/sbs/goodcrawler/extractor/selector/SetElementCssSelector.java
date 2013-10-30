@@ -56,7 +56,7 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 			if(null!=content && !newDoc){
 				return content;
 			}
-			content = Sets.newHashSet();
+			content = Sets.newLinkedHashSet();
 			if(document!=null){
 				Elements elements = super.document.select(value);
 				if(elements.isEmpty())
@@ -76,12 +76,13 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 				if(null!=actions && actions.size()>0){
 					Set<String> newSet = Sets.newTreeSet();
 					for(String string : content){
-						String temp = "";
+						String temp = string;
 						for(StringSelectorAction action:actions){
 							temp = action.doAction(temp);
 						}
-						this.content = temp;
+						newSet.add(temp);
 					}
+					this.content = newSet;
 				}
 				newDoc = false;
 				return content;

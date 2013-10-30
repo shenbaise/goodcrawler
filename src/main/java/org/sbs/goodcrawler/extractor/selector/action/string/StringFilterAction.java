@@ -40,7 +40,7 @@ public class StringFilterAction extends StringSelectorAction{
 	/**
 	 * 过滤字符集名称，见<b>CharType</b>
 	 */
-	private Set<CharType> set = Sets.newHashSet();
+	private Set<CharType> set = Sets.newLinkedHashSet();
 	/**
 	 * 构造器
 	 * @param filterString
