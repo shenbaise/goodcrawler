@@ -74,7 +74,7 @@ public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
 					break;
 				}
 				if(null!=actions && actions.size()>0){
-					Set<String> newSet = Sets.newTreeSet();
+					Set<String> newSet = Sets.newLinkedHashSet();
 					for(String string : content){
 						String temp = string;
 						for(StringSelectorAction action:actions){
