@@ -166,8 +166,15 @@ public class ExtractConfig extends Configuration {
 		Document document;
 		try {
 			document = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
+			// 电影
 //			String url = "http://v.youku.com/v_show/id_XNTgwNDUxNTQw.html";
-			String url = "http://www.youku.com/show_page/id_zd4edea60e0d011df97c0.html";
+			// 电视剧
+//			String url = "http://www.youku.com/show_page/id_zd4edea60e0d011df97c0.html";
+			// 综艺
+			String url = "http://www.youku.com/show_page/id_z34e239382e2911e29013.html";
+			// 综艺
+//			String url = "http://www.youku.com/show_page/id_z9510781e2d4411e296ac.html";
+					
 			System.out.println(extractConfig.loadConfig(document).toString());
 			FetchForeman fetchForeman = new FetchForeman();
 			fetchForeman.start(fetchConfig.loadConfig(document));
