@@ -12,6 +12,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- 按照你的安装路径做更改 -->
+		<java.home>C:\Program Files\Java\jdk1.7.0_40</java.home>
 	</properties>
 
 	<dependencies>
@@ -139,8 +141,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>${java-version}</source>
-					<target>${java-version}</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<encoding>UTF-8</encoding>
 					<compilerArguments>
 						<verbose />
