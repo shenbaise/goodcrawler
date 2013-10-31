@@ -53,12 +53,14 @@
 			<!-- 种子需要加入过滤策略 -->
 			<filter>http://.*.youku.com/show_page/.*</filter>
 			<filter>http://.*.youku.com/star_page/.*</filter>
+			<filter>http://.*.youku.com/v_olist/.*</filter>
 			<filter>http://www.youku.com/</filter>
 		</fetchUrlFilters>
 		<!-- 加入待抽取信息页队列的策略 -->
 		<extractUrlfilters>
 			<filter>http://.*.youku.com/show_page/.*</filter>
 			<filter>http://.*.youku.com/star_page/.*</filter>
+			<filter>http://.*.youku.com/v_show/.*</filter>
 		</extractUrlfilters>
 	</fetch>
 
@@ -122,10 +124,10 @@
 						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<element name="play1" type="url" value=".btnplayposi" attr="href">
-						<element name="online1" type="set" value="#link2" attr="value" />
+						<element name="youku1" type="set" value="#link2" attr="value" />
 					</element>
 					<element name="play2" type="url" value=".btnplaytrailer" attr="value">
-						<element name="online2" type="set" value="#link2" attr="value" />
+						<element name="youku2" type="set" value="#link2" attr="value" />
 					</element>
 				</if>
 				<if test="category=电视剧">
@@ -147,18 +149,19 @@
 						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<element name="play1" type="url" value="#episode a" attr="href">
-						<element name="online" type="set" value="[name=tvlist]" attr="id" >
+						<element name="youku1" type="set" value="[name=tvlist]" attr="id" >
 							<action operation="sub" exp="5"/>
 							<action operation="perfix" perfix="http://player.youku.com/player.php/sid/"/>
 							<action operation="suffix" suffix="/v.swf"/>
 						</element>
 					</element>
+					<element name="refetch" type="string" value=".m_update" attr="title" />
 				</if>
 				<if test="category=综艺">
 					<element name="year" type="int" value=".title .pub" attr="text"/>
 					<element name="score" type="int" value=".ratingstar .num" attr="text" />
-					<element name="area" type="string" value=".row2 .area a" attr="text" />
-					<element name="type" type="set" value=".row1 .type .a" attr="text" required="true"/>
+					<element name="area" type="string" value=".row1 .area a" attr="text" />
+					<element name="type" type="set" value=".row1 .type a" attr="text" required="true"/>
 					<element name="lang" type="string" value=".lang" attr="text">
 						<action operation="split" split=":" index="1"></action>
 					</element>
@@ -171,7 +174,11 @@
 					</element>
 					<!-- 剧集超过40需要模拟点击 #研究中 -->
 					<element name="play1" type="url" value="#episode a" attr="href">
-						<element name="online" type="set" value="#link2" attr="value" />
+						<element name="youku1" type="set" value="li.item" attr="id" >
+							<action operation="sub" exp="5"/>
+							<action operation="perfix" perfix="http://player.youku.com/player.php/sid/"/>
+							<action operation="suffix" suffix="/v.swf"/>
+						</element>
 					</element>
 				</if>
 				<if test="category=动漫">
@@ -188,7 +195,13 @@
 						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
 					</element>
 					<element name="play1" type="url" value="#episode a" attr="href">
-						<element name="online" type="set" value="#link2" attr="value" />
+						<element name="youku_url" type="set" value="li.item" attr="id" >
+							<action operation="sub" exp="5"/>
+							<action operation="perfix" perfix="http://player.youku.com/player.php/sid/"/>
+							<action operation="suffix" suffix="/v.swf"/>
+						</element>
+						<element name="youku_title" type="set" value="li.item" attr="title" >
+						</element>
 					</element>
 				</if>
 			</elements>
