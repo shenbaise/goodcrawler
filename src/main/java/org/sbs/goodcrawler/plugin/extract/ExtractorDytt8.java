@@ -33,7 +33,7 @@ import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 
 /**

@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.fetcher;
+package org.sbs.goodcrawler.queue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,12 +31,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.crawler.Worker;
+import org.sbs.goodcrawler.bootstrap.JobStops;
 import org.sbs.goodcrawler.conf.GlobalConstants;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.util.DateTimeUtil;
+
+import com.google.common.collect.Maps;
 
 /**
  * @author whiteme
@@ -45,9 +48,11 @@ import org.sbs.util.DateTimeUtil;
 public class FailedPageBackup {
 
 	private Log log = LogFactory.getLog(this.getClass());
-	private static FailedPageBackup instance = null;
 	private PropertyConfigurationHelper config = PropertyConfigurationHelper
 			.getInstance();
+	private String jobName;
+	private static ConcurrentMap<String, FailedPageBackup> map = Maps
+			.newConcurrentMap();
 	/**
 	 * 处理失败的页面队列
 	 */
@@ -57,15 +62,16 @@ public class FailedPageBackup {
 	 */
 	private boolean ignoreFailedPage = true;
 
-	private FailedPageBackup() {
-		init();
+	private FailedPageBackup(String jobName) {
+		this.jobName = jobName;
 	}
 
-	public static FailedPageBackup getInstace() {
-		if (null == instance) {
-			instance = new FailedPageBackup();
-		}
-		return instance;
+	public static FailedPageBackup getInstace(String jobName) {
+		FailedPageBackup failedPageBackup = map.get(jobName);
+		if (null == failedPageBackup)
+			return failedPageBackup;
+		map.put(jobName, new FailedPageBackup(jobName));
+		return map.get(jobName);
 	}
 
 	public void init() {
@@ -131,14 +137,16 @@ public class FailedPageBackup {
 			File backFile = null;
 			FileChannel fc = null;
 			byte[] b = new byte[] { (byte) 1, (byte) 1 };
-			if (Worker.stop)
+			if (JobStops.isStop(jobName))
 				if (!ignoreFailedPage) {
 					backFile = new File(config.getString(
 							GlobalConstants.failedPagesBackupPath, "")
-							+ File.pathSeparator + DateTimeUtil.getDate());
+							+ File.pathSeparator
+							+ jobName
+							+ File.pathSeparator
+							+ DateTimeUtil.getDate());
 					try {
-						fc = new FileOutputStream(backFile, true)
-						.getChannel();
+						fc = new FileOutputStream(backFile, true).getChannel();
 						if (flag) {
 							while (null != (page = Queue.poll())) {
 								fc.write(ByteBuffer.wrap(page.getContentData()));

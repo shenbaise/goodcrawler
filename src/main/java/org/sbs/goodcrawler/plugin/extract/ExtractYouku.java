@@ -33,9 +33,8 @@ import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.urlmanager.WebURL;
-import org.sbs.util.Submitor;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.Lists;
@@ -106,7 +105,6 @@ public class ExtractYouku extends Extractor {
 	                	WebURL weburl = new WebURL();
 	                	weburl.setURL(linkHref);
 	                	weburl.setJobName(conf.jobName);
-	                	Submitor.submitUrl(weburl);
 	                }
 	            }
 	        }

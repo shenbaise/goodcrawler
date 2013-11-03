@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.urlmanager;
+package org.sbs.goodcrawler.queue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,82 +24,98 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.conf.GlobalConstants;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 import org.sbs.goodcrawler.exception.QueueException;
+import org.sbs.goodcrawler.urlmanager.WebURL;
+
+import com.google.common.collect.Maps;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29
- * @desc 待处理的Urls队列
+ * @desc 待处理的Urls队列，允许有多个实例。多个实例由PendingUrlsManager管理
  */
-public class PendingUrls implements Serializable {
+public class PendingFetch extends Pending implements Serializable {
 
 	private static final long serialVersionUID = 2260258894389085989L;
 	private Log log = LogFactory.getLog(this.getClass());
 	private BlockingQueue<WebURL> Queue = null;
-	private static PendingUrls instance = null;
-	/**
-	 * 总URL个数，每爬到一个+1
-	 */
-	private AtomicLong urlCount = new AtomicLong(0L);
-	/**
-	 * 已经成功处理的URL个数
-	 */
-	private AtomicLong success = new AtomicLong(0L);
-	/**
-	 * 处理失败的URL个数
-	 */
-	private AtomicInteger failure = new AtomicInteger(0);
-	/**
-	 * 依据job配置被忽略的链接个数
-	 */
-	private AtomicLong ignored = new AtomicLong(0);
-
+	private String jobName = null;
+	private int capacity = 1000000;
+	
+	
+	private static ConcurrentMap<String, PendingFetch> map = Maps.newConcurrentMap();
+	
 	/**
 	 * 构造函数
+	 * @param jobName
+	 * @param capacity
 	 */
-	private PendingUrls() {
+	private PendingFetch(String jobName,int capacity){
+		this.jobName = jobName;
+		this.capacity = capacity;
 		init();
 	}
-
+	/**
+	 * 构造函数，默认队列大小1000000
+	 * @param jobName
+	 */
+	private PendingFetch(String jobName){
+		this.jobName = jobName;
+		init();
+	}
+	
 	/**
 	 * @return
 	 * @desc 返回队列实例
 	 */
-	public static PendingUrls getInstance() {
-		if (null == instance) {
-			instance = new PendingUrls();
-		}
-		return instance;
+	public static PendingFetch getPendingFetch(String jobName,int queueSize){
+		PendingFetch pendingFetch = map.get(jobName);
+		if(null!=pendingFetch)
+			return pendingFetch;
+		map.put(jobName, new PendingFetch(jobName, queueSize));
+		return map.get(jobName);
 	}
-
+	/**
+	 * 返回一个实例，不存在则使用默认大小（1000000）进行构造
+	 * @param jobName
+	 * @return
+	 */
+	public static PendingFetch getPendingFetch(String jobName){
+		PendingFetch pendingFetch = map.get(jobName);
+		if(null!=pendingFetch)
+			return pendingFetch;
+		map.put(jobName, new PendingFetch(jobName));
+		return map.get(jobName);
+	}
+	
 	/**
 	 * @desc 初始化队列
 	 */
-	private void init() {
+	private PendingFetch init() {
 		File file = new File(PropertyConfigurationHelper.getInstance()
 				.getString("status.save.path", "status")
 				+ File.separator
-				+ "urls.good");
+				+ this.jobName + "/urls.good");
 		if (file.exists()) {
 			try {
 				FileInputStream fisUrl = new FileInputStream(file);
 				ObjectInputStream oisUrl = new ObjectInputStream(fisUrl);
-				instance = (PendingUrls) oisUrl.readObject();
+				PendingFetch instance = (PendingFetch) oisUrl.readObject();
 				oisUrl.close();
 				fisUrl.close();
 				Queue = instance.Queue;
 				failure = instance.failure;
 				success = instance.success;
-				urlCount = instance.urlCount;
+				count = instance.count;
 				ignored = instance.ignored;
+				this.jobName = instance.jobName;
+				this.capacity = instance.capacity;
 				System.out.println("recovery url queue..." + Queue.size());
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -110,9 +126,9 @@ public class PendingUrls implements Serializable {
 			}
 		} 
 		if(null==Queue)
-			Queue = new ArrayBlockingQueue<>(PropertyConfigurationHelper
-					.getInstance().getInt(GlobalConstants.pendingUrlsQueueSize,
-							1000000));
+			Queue = new ArrayBlockingQueue<>(this.capacity);
+		return 
+			this;
 	}
 
 	/**
@@ -123,7 +139,7 @@ public class PendingUrls implements Serializable {
 		try {
 			if (null != url) {
 				Queue.put(url);
-				urlCount.getAndIncrement();
+				count.getAndIncrement();
 			}
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());
@@ -142,7 +158,7 @@ public class PendingUrls implements Serializable {
 			try {
 				boolean b = Queue.offer(url, timeout, TimeUnit.MILLISECONDS);
 				if(b){
-					urlCount.getAndIncrement();
+					count.getAndIncrement();
 				}
 				return b;
 			} catch (InterruptedException e) {
@@ -169,95 +185,13 @@ public class PendingUrls implements Serializable {
 		return Queue.isEmpty();
 	}
 
-	/**
-	 * @param c
-	 * @return
-	 * @desc 抓取成功连接数+c
-	 */
-	public long processedSuccess(long c) {
-		return success.addAndGet(c);
-	}
-
-	/**
-	 * @return
-	 * @desc 抓取成功连接数+1
-	 */
-	public long processedSuccess() {
-		return success.incrementAndGet();
-	}
-
-	/**
-	 * @param c
-	 * @return
-	 * @desc 抓取失败连接数+c
-	 */
-	public int processedFailure(int c) {
-		return failure.addAndGet(c);
-	}
-
-	/**
-	 * @return
-	 * @desc 抓取失败链接数+1
-	 */
-	public int processedFailure() {
-		return failure.incrementAndGet();
-	}
-
-	/**
-	 * @return
-	 * @desc 返回总链接数
-	 */
-	public long urlCount() {
-		return urlCount.get();
-	}
-
-	/**
-	 * @return
-	 * @desc 返回成功抓取链接数
-	 */
-	public long success() {
-		return success.get();
-	}
-
-	/**
-	 * @return
-	 * @desc 返回抓取失败链接数
-	 */
-	public int failure() {
-		return failure.get();
-	}
-
-	/**
-	 * @param c
-	 * @return
-	 * @desc 被忽略链接数+c
-	 */
-	public long processedIgnored(long c) {
-		return ignored.addAndGet(c);
-	}
-
-	/**
-	 * @return
-	 * @desc 被忽略链接数+1
-	 */
-	public long processedIgnored() {
-		return ignored.incrementAndGet();
-	}
-
-	/**
-	 * @return
-	 * @desc 被忽略链接个数
-	 */
-	public long ignored() {
-		return ignored.get();
-	}
-
 	public String pendingStatus() {
 		StringBuilder sb = new StringBuilder(32);
 		sb.append("队列中等待处理的URL有").append(Queue.size()).append("个，")
-				.append("截至目前共爬到").append(urlCount).append("个链接。已成功处理")
+				.append("截至目前共爬到").append(count.get()).append("个链接。已成功处理")
 				.append(success.get()).append("个，失败").append(failure.get())
-				.append("个，忽略").append(ignored()).append("个");
+				.append("个，忽略").append(ignored()).append("个").append("。队列容量[")
+				.append(Queue.size()).append("/").append(this.capacity).append("]");
 		return sb.toString();
 	}
 }

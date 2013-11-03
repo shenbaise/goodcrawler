@@ -23,8 +23,6 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.elasticsearch.ElasticSearchException;
@@ -37,6 +35,8 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.sbs.util.MD5Utils;
+
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-6 es cilent
@@ -44,12 +44,10 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 public class EsClient {
 
 	static Settings settings = ImmutableSettings.settingsBuilder()
-	// .put("cluster.name", "ES-index")
+	// 		.put("cluster.name", "ES-index")
 			.put("client.transport.sniff", true).build();
 
 	private static Client client = null;
-	
-	private static String mapping = "{  \"0\": {    \"_all\": {      \"enabled\": true    },    \"index_analyzer\": \"ik\",    \"search_analyzer\": \"ik\",    \"_timestamp\": {      \"enabled\": true,      \"format\": \"YYYY-MM-dd\"    },    \"dynamic_templates\": [      {        \"string_template\": {          \"match\": \"*\",          \"mapping\": {            \"type\": \"string\",            \"index\": \"not_analyzed\"          },          \"match_mapping_type\": \"string\"        }      }    ],    \"properties\": {      \"title\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"actors\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"director\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"summary\": {        \"type\": \"string\",        \"include_in_all\": false,        \"index\": \"not_analyzed\"      },      \"type\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"category\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      }    }  }}";
 
 	static {
 		client = new TransportClient(settings)
@@ -60,168 +58,175 @@ public class EsClient {
 	public static Client getClient() {
 		if (null == client) {
 			client = new TransportClient(settings)
-			.addTransportAddress(new InetSocketTransportAddress(
-					"127.0.0.1", 9300));
+					.addTransportAddress(new InetSocketTransportAddress(
+							"127.0.0.1", 9300));
 		}
 		return client;
 	}
 
-	public static void index(String index, String type, Map<String, Object> data) {
-		try {
-			XContentBuilder xBuilder = jsonBuilder().startObject();
-			Set<Entry<String, Object>> sets = data.entrySet();
-			for(Entry<String, Object> entry:sets){
-				xBuilder.field(entry.getKey()).value(entry.getValue());
-			}
-			xBuilder.endObject();
-//			IndexResponse response = 
-					client.prepareIndex(index, type)
-					.setId((String)data.get("title"))
-					.setSource(xBuilder).execute().actionGet();
-			// what does respose contains?
-		} catch (ElasticSearchException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	/**
+	 * index data
+	 * 
+	 * @param index
+	 * @param type
+	 * @param id
+	 * @param data
+	 * @throws IOException
+	 */
+	public static void index(String index, String type, String id,
+			Map<String, Object> data) throws IOException {
+		client.prepareIndex(index, type).setId(id).setSource(data).execute()
+				.actionGet();
 	}
+
+	/**
+	 * index data
+	 * 
+	 * @param index
+	 * @param type
+	 * @param data
+	 * @throws IOException
+	 */
+	public static void index(String index, String type, Map<String, Object> data)
+			throws IOException {
+		client.prepareIndex(index, type).setSource(data).execute().actionGet();
+	}
+
 	/**
 	 * Index
+	 * 
 	 * @param index
 	 * @param type
 	 * @param id
 	 * @param json
 	 */
-	public static void index(String index, String type, String id,String json) {
+	public static void index(String index, String type, String id, String json) {
 		try {
-			client.prepareIndex(index, type)
-			.setId(id)
-			.setSource(json).execute().actionGet();
+			client.prepareIndex(index, type).setId(id).setSource(json)
+					.execute().actionGet();
 		} catch (ElasticSearchException e) {
 			e.printStackTrace();
-		} 
+		}
 	}
-	
-	public static SearchResponse search(String index,String id){
+
+	public static SearchResponse search(String index, String id) {
 		SearchResponse response = client.prepareSearch(index)
-		        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-		        .setQuery(termQuery("_id", id))
-		        .setFrom(0).setSize(10).setExplain(false)
-		        .execute()
-		        .actionGet();
+				.setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+				.setQuery(termQuery("_id", id)).setFrom(0).setSize(10)
+				.setExplain(false).execute().actionGet();
 		return response;
 	}
-	
+
 	public static void distroy() {
 		client.close();
 	}
-	
+
 	/**
 	 * mapping
+	 * 
 	 * @return
 	 */
-	public XContentBuilder getMapping(){
+	public XContentBuilder getMapping() {
 		try {
-			XContentBuilder mapping = jsonBuilder().startObject()
-	        		.startObject("movie")
-	        				.startObject("_source")
-    						.field("enabled" , "true")
-    						.field("compress", true)
-//		        						.field("compress_threshold", "200b")
-	        				.endObject()
-	        				.startObject("_all")
-	        						.field("enabled" , "true")
-	        				.endObject()
-	        				
-	        				.startObject("_index")
-	        						.field("enabled" , "false")
-	        				.endObject()
-	        				
-	        				.startObject("_type")
-	        					.field("index", "yes")
-	        					.field("store", "yes")
-	        					.field("index", "not_analyzed")
-	        				.endObject()
-	        				
-	        				.startObject("_id")
-	        					.field("index", "yes")
-	        					.field("store", "yes")
-	        					.field("index", "not_analyzed")
-	        				.endObject()
-	        				
-	        				 .startObject("_analyzer").field("path", "field_analyzer").endObject()
-	        				
-	                        .startObject("properties") 
-	                                .startObject("pm") 
-	                                        .field("type", "string") 
-	                                .endObject() 
-	                                
-	                                .startObject("nd") 
-	                                        .field("type", "integer") 
-	                                        .field("omit_norms","yes")
-	                                        .field("omit_term_freq_and_positions","yes")
-	                                        .field("index", "not_analyzed")
-	                                .endObject()
-	                                
-	                                .startObject("ym") 
-	                                        .field("type", "string")
-	                                .endObject()
-	                                
-	                                .startObject("url")
-	                                	.field("type","string")
-	                                	.field("index", "no")
-	                                	.field("store", "yes")
-	                                .endObject()
-	                                
-	                        .endObject() 
-	                .endObject()
-	                .endObject();
-			
+			XContentBuilder mapping = jsonBuilder()
+					.startObject()
+					.startObject("movie")
+					.startObject("_source")
+					.field("enabled", "true")
+					.field("compress", true)
+					// .field("compress_threshold", "200b")
+					.endObject().startObject("_all").field("enabled", "true")
+					.endObject()
+
+					.startObject("_index").field("enabled", "false")
+					.endObject()
+
+					.startObject("_type").field("index", "yes")
+					.field("store", "yes").field("index", "not_analyzed")
+					.endObject()
+
+					.startObject("_id").field("index", "yes")
+					.field("store", "yes").field("index", "not_analyzed")
+					.endObject()
+
+					.startObject("_analyzer").field("path", "field_analyzer")
+					.endObject()
+
+					.startObject("properties").startObject("pm")
+					.field("type", "string").endObject()
+
+					.startObject("nd").field("type", "integer")
+					.field("omit_norms", "yes")
+					.field("omit_term_freq_and_positions", "yes")
+					.field("index", "not_analyzed").endObject()
+
+					.startObject("ym").field("type", "string").endObject()
+
+					.startObject("url").field("type", "string")
+					.field("index", "no").field("store", "yes").endObject()
+
+					.endObject().endObject().endObject();
+
 			return mapping;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
+
 	/**
 	 * 设置mapping
 	 */
-	public void putMapping(){
+	public void putMapping(String mapping,String index,String type) {
 		try {
-			client.admin().indices().preparePutMapping("movie")
-			.setType("0").setSource(mapping).execute().get();
+			client.admin().indices().preparePutMapping(index).setType(type)
+					.setSource(mapping).execute().get();
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * put Template
+	 * @param templateName
+	 * @param type
+	 * @param mapping
+	 */
+	public void putTemplate(String templateName,String type,String mapping){
+		try {
+			client.admin().indices().preparePutTemplate(templateName)
+			.addMapping(type, mapping).execute().actionGet();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 	/**
 	 * 创建索引并设置mapping
+	 * 
 	 * @param index
 	 * @param type
 	 * @param mapping
 	 */
-	public static void createIndexAndMapping(String index,String type,String mapping){
-			client.prepareIndex(index, type).execute().actionGet();
-			client.admin().indices().preparePutMapping("movie")
-			.setSource(mapping).setType(type)
-			.execute().actionGet();
-		
+	public static void createIndexAndMapping(String index, String type,
+			String mapping) {
+		client.prepareIndex(index, type).execute().actionGet();
+		client.admin().indices().preparePutMapping("movie").setSource(mapping)
+				.setType(type).execute().actionGet();
+
 	}
-	
+
 	/**
 	 * @param args
+	 * @throws Exception
 	 */
-	public static void main(String[] args) {
-		SearchResponse response = EsClient.search("movie", "魔境仙踪[国语高清]");
-//		System.out.println(response.toString());
-//		response.getHits().getTotalHits();
-//		createIndexAndMapping("movie", "0", mapping);
-		GetResponse get =client.prepareGet("movie", "0","魔境仙踪[国语高清]" )
-		.execute()
-		.actionGet();
-		
+	public static void main(String[] args) throws Exception {
+		SearchResponse response = EsClient.search("movie",
+				MD5Utils.createMD5("魔境仙踪[国语高清]"));
+		System.out.println(response.toString());
+		// response.getHits().getTotalHits();
+		// createIndexAndMapping("movie", "0", mapping);
+		GetResponse get = client.prepareGet("movie", "0", "魔境仙踪[国语高清]")
+				.execute().actionGet();
+
 		System.out.println(get.toString());
 	}
 

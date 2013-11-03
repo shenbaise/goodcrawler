@@ -83,6 +83,8 @@ public abstract class ElementCssSelector<T> {
 		this.value = value;
 		this.attr = attr;
 		this.$Attr = org.apache.commons.lang3.EnumUtils.getEnum(SelectorAttr.class, this.attr);
+		if(null==$Attr)
+			$Attr = SelectorAttr.other;
 		this.isRequired = isRequired;
 	}
 	

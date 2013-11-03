@@ -1,5 +1,5 @@
 /**
- * ########################  SHENBAISE'S WORK  ##########################
+ * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,13 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.extractor.selector;
+package org.sbs.goodcrawler.conf;
 
 /**
- * @author whiteme
- * @date 2013年8月3日
- * @desc 
+ * @author shenbaise(shenbaise@outlook.com)
+ * @date 2013-6-30 配置接口
  */
-public enum SelectorAttr {
-	src,href,text,value,id,title,img,other
+public abstract class JobConfiguration {
+
+	public String jobName;
+
+	public abstract String toString();
 }

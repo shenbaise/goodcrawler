@@ -17,7 +17,8 @@
  */
 package org.sbs.goodcrawler.storage;
 
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.jobconf.RepeatPolicy;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29
@@ -38,7 +39,7 @@ public abstract class Storage<V, T> {
 	 * @return
 	 * @desc 存储时
 	 */
-	public abstract StoreResult onStore(ExtractedPage<V, T> page);
+	public abstract StoreResult onStore(ExtractedPage<V, T> page,RepeatPolicy policy);
 	/**
 	 * @param page
 	 * @return

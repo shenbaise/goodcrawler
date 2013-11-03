@@ -35,8 +35,9 @@ import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.job.Parser;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
+import org.sbs.goodcrawler.queue.PendingExtract;
+import org.sbs.goodcrawler.queue.PendingFetch;
 import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 import org.sbs.robotstxt.RobotstxtConfig;
 import org.sbs.robotstxt.RobotstxtServer;
@@ -56,11 +57,11 @@ public abstract class FetchWorker extends Worker {
 	/**
 	 * url队列
 	 */
-	protected PendingUrls pendingUrls = PendingUrls.getInstance();
+	protected PendingFetch pendingUrls = null;
 	/**
 	 * Page队列
 	 */
-	protected PendingPages pendingPages = PendingPages.getInstace();
+	protected PendingExtract pendingPages = null;
 	/**
 	 * 爬取器
 	 */
@@ -87,6 +88,7 @@ public abstract class FetchWorker extends Worker {
 	 * 构造函数，未提供爬取器，需通过setFetcher方法设置Fetcher
 	 */
 	public FetchWorker(FetchConfig conf){
+		super(conf.jobName);
 		this.conf = conf;
 		parser = new Parser(conf.isFetchBinaryContent());
 		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
@@ -94,6 +96,9 @@ public abstract class FetchWorker extends Worker {
 		robotstxtConfig.setEnabled(conf.isRobots());
 		robotstxtConfig.setUserAgentName(conf.getAgent());
 		robotstxtServer = new RobotstxtServer(robotstxtConfig, fetcher);
+		
+		pendingUrls = PendingFetch.getPendingFetch(conf.jobName, conf.getQueueSize());
+		pendingPages = PendingExtract.getPendingExtract(conf.jobName);
 		
 		// 过滤器
 		List<String> urls1 = conf.getFetchUrlFilters();
@@ -110,6 +115,7 @@ public abstract class FetchWorker extends Worker {
 	 * @param fetcher 推荐使用的构造函数
 	 */
 	public FetchWorker(FetchConfig conf,PageFetcher fetcher){
+		super(conf.jobName);
 		this.fetcher = fetcher;
 		this.conf = conf;
 		parser = new Parser(conf.isFetchBinaryContent());
@@ -118,6 +124,9 @@ public abstract class FetchWorker extends Worker {
 		robotstxtConfig.setEnabled(conf.isRobots());
 		robotstxtConfig.setUserAgentName(conf.getAgent());
 		robotstxtServer = new RobotstxtServer(robotstxtConfig, fetcher);
+		
+		pendingUrls = PendingFetch.getPendingFetch(conf.jobName, conf.getQueueSize());
+		pendingPages = PendingExtract.getPendingExtract(conf.jobName);
 		// 过滤器
 		List<String> urls1 = conf.getFetchUrlFilters();
 		List<String> urls2 = conf.getExtractUrlfilters();

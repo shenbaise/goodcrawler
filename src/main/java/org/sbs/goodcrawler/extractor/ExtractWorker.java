@@ -18,12 +18,12 @@
 package org.sbs.goodcrawler.extractor;
 
 import org.sbs.crawler.Worker;
-import org.sbs.goodcrawler.fetcher.PendingPages;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
+import org.sbs.goodcrawler.queue.PendingExtract;
+import org.sbs.goodcrawler.queue.PendingFetch;
+import org.sbs.goodcrawler.queue.PendingStore;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -32,15 +32,19 @@ import org.sbs.goodcrawler.urlmanager.PendingUrls;
 public abstract class ExtractWorker extends Worker {
 
 
-	protected PendingUrls pendingUrls = PendingUrls.getInstance();
-	protected PendingPages pendingPages = PendingPages.getInstace();
-	protected PendingStore pendingStore = PendingStore.getInstance();
+	protected PendingFetch pendingUrls = null;
+	protected PendingExtract pendingPages = null;
+	protected PendingStore pendingStore = null;
 	protected ExtractConfig conf;
 	protected Extractor extractor;
 
 	public ExtractWorker(ExtractConfig conf, Extractor extractor) {
+		super(conf.jobName);
 		this.conf = conf;
 		this.extractor = extractor;
+		pendingUrls = PendingFetch.getPendingFetch(conf.jobName);
+		pendingPages = PendingExtract.getPendingExtract(conf.jobName,conf.getQueueSize());
+		pendingStore = PendingStore.getPendingStore(conf.jobName);
 	}
 
 	/**

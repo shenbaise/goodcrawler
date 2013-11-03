@@ -39,7 +39,7 @@ public class StoreForeman {
 		int threadNum = conf.getThreadNum();
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 		for(int i=0;i<threadNum;i++){
-			executor.submit(new DefaultStoreWorker(conf,new ElasticSearchStorage(conf.jobName)));
+			executor.submit(new DefaultStoreWorker(conf,new ElasticSearchStorage(conf)));
 		}
 		executor.shutdown();
 	}

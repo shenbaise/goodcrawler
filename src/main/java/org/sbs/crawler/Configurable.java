@@ -17,7 +17,7 @@
 
 package org.sbs.crawler;
 
-import org.sbs.goodcrawler.conf.Configuration;
+import org.sbs.goodcrawler.conf.JobConfiguration;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -25,13 +25,13 @@ import org.sbs.goodcrawler.conf.Configuration;
  */
 public abstract class Configurable {
 
-	protected static Configuration config;
+	protected static JobConfiguration config;
 	
-	protected Configurable(Configuration config) {
+	protected Configurable(JobConfiguration config) {
 		Configurable.config = config;
 	}
 	
-	public Configuration getConfig() {
+	public JobConfiguration getConfig() {
 		return config;
 	}
 }

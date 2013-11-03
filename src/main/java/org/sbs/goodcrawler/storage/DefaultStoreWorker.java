@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.jobconf.StoreConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -42,9 +42,9 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	@Override
 	public void run() {
 		ExtractedPage page ;
-		while(!stop) {
+		while(!isStop()) {
 			try {
-				while(!pendingStore.isEmpty() && !stop){
+				while(!pendingStore.isEmpty() && !isStop()){
 					page = pendingStore.getExtractedPage();
 					work(page);
 				}
@@ -57,24 +57,32 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	@Override
 	public void onSuccessed(ExtractedPage<V, T> page) {
 		page = null;
-		pendingStore.success.incrementAndGet();
+		pendingStore.processedSuccess();
 	}
 
 	@Override
 	public void onFailed(ExtractedPage<V, T> page) {
 		page = null;
-		pendingStore.failure.incrementAndGet();
+		pendingStore.processedSuccess();
 	}
 
 	@Override
 	public void onIgnored(ExtractedPage<V, T> page) {
 		page = null;
-		pendingStore.ignored.incrementAndGet();
+		pendingStore.processedIgnored();
 	}
 
 	@Override
 	public StoreResult store(ExtractedPage<V, T> page) {
-		return storage.onStore(page);
+		return storage.onStore(page,super.conf.getRepeatPolicy());
+	}
+	
+	/**
+	 * 预加工
+	 */
+	@Override
+	public ExtractedPage preProcess(ExtractedPage<V, T> page) {
+		return page;
 	}
 
 }

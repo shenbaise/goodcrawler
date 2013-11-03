@@ -1,5 +1,5 @@
 /**
- * ##########################  GoodCrawler  ############################
+ * ########################  SHENBAISE'S WORK  ##########################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,15 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.conf;
-
 /**
- * @author shenbaise(shenbaise@outlook.com)
- * @date 2013-6-30 配置接口
+ * @author whiteme
+ * @date 2013年11月3日
+ * @desc 
  */
-public abstract class Configuration {
-
-	public String jobName;
-
-	public abstract String toString();
-}
+package org.sbs.web.domain;

@@ -17,18 +17,45 @@
  */
 package org.sbs.crawler;
 
+import org.sbs.goodcrawler.bootstrap.JobStops;
+
+
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-1
  * 工人
  */
 public abstract class Worker implements Runnable{
-	public static  boolean stop = false;
+	/**
+	 * 该工人处理的工作名称
+	 */
+	private String jobName;
 	
+	/**
+	 * 构造函数
+	 * @param jobName
+	 */
+	public Worker(String jobName) {
+		super();
+		this.jobName = jobName;
+	}
+
 	/**
 	 * 停工
 	 */
-	public static synchronized void stop(){
-		stop = true;
+	public synchronized void stop(){
+		JobStops.startJob(jobName);
 	}
+	/**
+	 * 是否停止？
+	 * @return
+	 */
+	public synchronized boolean isStop() {
+		Boolean b = JobStops.isStop(jobName);
+		if(null!=b)
+			return b;
+		else 
+			return false;
+	}
+	
 }

@@ -15,24 +15,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.bootstrap;
+package org.sbs.web.domain;
 
 
 /**
  * @author whiteme
- * @date 2013年7月31日
- * @desc 爬虫运行状态
+ * @date 2013年11月3日
+ * @desc job状态描述
  */
-public class CrawlerStatus {
-	
-	public static boolean running = false;
-	
-	public static synchronized boolean isRunning() {
+public class JobStatus {
+	private String jobName;
+	private boolean running;
+	private String fetchStatus;
+	private String extractStatus;
+	private String storeStatus;
+	public String getJobName() {
+		return jobName;
+	}
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
+	public boolean isRunning() {
 		return running;
 	}
-
-	public static synchronized void setRunning(boolean running) {
-		CrawlerStatus.running = running;
+	public void setRunning(boolean running) {
+		this.running = running;
 	}
-	
+	public String getFetchStatus() {
+		return fetchStatus;
+	}
+	public void setFetchStatus(String fetchStatus) {
+		this.fetchStatus = fetchStatus;
+	}
+	public String getExtractStatus() {
+		return extractStatus;
+	}
+	public void setExtractStatus(String extractStatus) {
+		this.extractStatus = extractStatus;
+	}
+	public String getStoreStatus() {
+		return storeStatus;
+	}
+	public void setStoreStatus(String storeStatus) {
+		this.storeStatus = storeStatus;
+	}
 }

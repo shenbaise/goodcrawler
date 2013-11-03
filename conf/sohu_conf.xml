@@ -48,9 +48,9 @@
 			<proxyUsername></proxyUsername>
 			<proxyPassword></proxyPassword>
 		</proxy>
-		<!-- url种子 -->
+		<!-- url种子 （注意后面的/）-->
 		<seeds>
-			<seed>http://www.youku.com/</seed>
+			<seed>http://tv.sohu.com/</seed>
 		</seeds>
 		<!-- 加入Url待处理队列的策略 -->
 		<fetchUrlFilters>
@@ -58,10 +58,10 @@
 			<filter>http://.+[.]youku[.]com/.*[.]html$</filter>
 			 -->
 			<!-- 种子需要加入过滤策略 -->
-			<filter>http://.*.youku.com/show_page/.*</filter>
-			<filter>http://.*.youku.com/star_page/.*</filter>
-			<filter>http://.*.youku.com/v_olist/.*</filter>
-			<filter>http://www.youku.com/</filter>
+			<filter>http://.*.tv.sohu.com/drama/.*</filter>
+			<filter>http://.*.tv.sohu.com/self/.*</filter>
+			<filter>http://.*.tv.sohu.com/v_olist/.*</filter>
+			<filter>http://tv.sohu.com/</filter>
 		</fetchUrlFilters>
 		<!-- 加入待抽取信息页队列的策略 -->
 		<extractUrlfilters>

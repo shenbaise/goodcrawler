@@ -25,14 +25,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -52,27 +49,8 @@ public class DefaultExtractor extends Extractor {
 			ExtractedPage<String,Object> epage = null;
 			try {
 				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
-				// 提取Url，放入待抓取Url队列
-				Elements links = doc.getElementsByTag("a"); 
-		        if (!links.isEmpty()) { 
-		            for (Element link : links) { 
-		                String linkHref = link.absUrl("href"); 
-		                if(filterUrls(linkHref)){
-		                	WebURL url = new WebURL();
-		                	url.setURL(linkHref);
-		                	url.setJobName(conf.jobName);
-		                	try {
-		                		// TODO 考虑队列容量，调整Url策略。
-								pendingUrls.addUrl(url);
-							} catch (QueueException e) {
-								 log.error(e.getMessage());
-							}
-		                }
-		            }
-		        }
 		        // 抽取信息
 				try {
-					
 					epage = pendingStore.new ExtractedPage<String, Object>();
 					Map<String, Object> result = conf.getContentSeprator(doc,page.getWebURL().getURL());
 					if(null!=result && result.size()>0){

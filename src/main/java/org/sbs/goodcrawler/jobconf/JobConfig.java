@@ -24,14 +24,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.sbs.goodcrawler.conf.Configuration;
+import org.sbs.goodcrawler.conf.JobConfiguration;
 
 /**
  * @author whiteme
  * @date 2013年10月13日
  * @desc 
  */
-public class JobConfig extends Configuration {
+public class JobConfig extends JobConfiguration {
 	
 	Log log = LogFactory.getLog(JobConfig.class);
 	/**

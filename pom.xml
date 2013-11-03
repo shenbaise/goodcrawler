@@ -66,7 +66,6 @@
 			<artifactId>disruptor</artifactId>
 			<version>3.1.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -132,6 +131,19 @@
 			<artifactId>jackson-core-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
+
+		<!-- 模拟js -->
+		<dependency>
+			<groupId>htmlunit</groupId>
+			<artifactId>htmlunit</artifactId>
+			<version>1.9</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>servlet-api</artifactId>
+					<groupId>javax.servlet</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -192,12 +204,6 @@
 						<artifactId>log4j</artifactId>
 						<version>1.2.13</version>
 						<type>jar</type>
-					</dependency>
-					<!-- 模拟js -->
-					<dependency>
-						<groupId>htmlunit</groupId>
-						<artifactId>htmlunit</artifactId>
-						<version>1.9</version>
 					</dependency>
 				</dependencies>
 			</plugin>

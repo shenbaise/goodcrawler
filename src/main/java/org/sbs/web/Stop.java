@@ -32,7 +32,7 @@ public class Stop extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("stop");
 		if(CrawlerStatus.running){
-			BootStrap.stop();
+			BootStrap.stopAll();
 		}
 		request.setAttribute("stop", "程序停止运行。。。");
 		request.getRequestDispatcher("index.jsp").forward(request, response);

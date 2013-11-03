@@ -26,7 +26,8 @@ import net.sf.json.JsonConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.jobconf.RepeatPolicy;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 import org.sbs.goodcrawler.storage.StoreResult.Status;
 
 
@@ -62,7 +63,7 @@ public class LocalFileStorage extends Storage {
 	}
 
 	@Override
-	public StoreResult onStore(ExtractedPage page) {
+	public StoreResult onStore(ExtractedPage page,RepeatPolicy policy) {
 		StoreResult storeResult = new StoreResult();
 		JSONObject json = JSONObject.fromObject(page.getMessages(), new JsonConfig());
 		try {

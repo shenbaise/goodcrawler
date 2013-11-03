@@ -15,13 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.extractor.selector;
-
+package org.sbs.goodcrawler.jobconf;
 /**
+ * 
  * @author whiteme
- * @date 2013年8月3日
- * @desc 
+ * @date 2013年11月1日
+ * @desc 文档id重复时采取的策略。
  */
-public enum SelectorAttr {
-	src,href,text,value,id,title,img,other
+public enum RepeatPolicy{
+	/**
+	 * 覆盖
+	 */
+	overwrite,
+	/**
+	 * 合并，以新文档为准
+	 */
+	merge,
+	/**
+	 * 忽略
+	 */
+	ignore,
 }

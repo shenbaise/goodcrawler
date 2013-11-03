@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.fetcher;
+package org.sbs.goodcrawler.queue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,75 +24,88 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
-import org.sbs.goodcrawler.conf.GlobalConstants;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
+
+import com.google.common.collect.Maps;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29 等待处理的页面
  */
-public class PendingPages implements Serializable {
+public class PendingExtract extends Pending implements Serializable {
 
 	private static final long serialVersionUID = -5671808882701246813L;
-	private static PendingPages instance = null;
-
+	private String jobName = null;
+	private int capacity = 2000;
 	/**
 	 * 待处理页面（页面已下载）队列
 	 */
 	private BlockingQueue<Page> Queue = null;
-
+	
+	private static ConcurrentMap<String ,PendingExtract> map = Maps.newConcurrentMap();
+	
 	/**
-	 * 配置文件助手
+	 * 构造方法
+	 * @param jobName
+	 * @param capacity
 	 */
-	private PropertyConfigurationHelper config = PropertyConfigurationHelper
-			.getInstance();
-
-	/**
-	 * 总共获得到的页面数，每爬到一个+1
-	 */
-	public AtomicLong count = new AtomicLong(0L);
-
-	/**
-	 * 解析（抽取）失败的页面数
-	 */
-	public AtomicInteger failure = new AtomicInteger(0);
-	/**
-	 * 提取成功的页面数
-	 */
-	public AtomicInteger success = new AtomicInteger(0);
-	/**
-	 * 忽略的页面数
-	 */
-	public AtomicInteger ignored = new AtomicInteger(0);
-
-	private PendingPages() {
+	private PendingExtract(String jobName,int capacity) {
+		this.jobName = jobName;
+		this.capacity = capacity;
 		init();
 	}
-
-	public static PendingPages getInstace() {
-		if (null == instance) {
-			instance = new PendingPages();
-		}
-		return instance;
+	
+	/**
+	 * 默认构造，队列大小2000
+	 * @param jobName
+	 */
+	private PendingExtract(String jobName){
+		this.jobName = jobName;
+		init();
 	}
-
-	private void init() {
+	/**
+	 * 获取一个实例
+	 * @param jobName
+	 * @param capacity
+	 * @return
+	 */
+	public static PendingExtract getPendingExtract(String jobName,int capacity) {
+		PendingExtract pendingExtract = map.get(jobName);
+		if(null!=pendingExtract)
+			return pendingExtract;
+		map.put(jobName, new PendingExtract(jobName, capacity));
+		return map.get(jobName);
+	}
+	/**
+	 * 返回一个实例，不存在则返回默认大小（2000）构造
+	 * @param jobName
+	 * @return
+	 */
+	public static PendingExtract getPendingExtract(String jobName) {
+		PendingExtract pendingExtract = map.get(jobName);
+		if(null!=pendingExtract)
+			return pendingExtract;
+		map.put(jobName, new PendingExtract(jobName, 10000));
+		return map.get(jobName);
+	}
+	
+	private PendingExtract init() {
 		File file = new File(PropertyConfigurationHelper.getInstance()
 				.getString("status.save.path", "status")
 				+ File.separator
-				+ "pages.good");
+				+ this.jobName
+				+ "/pages.good");
 		if (file.exists()) {
 			try {
 				FileInputStream fisUrl = new FileInputStream(file);
 				ObjectInputStream oisUrl = new ObjectInputStream(fisUrl);
-				instance = (PendingPages) oisUrl.readObject();
+				PendingExtract instance = (PendingExtract) oisUrl.readObject();
 				oisUrl.close();
 				fisUrl.close();
 				Queue = instance.Queue;
@@ -100,6 +113,8 @@ public class PendingPages implements Serializable {
 				success = instance.success;
 				count = instance.count;
 				ignored = instance.ignored;
+				jobName = instance.jobName;
+				capacity = instance.capacity;
 				System.out.println("recovery page queue..." + Queue.size());
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -109,9 +124,10 @@ public class PendingPages implements Serializable {
 				e.printStackTrace();
 			}
 		} 
-		if(null==Queue)
-			Queue = new LinkedBlockingDeque<Page>(config.getInt(
-					GlobalConstants.pendingPagesQueueSize, 2000));
+		if(null==Queue){
+			Queue = new LinkedBlockingDeque<Page>(this.capacity);
+		}
+		return this;
 	}
 
 	/**
@@ -177,7 +193,7 @@ public class PendingPages implements Serializable {
 	public void addFailedPage(Page page) {
 		try {
 			if (null != page) {
-				FailedPageBackup.getInstace().addPage(page);
+				FailedPageBackup.getInstace(page.getWebURL().getJobName()).addPage(page);
 				failure.incrementAndGet();
 			}
 		} catch (Exception | QueueException e) {
@@ -190,16 +206,8 @@ public class PendingPages implements Serializable {
 		sb.append("队列中等待处理的Page有").append(Queue.size()).append("个，")
 		.append("截至目前共收到").append(count).append("个页面。已成功处理")
 		.append(success.get()).append("个，失败").append(failure.get())
-		.append("个，忽略").append(ignored.get()).append("个");
+		.append("个，忽略").append(ignored.get()).append("个。")
+		.append("队列容量[").append(Queue.size()).append("/").append(this.capacity).append("]");
 		return sb.toString();
-	}
-
-	/**
-	 * @param args
-	 * @desc
-	 */
-	public static void main(String[] args) {
-		PendingPages pendingPages = PendingPages.getInstace();
-		pendingPages.addFailedPage(null);
 	}
 }

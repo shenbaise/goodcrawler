@@ -28,11 +28,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.conf.Configuration;
+import org.sbs.goodcrawler.conf.JobConfiguration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.exception.QueueException;
+import org.sbs.goodcrawler.queue.PendingFetch;
 import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 
 import com.google.common.collect.Lists;
@@ -42,7 +42,7 @@ import com.google.common.collect.Lists;
  * @date 2013年8月3日
  * @desc 
  */
-public class FetchConfig extends Configuration{
+public class FetchConfig extends JobConfiguration{
 	private Log log = LogFactory.getLog(this.getClass());
 	
 	public FetchConfig() {
@@ -140,6 +140,10 @@ public class FetchConfig extends Configuration{
 	 * 推入下个处理环节的Url处理策略
 	 */
 	private List<String> extractUrlfilters = Lists.newArrayList();
+	/**
+	 * 队列大小
+	 */
+	private int queueSize;
 	
 	public int getThreadNum() {
 		return threadNum;
@@ -326,6 +330,14 @@ public class FetchConfig extends Configuration{
 	public void setExtractUrlfilters(List<String> extractUrlfilters) {
 		this.extractUrlfilters = extractUrlfilters;
 	}
+	
+	public int getQueueSize() {
+		return queueSize;
+	}
+
+	public void setQueueSize(int queueSize) {
+		this.queueSize = queueSize;
+	}
 
 	/**
 	 * 从配置文件中加载配置信息
@@ -343,7 +355,10 @@ public class FetchConfig extends Configuration{
 			if(StringUtils.isNotBlank(temp)){
 				this.threadNum = Integer.parseInt(temp);
 			}
-			
+			temp = e.select("queueSize").text();
+			if(StringUtils.isNotBlank(temp)){
+				this.queueSize = Integer.parseInt(temp);
+			}
 			temp = e.select("delayBetweenRequests").text();
 			if(StringUtils.isNotBlank(temp)){
 				this.delayBetweenRequests = Integer.parseInt(temp);
@@ -432,7 +447,7 @@ public class FetchConfig extends Configuration{
 				this.seeds.add(seed);
 				url.setURL(seed);
 				try {
-					PendingUrls.getInstance().addUrl(url);
+					PendingFetch.getPendingFetch(jobName, queueSize).addUrl(url);
 					BloomfilterHelper.getInstance().add(url.getURL());
 				} catch (QueueException e1) {
 					e1.printStackTrace();

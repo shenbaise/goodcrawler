@@ -19,7 +19,8 @@ public class T {
 	 */
 	public static void main(String[] args) {
 		T t = new T();
-		t.getb();
+//		t.getb();
+		System.out.println("1234566".substring(5));
 	}
 
 }

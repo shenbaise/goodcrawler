@@ -31,7 +31,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
-import org.sbs.goodcrawler.conf.Configuration;
+import org.sbs.goodcrawler.conf.JobConfiguration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
@@ -49,11 +49,15 @@ import com.google.common.collect.Maps;
  * @desc 内容抽取配置对象
  */
 //@SuppressWarnings("rawtypes")
-public class ExtractConfig extends Configuration {
+public class ExtractConfig extends JobConfiguration {
 	/**
 	 * 默认使用个线程提取信息
 	 */
 	private int threadNum = 10;
+	/**
+	 * 队列大小
+	 */
+	private int queueSize = 2000;
 	/**
 	 * 抽取信息的模板列表
 	 */
@@ -93,6 +97,8 @@ public class ExtractConfig extends Configuration {
 		}
 		return content;
 	}
+	
+	
 	/**
 	 * 从配置文件中加载抽取配置信息
 	 * @param doc
@@ -106,7 +112,10 @@ public class ExtractConfig extends Configuration {
 		if(StringUtils.isNotBlank(temp)){
 			this.threadNum = Integer.parseInt(temp);
 		}
-		
+		temp = extractElement.select("queueSize").text();
+		if(StringUtils.isNotBlank(temp)){
+			this.queueSize = Integer.parseInt(temp);
+		}
 		Elements templateElement = extractElement.select("extract").select("template");
 		Iterator<Element> it = templateElement.iterator();
 		while(it.hasNext()){
@@ -146,6 +155,14 @@ public class ExtractConfig extends Configuration {
 		return templates;
 	}
 	
+	public int getQueueSize() {
+		return queueSize;
+	}
+
+	public void setQueueSize(int queueSize) {
+		this.queueSize = queueSize;
+	}
+
 	@Override
 	public String toString() {
 		final int maxLen = 10;

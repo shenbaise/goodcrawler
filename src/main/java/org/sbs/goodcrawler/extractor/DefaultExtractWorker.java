@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -40,11 +40,11 @@ public class DefaultExtractWorker extends ExtractWorker {
 	@Override
 	public void run() {
 		Page page ;
-		while(!stop){
+		while(!isStop()){
 			try {
 				while(null!=(page=pendingPages.getPage())){
 					work(page);
-					if(stop)
+					if(isStop())
 						break;
 				}
 			} catch (QueueException e) {
@@ -57,7 +57,7 @@ public class DefaultExtractWorker extends ExtractWorker {
 	public void onSuccessed(Page page) {
 		// ok
 		page = null;
-		pendingPages.success.incrementAndGet();
+		pendingPages.processedSuccess();
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class DefaultExtractWorker extends ExtractWorker {
 
 	@Override
 	public void onIgnored(Page page) {
-		pendingPages.ignored.incrementAndGet();
+		pendingPages.processedIgnored();
 		log.warn("忽略了一个链接："+ page.getWebURL().getURL());
 	}
 

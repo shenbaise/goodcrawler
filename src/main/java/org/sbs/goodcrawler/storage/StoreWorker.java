@@ -19,7 +19,8 @@ package org.sbs.goodcrawler.storage;
 
 import org.sbs.crawler.Worker;
 import org.sbs.goodcrawler.jobconf.StoreConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.queue.PendingStore;
+import org.sbs.goodcrawler.queue.PendingStore.ExtractedPage;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -31,15 +32,17 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 @SuppressWarnings("rawtypes")
 public abstract class StoreWorker<V, T> extends Worker{
 	
-	protected PendingStore pendingStore = PendingStore.getInstance();
+	protected PendingStore pendingStore = null;
 	protected StoreConfig conf;
 	protected Storage storage;
 	/**
 	 * 构造函数
 	 */
 	public StoreWorker(StoreConfig conf,Storage storage) {
+		super(conf.jobName);
 		this.conf = conf;
 		this.storage = storage;
+		this.pendingStore = PendingStore.getPendingStore(conf.jobName, conf.getQueueSize());
 	}
 	
 	/**
@@ -62,9 +65,18 @@ public abstract class StoreWorker<V, T> extends Worker{
 	 * @desc 存储
 	 */
 	public abstract StoreResult store(ExtractedPage<V, T> page);
-	
-	
+	/**
+	 * 在持久化之间，对抽取内容的进一步加工处理
+	 * @param page
+	 * @return
+	 */
+	public abstract ExtractedPage<V, T> preProcess(ExtractedPage<V, T> page);
+	/**
+	 * 处理流程
+	 * @param page
+	 */
 	public void work(ExtractedPage<V, T> page) {
+		page = preProcess(page);
 		StoreResult result = store(page);
 		if (null != result && null!=result.status){
 			switch (result.status) {
@@ -84,7 +96,6 @@ public abstract class StoreWorker<V, T> extends Worker{
 			onFailed(page);
 		}
 	}
-	
 	
 	public PendingStore getPendingStore() {
 		return pendingStore;
