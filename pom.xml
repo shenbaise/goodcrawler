@@ -193,7 +193,7 @@
 						<version>1.2.13</version>
 						<type>jar</type>
 					</dependency>
-					<!-- 模拟js -->
+					<!-- htmlunit -->
 					<dependency>
 						<groupId>net.sourceforge.htmlunit</groupId>
 						<artifactId>htmlunit</artifactId>
