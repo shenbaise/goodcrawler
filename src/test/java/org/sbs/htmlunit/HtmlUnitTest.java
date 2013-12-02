@@ -21,6 +21,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.jsoup.Jsoup;
+import org.sbs.goodcrawler.fetcher.Fetcher;
+import org.sbs.goodcrawler.fetcher.FetcherInstance;
+import org.sbs.goodcrawler.fetcher.PageFetchResult;
+import org.sbs.goodcrawler.fetcher.PageFetcher;
+import org.sbs.goodcrawler.urlmanager.WebURL;
+
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -44,7 +51,9 @@ public class HtmlUnitTest {
 			// testCrawler();
 //			baiduTest();
 			// testGoogle();
-			execJavaScript();
+//			execJavaScript();
+			get100Times_htmlunit();
+//			get100Times_httpclient();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -109,8 +118,8 @@ public class HtmlUnitTest {
 	 * @throws Exception
 	 */
 	public static void execJavaScript() throws Exception {
-		String TargetURL="http://person.sac.net.cn/pages/registration/sac-publicity.html";
-//		String TargetURL="http://www.baidu.com";
+		String url="http://person.sac.net.cn/pages/registration/sac-publicity.html";
+//		String url="http://www.baidu.com";
 		//模拟一个浏览器
 		final WebClient webClient=new WebClient(BrowserVersion.FIREFOX_17);
 //		final WebClient webClient=new WebClient(BrowserVersion.FIREFOX_10,"http://myproxyserver",8000);   //使用代理
@@ -122,7 +131,7 @@ public class HtmlUnitTest {
 		webClient.getOptions().setThrowExceptionOnScriptError(false);
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
 		//模拟浏览器打开一个目标网址
-		final HtmlPage page=webClient.getPage(TargetURL);
+		final HtmlPage page=webClient.getPage(url);
 		System.out.println("page.asText=" +page.asText());
 		System.out.println("page.getUrl=" +page.getUrl());
 		//page.executeJavaScript("javascript:searchFinishPerson('6655',2);");
@@ -132,5 +141,58 @@ public class HtmlUnitTest {
 		System.out.println("new page.asText="+newPage.asText());
 		System.out.println("new page.getUrl="+newPage.getUrl());
 	}
-
+	
+	
+	public static void get100Times_htmlunit(){
+		long c = System.currentTimeMillis();
+		String url="http://person.sac.net.cn/pages/registration/sac-publicity.html";
+//		String url="http://www.baidu.com/";
+		//模拟一个浏览器
+		final WebClient webClient=new WebClient(BrowserVersion.FIREFOX_17);
+//		final WebClient webClient=new WebClient(BrowserVersion.FIREFOX_10,"http://myproxyserver",8000);   //使用代理
+//		final WebClient webClient2=new WebClient(BrowserVersion.INTERNET_EXPLORER_10);
+		//设置webClient的相关参数
+		webClient.getOptions().setJavaScriptEnabled(true);
+		webClient.getOptions().setActiveXNative(false);
+		webClient.getOptions().setCssEnabled(false);
+		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+		System.out.println("init costs = "+(System.currentTimeMillis()-c));
+		c = System.currentTimeMillis();
+		//模拟浏览器打开一个目标网址
+		try {
+			for(int i=0;i<100;i++){
+				final HtmlPage page=webClient.getPage(url);
+				System.out.println(page.getTitleText());
+			}
+		} catch (FailingHttpStatusCodeException e) {
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("get costs = "+(System.currentTimeMillis()-c));
+		// about 243643 ms | 113722 ms
+	}
+	
+	public static void get100Times_httpclient(){
+		long c = System.currentTimeMillis();
+		String url="http://person.sac.net.cn/pages/registration/sac-publicity.html";
+		PageFetcher fetcher = FetcherInstance.getFetcher();
+		System.out.println("init costs = "+(System.currentTimeMillis()-c));
+		c = System.currentTimeMillis();
+		WebURL webUrl = new WebURL();
+		webUrl.setURL(url);
+		for(int i=0;i<100;i++){
+			PageFetchResult p = fetcher.fetchHeader(webUrl);
+			try {
+				Jsoup.parse(p.getEntity().getContent(), "gb2312", "http://person.sac.net.cn");
+			} catch (IllegalStateException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println("get costs = "+(System.currentTimeMillis()-c));
+		// about 22018 ms || 36952 ms
+	}
 }
