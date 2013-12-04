@@ -20,9 +20,9 @@ package org.sbs.htmlunit;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
-import org.jsoup.Jsoup;
-import org.sbs.goodcrawler.fetcher.Fetcher;
+import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.fetcher.FetcherInstance;
 import org.sbs.goodcrawler.fetcher.PageFetchResult;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
@@ -34,6 +34,7 @@ import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.ScriptResult;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -45,20 +46,21 @@ import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
  * @desc htmlunit 测试。
  */
 public class HtmlUnitTest {
-	
+
 	public static void main(String[] args) {
 		try {
 			// testCrawler();
-//			baiduTest();
+			// baiduTest();
 			// testGoogle();
-//			execJavaScript();
-			get100Times_htmlunit();
-//			get100Times_httpclient();
+			// execJavaScript();
+			// get100Times_htmlunit();
+			// get100Times_httpclient();
+			testYouku();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 百度form提交
 	 */
@@ -87,9 +89,10 @@ public class HtmlUnitTest {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * google form提交
+	 * 
 	 * @throws FailingHttpStatusCodeException
 	 * @throws IOException
 	 */
@@ -105,64 +108,134 @@ public class HtmlUnitTest {
 		HtmlPage p = ok.click();
 		System.out.println(p.asText());
 	}
-	
-	
-	public void testHomePage() throws FailingHttpStatusCodeException,MalformedURLException,IOException {
-		final WebClient webClient=new WebClient();
-		final HtmlPage startPage=webClient.getPage("http://www.baidu.com");
-		System.out.println("标题:"+startPage.getTitleText());
+
+	public void testHomePage() throws FailingHttpStatusCodeException,
+			MalformedURLException, IOException {
+		final WebClient webClient = new WebClient();
+		final HtmlPage startPage = webClient.getPage("http://www.baidu.com");
+		System.out.println("标题:" + startPage.getTitleText());
 	}
-	
+
 	/**
 	 * 执行js代码
+	 * 
 	 * @throws Exception
 	 */
 	public static void execJavaScript() throws Exception {
-		String url="http://person.sac.net.cn/pages/registration/sac-publicity.html";
-//		String url="http://www.baidu.com";
-		//模拟一个浏览器
-		final WebClient webClient=new WebClient(BrowserVersion.FIREFOX_17);
-//		final WebClient webClient=new WebClient(BrowserVersion.FIREFOX_10,"http://myproxyserver",8000);   //使用代理
-//		final WebClient webClient2=new WebClient(BrowserVersion.INTERNET_EXPLORER_10);
-		//设置webClient的相关参数
+		String url = "http://person.sac.net.cn/pages/registration/sac-publicity.html";
+		// String url="http://www.baidu.com";
+		// 模拟一个浏览器
+		final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_17);
+		// final WebClient webClient=new
+		// WebClient(BrowserVersion.FIREFOX_10,"http://myproxyserver",8000);
+		// //使用代理
+		// final WebClient webClient2=new
+		// WebClient(BrowserVersion.INTERNET_EXPLORER_10);
+		// 设置webClient的相关参数
 		webClient.getOptions().setJavaScriptEnabled(true);
 		webClient.getOptions().setActiveXNative(false);
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setThrowExceptionOnScriptError(false);
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-		//模拟浏览器打开一个目标网址
-		final HtmlPage page=webClient.getPage(url);
-		System.out.println("page.asText=" +page.asText());
-		System.out.println("page.getUrl=" +page.getUrl());
-		//page.executeJavaScript("javascript:searchFinishPerson('6655',2);");
+		// 模拟浏览器打开一个目标网址
+		final HtmlPage page = webClient.getPage(url);
+		System.out.println("page.asText=" + page.asText());
+		System.out.println("page.getUrl=" + page.getUrl());
+		// page.executeJavaScript("javascript:searchFinishPerson('6655',2);");
 		System.out.println("------------------");
-		ScriptResult sr=page.executeJavaScript("javascript:searchFinishPerson('6655',2);");
-		HtmlPage newPage=(HtmlPage)sr.getNewPage();
-		System.out.println("new page.asText="+newPage.asText());
-		System.out.println("new page.getUrl="+newPage.getUrl());
+		ScriptResult sr = page
+				.executeJavaScript("javascript:searchFinishPerson('6655',2);");
+		HtmlPage newPage = (HtmlPage) sr.getNewPage();
+		System.out.println("new page.asText=" + newPage.asText());
+		System.out.println("new page.getUrl=" + newPage.getUrl());
 	}
-	
-	
-	public static void get100Times_htmlunit(){
+
+	public static void testYouku() throws Exception {
+		String url = "http://v.youku.com/v_show/id_XNDc2MDkzMTIw.html";
+		String xurl = "http://v.youku.com/v_vpofficiallistv5/id_119023280_showid_271942_page_2?__rt=1&__ro=listitem_page2";
+		// String a = "<a page=\"2\">178-101</a>";
+		// String url="http://www.baidu.com";
+		// 模拟一个浏览器
+		final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_17);
+
+		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");
+		java.util.logging.Logger.getLogger("net.sourceforge.htmlunit").setLevel(java.util.logging.Level.OFF);
+		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		// final WebClient webClient=new
+		// WebClient(BrowserVersion.FIREFOX_10,"http://myproxyserver",8000);
+		// //使用代理
+		// final WebClient webClient2=new
+		// WebClient(BrowserVersion.INTERNET_EXPLORER_10);
+		// 设置webClient的相关参数
+		webClient.getOptions().setJavaScriptEnabled(true);
+		webClient.getOptions().setActiveXNative(false);
+		webClient.getOptions().setCssEnabled(false);
+		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		webClient.waitForBackgroundJavaScript(600*1000);
+		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+		
+		webClient.getOptions().setJavaScriptEnabled(true);  
+		/*
+		webClient.setJavaScriptTimeout(3600*1000);  
+		webClient.getOptions().setRedirectEnabled(true);  
+		webClient.getOptions().setThrowExceptionOnScriptError(true);  
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(true);  
+		webClient.getOptions().setTimeout(3600*1000);  
+		webClient.waitForBackgroundJavaScript(600*1000);  
+		*/
+//		webClient.waitForBackgroundJavaScript(600*1000);
+		webClient.setAjaxController(new NicelyResynchronizingAjaxController()); 
+		
+		// 模拟浏览器打开一个目标网址
+		final HtmlPage page = webClient.getPage(url);
+//		该方法在getPage()方法之后调用才能生效
+		webClient.waitForBackgroundJavaScript(1000*3);
+		webClient.setJavaScriptTimeout(0);
+//		Thread.sleep(1000 *3L);
+//		String js = "javascript:checkShowFollow('271942','2');";
+//		ScriptResult sr = page.executeJavaScript(js);
+//		HtmlPage newPage = (HtmlPage) sr.getNewPage();
+//		System.out.println("new page.asText=" + newPage.asText());
+//		System.out.println("page.asText=" + page.asText());
+//		System.out.println("page.getUrl=" + page.getUrl());
+		List links = (List) page.getByXPath("//*[@id=\"groups_tab\"]/div[1]/ul/li[1]/a");
+		if(null!=links){
+			System.out.println(links.size());
+			HtmlAnchor link = (HtmlAnchor) links.get(0);
+			System.out.println(link.asXml());
+			HtmlPage p = link.click();
+			
+			webClient.waitForBackgroundJavaScript(1000*3L);
+//			webClient.waitForBackgroundJavaScriptStartingBefore(1000L);
+//			Thread.sleep(3000L);
+			System.out.println(p.asText());
+		}
+	}
+
+	public static void get100Times_htmlunit() {
 		long c = System.currentTimeMillis();
-		String url="http://person.sac.net.cn/pages/registration/sac-publicity.html";
-//		String url="http://www.baidu.com/";
-		//模拟一个浏览器
-		final WebClient webClient=new WebClient(BrowserVersion.FIREFOX_17);
-//		final WebClient webClient=new WebClient(BrowserVersion.FIREFOX_10,"http://myproxyserver",8000);   //使用代理
-//		final WebClient webClient2=new WebClient(BrowserVersion.INTERNET_EXPLORER_10);
-		//设置webClient的相关参数
+		String url = "http://person.sac.net.cn/pages/registration/sac-publicity.html";
+		// String url="http://www.baidu.com/";
+		// 模拟一个浏览器
+		final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_17);
+		// final WebClient webClient=new
+		// WebClient(BrowserVersion.FIREFOX_10,"http://myproxyserver",8000);
+		// //使用代理
+		// final WebClient webClient2=new
+		// WebClient(BrowserVersion.INTERNET_EXPLORER_10);
+		// 设置webClient的相关参数
 		webClient.getOptions().setJavaScriptEnabled(true);
 		webClient.getOptions().setActiveXNative(false);
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setThrowExceptionOnScriptError(false);
 		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-		System.out.println("init costs = "+(System.currentTimeMillis()-c));
+		System.out.println("init costs = " + (System.currentTimeMillis() - c));
 		c = System.currentTimeMillis();
-		//模拟浏览器打开一个目标网址
+		// 模拟浏览器打开一个目标网址
 		try {
-			for(int i=0;i<100;i++){
-				final HtmlPage page=webClient.getPage(url);
+			for (int i = 0; i < 100; i++) {
+				final HtmlPage page = webClient.getPage(url);
 				System.out.println(page.getTitleText());
 			}
 		} catch (FailingHttpStatusCodeException e) {
@@ -172,27 +245,32 @@ public class HtmlUnitTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("get costs = "+(System.currentTimeMillis()-c));
+		System.out.println("get costs = " + (System.currentTimeMillis() - c));
 		// about 243643 ms | 113722 ms
 	}
-	
-	public static void get100Times_httpclient(){
+
+	public static void get100Times_httpclient() {
 		long c = System.currentTimeMillis();
-		String url="http://person.sac.net.cn/pages/registration/sac-publicity.html";
+		// String
+		// url="http://person.sac.net.cn/pages/registration/sac-publicity.html";
+		String url = "http://v.youku.com/v_show/id_XNDc2MDkzMTIw.html";
 		PageFetcher fetcher = FetcherInstance.getFetcher();
-		System.out.println("init costs = "+(System.currentTimeMillis()-c));
+		System.out.println("init costs = " + (System.currentTimeMillis() - c));
 		c = System.currentTimeMillis();
 		WebURL webUrl = new WebURL();
 		webUrl.setURL(url);
-		for(int i=0;i<100;i++){
+		for (int i = 0; i < 1; i++) {
 			PageFetchResult p = fetcher.fetchHeader(webUrl);
 			try {
-				Jsoup.parse(p.getEntity().getContent(), "gb2312", "http://person.sac.net.cn");
+				// Jsoup.parse(p.getEntity().getContent(), "gb2312",
+				// "http://person.sac.net.cn");
+				System.out.println(new String(p.getEntity().getContent()
+						.toString()));
 			} catch (IllegalStateException | IOException e) {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("get costs = "+(System.currentTimeMillis()-c));
+		System.out.println("get costs = " + (System.currentTimeMillis() - c));
 		// about 22018 ms || 36952 ms
 	}
 }
