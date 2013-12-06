@@ -199,13 +199,12 @@ public class HtmlUnitTest {
 //		System.out.println("new page.asText=" + newPage.asText());
 //		System.out.println("page.asText=" + page.asText());
 //		System.out.println("page.getUrl=" + page.getUrl());
-		List links = (List) page.getByXPath("//*[@id=\"groups_tab\"]/div[1]/ul/li[1]/a");
+		List links = (List) page.getByXPath ("//*[@id=\"groups_tab\"]/div[1]/ul/li[1]/a");
 		if(null!=links){
 			System.out.println(links.size());
 			HtmlAnchor link = (HtmlAnchor) links.get(0);
 			System.out.println(link.asXml());
 			HtmlPage p = link.click();
-			
 			webClient.waitForBackgroundJavaScript(1000*3L);
 //			webClient.waitForBackgroundJavaScriptStartingBefore(1000L);
 //			Thread.sleep(3000L);
