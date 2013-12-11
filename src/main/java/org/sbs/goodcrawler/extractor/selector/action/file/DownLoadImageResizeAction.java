@@ -84,6 +84,13 @@ public class DownLoadImageResizeAction extends FileSelectAction {
 			}
 		}else {
 			this.dynamicPath = Lists.newArrayList(StringUtils.substringsBetween(dir, "{", "}"));
+			// 非动态部分
+			String ss[] = StringUtils.split(dir, "/");
+			for(String s:ss){
+				if(!s.contains("{")){
+					this.dynamicPath.add(0, s);
+				}
+			}
 		}
 		this.md5File = md5File;
 		this.asynchronous = asynchronous;
@@ -107,6 +114,12 @@ public class DownLoadImageResizeAction extends FileSelectAction {
 			}
 		}else {
 			this.dynamicPath = Lists.newArrayList(StringUtils.substringsBetween(dir, "{", "}"));
+			String ss[] = StringUtils.split(dir, "/");
+			for(String s:ss){
+				if(!s.contains("{")){
+					this.dynamicPath.add(0, s);
+				}
+			}
 		}
 		this.md5File = md5File;
 	}
@@ -125,6 +138,12 @@ public class DownLoadImageResizeAction extends FileSelectAction {
 			}
 		}else {
 			this.dynamicPath = Lists.newArrayList(StringUtils.substringsBetween(dir, "{", "}"));
+			String ss[] = StringUtils.split(dir, "/");
+			for(String s:ss){
+				if(!s.contains("{")){
+					this.dynamicPath.add(0, s);
+				}
+			}
 		}
 		this.md5File = md5File;
 		this.asynchronous = asynchronous;
