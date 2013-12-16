@@ -111,6 +111,7 @@ public class BootStrap {
 					System.out.println(pendingPages.pendingStatus());
 					System.out.println(pendingStore.pendingStatus());
 				}
+//				System.exit(0);
 			}
 		};
 		
