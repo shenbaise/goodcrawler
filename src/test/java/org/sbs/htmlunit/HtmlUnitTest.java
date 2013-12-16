@@ -20,12 +20,15 @@ package org.sbs.htmlunit;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.LogFactory;
+import org.junit.Test;
 import org.sbs.goodcrawler.fetcher.FetcherInstance;
 import org.sbs.goodcrawler.fetcher.PageFetchResult;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
+import org.sbs.goodcrawler.fetcher.ResynchronizingAjaxController;
 import org.sbs.goodcrawler.urlmanager.WebURL;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
@@ -211,7 +214,100 @@ public class HtmlUnitTest {
 			System.out.println(p.asText());
 		}
 	}
+	
+	@Test
+	public void testYouku_n_Thread() throws Exception {
+		
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				final String url = "http://v.youku.com/v_show/id_XNDc2MDkzMTIw.html";
+				String xurl = "http://v.youku.com/v_vpofficiallistv5/id_119023280_showid_271942_page_2?__rt=1&__ro=listitem_page2";
+				// 模拟一个浏览器
+				final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_17);
 
+				LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");
+				java.util.logging.Logger.getLogger("net.sourceforge.htmlunit").setLevel(java.util.logging.Level.OFF);
+				webClient.getOptions().setThrowExceptionOnScriptError(false);
+				webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+				webClient.getOptions().setJavaScriptEnabled(true);
+				webClient.getOptions().setActiveXNative(false);
+				webClient.getOptions().setCssEnabled(false);
+				webClient.getOptions().setThrowExceptionOnScriptError(false);
+				webClient.setJavaScriptTimeout(0);
+				// 在同一个线程中调用此方法有效。
+				webClient.waitForBackgroundJavaScript(3*1000);
+				final ResynchronizingAjaxController ac = new ResynchronizingAjaxController();
+				webClient.setAjaxController(ac); 
+				try {
+					HtmlPage page = webClient.getPage(url);
+					webClient.setJavaScriptTimeout(0);
+					webClient.waitForBackgroundJavaScript(3*1000);
+					List links = (List) page.getByXPath ("//*[@id=\"groups_tab\"]/div[1]/ul/li[1]/a");
+					if(null!=links){
+						System.out.println(links.size());
+						HtmlAnchor link = (HtmlAnchor) links.get(0);
+						System.out.println(link.asXml());
+						System.err.println("now1 = " + (new Date().toLocaleString()));
+						link.click();
+//						webClient.waitForBackgroundJavaScript(3*1000);
+						System.out.println(" @@");
+						System.out.println( " t1 ### "+ac.getResynchronizedCallUlr(10000).toString());
+					}
+				} catch (FailingHttpStatusCodeException e) {
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}, "t1").start();
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				final String url = "http://v.youku.com/v_show/id_XNDc2MDkzMTIw.html";
+				String xurl = "http://v.youku.com/v_vpofficiallistv5/id_119023280_showid_271942_page_2?__rt=1&__ro=listitem_page2";
+				// 模拟一个浏览器
+				final WebClient webClient = new WebClient(BrowserVersion.FIREFOX_17);
+
+				LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log","org.apache.commons.logging.impl.NoOpLog");
+				java.util.logging.Logger.getLogger("net.sourceforge.htmlunit").setLevel(java.util.logging.Level.OFF);
+				webClient.getOptions().setThrowExceptionOnScriptError(false);
+				webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+				webClient.getOptions().setJavaScriptEnabled(true);
+				webClient.getOptions().setActiveXNative(false);
+				webClient.getOptions().setCssEnabled(false);
+				webClient.getOptions().setThrowExceptionOnScriptError(false);
+				webClient.setJavaScriptTimeout(0);
+				webClient.waitForBackgroundJavaScript(3*1000);
+				final ResynchronizingAjaxController ac = new ResynchronizingAjaxController();
+				webClient.setAjaxController(ac); 
+				try {
+					HtmlPage page = webClient.getPage(url);
+					webClient.setJavaScriptTimeout(0);
+					webClient.waitForBackgroundJavaScript(3*1000);
+					List links = (List) page.getByXPath ("//*[@id=\"groups_tab\"]/div[1]/ul/li[1]/a");
+					if(null!=links){
+						System.out.println(links.size());
+						HtmlAnchor link = (HtmlAnchor) links.get(0);
+						System.out.println(link.asXml());
+						System.err.println("now2 = " + (new Date().toLocaleString()));
+						Page p = link.click();
+						System.out.println( " t2 ### "+ac.getResynchronizedCallUlr().toString());
+//						System.out.println(p.getUrl().toString());
+					}
+				} catch (FailingHttpStatusCodeException e) {
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}, "t2").start();
+		
+	}
 	public static void get100Times_htmlunit() {
 		long c = System.currentTimeMillis();
 		String url = "http://person.sac.net.cn/pages/registration/sac-publicity.html";
