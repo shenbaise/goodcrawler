@@ -37,7 +37,7 @@ import com.google.common.collect.Sets;
  * @date 2013年10月13日
  * @desc 
  */
-public class DateElementCssSelector extends ElementCssSelector<Date> {
+public class DateElementCssSelector extends AbstractElementCssSelector<Date> {
 	
 	private Set<String> patterns = Sets.newHashSet(
 			"yyyy.MM.dd HH:mm:ss",

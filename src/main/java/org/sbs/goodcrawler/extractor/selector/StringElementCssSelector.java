@@ -35,7 +35,7 @@ import com.google.common.collect.Lists;
  * @date 2013年10月11日
  * @desc String 类型的选择器
  */
-public class StringElementCssSelector extends ElementCssSelector<String> {
+public class StringElementCssSelector extends AbstractElementCssSelector<String> {
 	
 	private String content;
 	private List<StringSelectorAction> actions = Lists.newArrayList();

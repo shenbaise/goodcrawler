@@ -45,11 +45,11 @@ import com.google.common.collect.Maps;
  * @date 2013年10月13日
  * @desc Url类别的选择器。该类别选择器抽取到Url后会进一步抓取该Url内容并根据配置进行再一次抽取。
  */
-public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Object>> {
+public class UrlElementCssSelector extends AbstractElementCssSelector<HashMap<String, Object>> {
 	/**
 	 * 该Url选择器下的选择器
 	 */
-	List<ElementCssSelector<?>> selectors = Lists.newArrayList();
+	List<AbstractElementCssSelector<?>> selectors = Lists.newArrayList();
 	/**
 	 * 该Url选择器下提取到的内容
 	 */
@@ -73,15 +73,15 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 	}
 	
 	
-	public List<ElementCssSelector<?>> getSelectors() {
+	public List<AbstractElementCssSelector<?>> getSelectors() {
 		return selectors;
 	}
 
-	public void setSelectors(List<ElementCssSelector<?>> selectors) {
+	public void setSelectors(List<AbstractElementCssSelector<?>> selectors) {
 		this.selectors = selectors;
 	}
 	
-	public void addSelector(ElementCssSelector<?> selector){
+	public void addSelector(AbstractElementCssSelector<?> selector){
 		this.selectors.add(selector);
 	}
 	@SuppressWarnings("unchecked")
@@ -142,7 +142,7 @@ public class UrlElementCssSelector extends ElementCssSelector<HashMap<String, Ob
 					
 			content = Maps.newHashMap();
 			if(selectors!=null)
-			for(ElementCssSelector<?> selector :selectors){
+			for(AbstractElementCssSelector<?> selector :selectors){
 				if(selector instanceof FileElementCssSelector){
 					Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
 							.setDocument(doc)

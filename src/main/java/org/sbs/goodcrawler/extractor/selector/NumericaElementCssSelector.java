@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
  * @date 2013年10月13日
  * @desc
  */
-public class NumericaElementCssSelector extends ElementCssSelector<Number> {
+public class NumericaElementCssSelector extends AbstractElementCssSelector<Number> {
 
 	NumberFormat format;
 	Number content;

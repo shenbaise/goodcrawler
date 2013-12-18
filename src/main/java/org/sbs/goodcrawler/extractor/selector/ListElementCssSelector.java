@@ -35,7 +35,7 @@ import com.google.common.collect.Lists;
  * @date 2013年10月13日
  * @desc 将以List<?>的方式返回提取的信息内容
  */
-public class ListElementCssSelector extends ElementCssSelector<List<String>> {
+public class ListElementCssSelector extends AbstractElementCssSelector<List<String>> {
 	
 	private List<String> contenList;
 	

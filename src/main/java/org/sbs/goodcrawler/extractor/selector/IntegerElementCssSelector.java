@@ -35,7 +35,7 @@ import com.google.common.collect.Lists;
  * @date 2013年10月13日
  * @desc 整型抽取器，如果抽取内容不正确则返回null
  */
-public class IntegerElementCssSelector extends ElementCssSelector<Integer> {
+public class IntegerElementCssSelector extends AbstractElementCssSelector<Integer> {
 	
 	private Integer content;
 	private List<IntegerSelectorAction> actions = Lists.newArrayList();

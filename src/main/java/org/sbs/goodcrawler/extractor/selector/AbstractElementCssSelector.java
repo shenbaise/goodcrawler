@@ -31,7 +31,7 @@ import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
  * <b>要获取新的document的内容必须先设置document。调用setDocument方法。
  */
 @SuppressWarnings("rawtypes")
-public abstract class ElementCssSelector<T> {
+public abstract class AbstractElementCssSelector<T> {
 	/**
 	 * 选择器名称
 	 */
@@ -56,17 +56,20 @@ public abstract class ElementCssSelector<T> {
 	 * 选择器要处理的文档
 	 */
 	protected Document document;
-	
-	
 	/**
 	 * 为true表示需要处理新的document<br>
 	 * false表示该document已经处理过
 	 */
 	protected boolean newDoc = true;
 	/**
+	 * 该element之上的action
+	 */
+//	protected List<SelectorAction> actions;
+	
+	/**
 	 * 构造器
 	 */
-	public ElementCssSelector(){};
+	public AbstractElementCssSelector(){};
 	
 	/**
 	 * 构造器
@@ -76,7 +79,7 @@ public abstract class ElementCssSelector<T> {
 	 * @param isRequired
 	 * @param document
 	 */
-	public ElementCssSelector(String name, String value, String attr,
+	public AbstractElementCssSelector(String name, String value, String attr,
 			boolean isRequired) {
 		super();
 		this.name = name;
@@ -103,7 +106,7 @@ public abstract class ElementCssSelector<T> {
 		return name;
 	}
 
-	public ElementCssSelector setName(String name) {
+	public AbstractElementCssSelector setName(String name) {
 		this.name = name;
 		return this;
 	}
@@ -112,7 +115,7 @@ public abstract class ElementCssSelector<T> {
 		return value;
 	}
 
-	public ElementCssSelector setValue(String value) {
+	public AbstractElementCssSelector setValue(String value) {
 		this.value = value;
 		return this;
 	}
@@ -121,7 +124,7 @@ public abstract class ElementCssSelector<T> {
 		return attr;
 	}
 
-	public ElementCssSelector setAttr(String attr) {
+	public AbstractElementCssSelector setAttr(String attr) {
 		this.attr = attr;
 		return this;
 	}
@@ -130,7 +133,7 @@ public abstract class ElementCssSelector<T> {
 		return isRequired;
 	}
 
-	public ElementCssSelector setRequired(boolean isRequired) {
+	public AbstractElementCssSelector setRequired(boolean isRequired) {
 		this.isRequired = isRequired;
 		return this;
 	}
@@ -139,7 +142,7 @@ public abstract class ElementCssSelector<T> {
 		return document;
 	}
 
-	public ElementCssSelector setDocument(Document document) {
+	public AbstractElementCssSelector setDocument(Document document) {
 		this.document = document;
 		this.newDoc = true;
 		return this;
@@ -150,12 +153,12 @@ public abstract class ElementCssSelector<T> {
 		return $Attr;
 	}
 
-	public ElementCssSelector set$Attr(SelectorAttr $Attr) {
+	public AbstractElementCssSelector set$Attr(SelectorAttr $Attr) {
 		this.$Attr = $Attr;
 		return this;
 	}
 
-	public ElementCssSelector setNewDoc(boolean newDoc) {
+	public AbstractElementCssSelector setNewDoc(boolean newDoc) {
 		this.newDoc = newDoc;
 		return this;
 	}
@@ -166,7 +169,4 @@ public abstract class ElementCssSelector<T> {
 	protected void isNewDoc(){
 		this.newDoc = true;
 	}
-	
-	
-	
 }

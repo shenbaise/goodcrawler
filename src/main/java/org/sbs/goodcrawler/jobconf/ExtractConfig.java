@@ -34,7 +34,7 @@ import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.conf.Configuration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.exception.ExtractException;
-import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
+import org.sbs.goodcrawler.extractor.selector.AbstractElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.FileElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.IFConditions;
 import org.sbs.goodcrawler.extractor.selector.factory.ElementCssSelectorFactory;
@@ -124,7 +124,7 @@ public class ExtractConfig extends Configuration {
 			Elements selectElement = template.select("elements").first().children();
 			for(Element element:selectElement){
 				if("element".equals(element.tagName())){
-					ElementCssSelector<?> selector = ElementCssSelectorFactory.create(element);
+					AbstractElementCssSelector<?> selector = ElementCssSelectorFactory.create(element);
 					extractTemplate.addCssSelector(selector);
 				}else if ("if".equals(element.tagName())) {
 					IFConditions ifConditions = IFConditions.create(element);
@@ -210,7 +210,7 @@ class ExtractTemplate{
 	/**
 	 * 该模板对应的css选择器，使用jsoup进行提取。
 	 */
-	private List<ElementCssSelector> cssSelectors = Lists.newArrayList();
+	private List<AbstractElementCssSelector> cssSelectors = Lists.newArrayList();
 	/**
 	 * 条件分支
 	 */
@@ -225,7 +225,7 @@ class ExtractTemplate{
 	public Map<String, Object> getConten(Document document) throws ExtractException{
 		try {
 			Map<String, Object> content = Maps.newHashMap();
-			for(ElementCssSelector<?> selector:cssSelectors){
+			for(AbstractElementCssSelector<?> selector:cssSelectors){
 				
 				if(selector instanceof FileElementCssSelector){
 					Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
@@ -252,7 +252,7 @@ class ExtractTemplate{
 					if(con.getConditions().contains("电视剧")){
 						System.out.println("..");
 					}
-					for(ElementCssSelector<?> selector:con.getSelectors()){
+					for(AbstractElementCssSelector<?> selector:con.getSelectors()){
 //						if("play1".equals(selector.getName())){
 //							System.out.println("断点哦");
 //						}
@@ -318,15 +318,15 @@ class ExtractTemplate{
 		this.urlPattern.add(urlPattern);
 	}
 
-	public List<ElementCssSelector> getCssSelectors() {
+	public List<AbstractElementCssSelector> getCssSelectors() {
 		return cssSelectors;
 	}
 	
-	public void setCssSelectors(List<ElementCssSelector> cssSelectors) {
+	public void setCssSelectors(List<AbstractElementCssSelector> cssSelectors) {
 		this.cssSelectors = cssSelectors;
 	}
 	
-	public void addCssSelector(ElementCssSelector<?> selector){
+	public void addCssSelector(AbstractElementCssSelector<?> selector){
 		this.cssSelectors.add(selector);
 	}
 	

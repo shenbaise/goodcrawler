@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.extractor.selector.DateElementCssSelector;
-import org.sbs.goodcrawler.extractor.selector.ElementCssSelector;
+import org.sbs.goodcrawler.extractor.selector.AbstractElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.FileElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.IntegerElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.ListElementCssSelector;
@@ -49,7 +49,7 @@ public class ElementCssSelectorFactory {
 	 * @param isRequired
 	 * @return
 	 */
-	private static ElementCssSelector<?> create(String name, String type,String value, String attr,
+	private static AbstractElementCssSelector<?> create(String name, String type,String value, String attr,
 			boolean isRequired){
 		SelectorType $type = SelectorType.valueOf("$"+type);
 		switch ($type) {
@@ -81,7 +81,7 @@ public class ElementCssSelectorFactory {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	public static ElementCssSelector create(Element element){
+	public static AbstractElementCssSelector create(Element element){
 		String name = element.attr("name");
 		String value = element.attr("value");
 		String type = element.attr("type");
@@ -91,7 +91,7 @@ public class ElementCssSelectorFactory {
 		if(StringUtils.isNotBlank(required)){
 			isRequired = Boolean.parseBoolean(required);
 		}
-		ElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired);
+		AbstractElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired);
 		// 检测子元素
 		Elements children = element.children();
 		for(Element e : children){

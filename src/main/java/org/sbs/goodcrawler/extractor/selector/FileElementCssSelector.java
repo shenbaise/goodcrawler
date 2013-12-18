@@ -35,7 +35,7 @@ import com.google.common.collect.Lists;
  * @desc 该选择元素需要配置相应的Action完成文件下载功能。该选择元素本身仅返回网页中相应的文本信息。
  * </br>该文本信息应该是一个Url格式的字符串，指向某个网络文件。
  */
-public class FileElementCssSelector extends ElementCssSelector<String> {
+public class FileElementCssSelector extends AbstractElementCssSelector<String> {
 	
 	private String content;
 	

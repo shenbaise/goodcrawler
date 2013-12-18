@@ -58,7 +58,7 @@ public class IFConditions {
 	/**
 	 * 条件辨别式对应的一组选择器
 	 */
-	protected List<ElementCssSelector> selectors = Lists.newArrayList();
+	protected List<AbstractElementCssSelector> selectors = Lists.newArrayList();
 	/**
 	 * 简单操作符号
 	 */
@@ -154,7 +154,7 @@ public class IFConditions {
 	public Map<String, Object> getContent(Document document) throws ExtractException{
 		if(null!=selectors && selectors.size()>0){
 			Map<String, Object> content = Maps.newHashMap();
-			for(ElementCssSelector<?> selector:selectors){
+			for(AbstractElementCssSelector<?> selector:selectors){
 				if(selector instanceof FileElementCssSelector){
 					Map m = ((FileElementCssSelector)selector).setResult(content)
 							.setDocument(document)
@@ -174,14 +174,14 @@ public class IFConditions {
 		return Maps.newHashMap();
 	}
 	
-	public List<ElementCssSelector> getSelectors() {
+	public List<AbstractElementCssSelector> getSelectors() {
 		return selectors;
 	}
-	public void setSelectors(List<ElementCssSelector> selectors) {
+	public void setSelectors(List<AbstractElementCssSelector> selectors) {
 		this.selectors = selectors;
 	}
 	
-	public void addSelector(ElementCssSelector selector){
+	public void addSelector(AbstractElementCssSelector selector){
 		this.selectors.add(selector);
 	}
 	

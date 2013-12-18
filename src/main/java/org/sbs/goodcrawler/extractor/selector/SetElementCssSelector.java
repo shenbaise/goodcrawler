@@ -37,7 +37,7 @@ import com.google.common.collect.Sets;
  * @date 2013年10月13日
  * @desc 将以Set的方式返回提取的信息内容
  */
-public class SetElementCssSelector extends ElementCssSelector<Set<String>> {
+public class SetElementCssSelector extends AbstractElementCssSelector<Set<String>> {
 	
 	private Set<String> content;
 	private List<StringSelectorAction> actions = Lists.newArrayList();
