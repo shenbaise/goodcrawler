@@ -33,6 +33,7 @@ public class HtmlAnchorElementOfPage extends AbstractHtmlElement<Page>{
 				try {
 					Page p = anchor.click();
 					webClient.waitForBackgroundJavaScript(1000*3L);
+					this.content = p;
 					return p;
 				} catch (IOException e) {
 					e.printStackTrace();

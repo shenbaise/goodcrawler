@@ -29,7 +29,7 @@ import org.sbs.goodcrawler.extractor.selector.NumericaElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.SelectorType;
 import org.sbs.goodcrawler.extractor.selector.SetElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.StringElementCssSelector;
-import org.sbs.goodcrawler.extractor.selector.UrlElementCssSelector;
+import org.sbs.goodcrawler.extractor.selector.PageElementSelector;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 import org.sbs.goodcrawler.extractor.selector.action.string.ActionFactory;
 
@@ -62,7 +62,7 @@ public class ElementCssSelectorFactory {
 		case $set:
 			return new SetElementCssSelector(name, value, attr, isRequired);
 		case $url:
-			return new UrlElementCssSelector(name, value, attr, isRequired);
+			return new PageElementSelector(name, value, attr, isRequired);
 		case $numerica:
 			return new NumericaElementCssSelector(name, value, attr, isRequired);
 		case $date:
@@ -102,7 +102,7 @@ public class ElementCssSelectorFactory {
 			}
 			// 只有Url类型的选择器嵌套自选择器
 			else if("element".equals(e.tagName())){
-				((UrlElementCssSelector)selector).addSelector(create(e));
+				((PageElementSelector)selector).addSelector(create(e));
 			}
 		}
 		return selector;

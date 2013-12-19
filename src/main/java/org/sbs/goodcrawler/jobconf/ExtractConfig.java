@@ -34,6 +34,7 @@ import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.conf.Configuration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.exception.ExtractException;
+import org.sbs.goodcrawler.extractor.GCElement;
 import org.sbs.goodcrawler.extractor.selector.AbstractElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.FileElementCssSelector;
 import org.sbs.goodcrawler.extractor.selector.IFConditions;
@@ -210,7 +211,7 @@ class ExtractTemplate{
 	/**
 	 * 该模板对应的css选择器，使用jsoup进行提取。
 	 */
-	private List<AbstractElementCssSelector> cssSelectors = Lists.newArrayList();
+	private List<GCElement> cssSelectors = Lists.newArrayList();
 	/**
 	 * 条件分支
 	 */
@@ -225,21 +226,22 @@ class ExtractTemplate{
 	public Map<String, Object> getConten(Document document) throws ExtractException{
 		try {
 			Map<String, Object> content = Maps.newHashMap();
-			for(AbstractElementCssSelector<?> selector:cssSelectors){
+			for(GCElement selector:cssSelectors){
 				
 				if(selector instanceof FileElementCssSelector){
-					Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
+					FileElementCssSelector s = (FileElementCssSelector)selector;
+					Map<String, Object> m = s.setResult(content)
 							.setDocument(document)
 							.getContentMap();
-					if((null==m || m.size()==0) && selector.isRequired()){
+					if((null==m || m.size()==0) && s.isRequired()){
 						return null;
 					}else {
 						if(null!=m && m.size()>0)
 							content.putAll(m);
 					}
-				}else{
-					Map<String, Object> m = selector.setDocument(document).getContentMap();
-					if((null==m || m.size()==0) && selector.isRequired()){
+				}else if(selector instanceof AbstractElementCssSelector){
+					Map<String, Object> m = ((AbstractElementCssSelector)selector).setDocument(document).getContentMap();
+					if((null==m || m.size()==0) && ((AbstractElementCssSelector)selector).isRequired()){
 						return null;
 					}else {
 						if(null!=m && m.size()>0)
@@ -318,11 +320,11 @@ class ExtractTemplate{
 		this.urlPattern.add(urlPattern);
 	}
 
-	public List<AbstractElementCssSelector> getCssSelectors() {
+	public List<GCElement> getCssSelectors() {
 		return cssSelectors;
 	}
 	
-	public void setCssSelectors(List<AbstractElementCssSelector> cssSelectors) {
+	public void setCssSelectors(List<GCElement> cssSelectors) {
 		this.cssSelectors = cssSelectors;
 	}
 	

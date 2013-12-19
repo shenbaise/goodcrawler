@@ -180,6 +180,9 @@
 							<action operation="suffix" suffix="/v.swf"/>
 						</element>
 					</element>
+					<elementx>
+						
+					</elementx>
 				</if>
 				<if test="category=动漫">
 					<element name="year" type="int" value=".title .pub" attr="text" required="true"/>

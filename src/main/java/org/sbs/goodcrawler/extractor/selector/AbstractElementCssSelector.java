@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.jsoup.nodes.Document;
 import org.sbs.goodcrawler.exception.ExtractException;
+import org.sbs.goodcrawler.extractor.GCElement;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 
 /**
@@ -31,7 +32,7 @@ import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
  * <b>要获取新的document的内容必须先设置document。调用setDocument方法。
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractElementCssSelector<T> {
+public abstract class AbstractElementCssSelector<T> implements GCElement{
 	/**
 	 * 选择器名称
 	 */

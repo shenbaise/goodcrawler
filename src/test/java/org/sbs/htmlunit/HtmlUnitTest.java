@@ -203,6 +203,9 @@ public class HtmlUnitTest {
 //		System.out.println("page.asText=" + page.asText());
 //		System.out.println("page.getUrl=" + page.getUrl());
 		List links = (List) page.getByXPath ("//*[@id=\"groups_tab\"]/div[1]/ul/li[1]/a");
+		HtmlAnchor anchor = page.getFirstByXPath("//*[@id=\"rkLst0\"]/table/tbody/tr[1]/td[2]/a");
+		System.out.println(anchor.getAttribute("href"));
+//		page.getHtmlElementById(id)
 		if(null!=links){
 			System.out.println(links.size());
 			HtmlAnchor link = (HtmlAnchor) links.get(0);

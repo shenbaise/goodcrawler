@@ -1,5 +1,5 @@
 /**
- * ########################  SHENBAISE'S WORK  ##########################
+ * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -18,25 +18,9 @@
 package org.sbs.goodcrawler.extractor;
 
 /**
- * @author whiteme
- * @date 2013年10月10日
- * @desc 选择元素。基础属性包括名称、css选择器|xpath、属性、是否是必须的required
+ * @author shenbaise（shenbaise1001@126.com）
+ * @desc 用GCPage替代UrlElementCssSelector。</br>同时增加htmlunit的HTMLPage。
  */
-public abstract class ElementCSS {
-	/**
-	 * 选择器名称
-	 */
-	protected String name;
-	/**
-	 * css selector
-	 */
-	protected String value;
-	/**
-	 * 选择器的属性，img、src、text等
-	 */
-	protected String atrr;
-	/**
-	 * 石佛required
-	 */
-	protected boolean isRequired;
+public interface GCPage {
+
 }

@@ -29,6 +29,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.exception.ExtractException;
+import org.sbs.goodcrawler.extractor.GCPage;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 import org.sbs.goodcrawler.fetcher.CustomFetchStatus;
 import org.sbs.goodcrawler.fetcher.PageFetchResult;
@@ -45,7 +46,7 @@ import com.google.common.collect.Maps;
  * @date 2013年10月13日
  * @desc Url类别的选择器。该类别选择器抽取到Url后会进一步抓取该Url内容并根据配置进行再一次抽取。
  */
-public class UrlElementCssSelector extends AbstractElementCssSelector<HashMap<String, Object>> {
+public class PageElementSelector extends AbstractElementCssSelector<HashMap<String, Object>> implements GCPage {
 	/**
 	 * 该Url选择器下的选择器
 	 */
@@ -63,11 +64,11 @@ public class UrlElementCssSelector extends AbstractElementCssSelector<HashMap<St
 	/**
 	 * 返回该Url选择器下子选择器提取到的内容
 	 */
-	public UrlElementCssSelector() {
+	public PageElementSelector() {
 		super();
 	}
 
-	public UrlElementCssSelector(String name, String value, String attr,
+	public PageElementSelector(String name, String value, String attr,
 			boolean isRequired) {
 		super(name, value, attr, isRequired);
 	}
