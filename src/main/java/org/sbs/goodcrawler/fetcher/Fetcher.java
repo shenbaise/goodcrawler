@@ -57,8 +57,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.goodcrawler.page.PageFetchResult;
 import org.sbs.url.URLCanonicalizer;
+import org.sbs.url.WebURL;
 
 
 /**

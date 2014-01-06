@@ -17,9 +17,11 @@
  */
 package org.sbs.goodcrawler.storage;
 
-import org.sbs.crawler.Worker;
+import org.sbs.goodcrawler.conf.Worker;
 import org.sbs.goodcrawler.jobconf.StoreConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.page.ExtractedPage;
+import org.sbs.pendingqueue.PendingManager;
+import org.sbs.pendingqueue.PendingStore;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -31,7 +33,7 @@ import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
 @SuppressWarnings("rawtypes")
 public abstract class StoreWorker<V, T> extends Worker{
 	
-	protected PendingStore pendingStore = PendingStore.getInstance();
+	protected PendingStore pendingStore = null;
 	protected StoreConfig conf;
 	protected Storage storage;
 	/**
@@ -40,6 +42,7 @@ public abstract class StoreWorker<V, T> extends Worker{
 	public StoreWorker(StoreConfig conf,Storage storage) {
 		this.conf = conf;
 		this.storage = storage;
+		this.pendingStore = PendingManager.getPendingStore(conf.jobName);
 	}
 	
 	/**

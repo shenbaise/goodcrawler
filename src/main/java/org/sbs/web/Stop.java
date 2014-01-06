@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sbs.goodcrawler.bootstrap.BootStrap;
 import org.sbs.goodcrawler.bootstrap.CrawlerStatus;
 
@@ -31,8 +32,12 @@ public class Stop extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("stop");
+		String jobId = request.getParameter("jobId");
+		if(StringUtils.isNotBlank(jobId)){
+			BootStrap.stop(jobId);
+		}
 		if(CrawlerStatus.running){
-			BootStrap.stop();
+			BootStrap.stopAll();
 		}
 		request.setAttribute("stop", "程序停止运行。。。");
 		request.getRequestDispatcher("index.jsp").forward(request, response);

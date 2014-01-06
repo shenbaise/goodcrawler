@@ -31,10 +31,15 @@ import java.security.NoSuchAlgorithmException;
 public class MD5Utils {
     
     private static final String ALGORIGTHM_MD5 = "MD5";
-    private static final int CACHE_SIZE = 2048;
+    private static final int CACHE_SIZE = 4096;
     
-    public static String createMD5(String input) throws Exception {
-        return createMD5(input, null);
+    public static String createMD5(String input) {
+        try {
+			return createMD5(input, null);
+		} catch (Exception e) {
+//			e.printStackTrace();
+			return null;
+		}
     }
     
     public static String createMD5(String input, String charset) throws Exception {

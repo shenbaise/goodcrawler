@@ -29,10 +29,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.goodcrawler.page.ExtractedPage;
+import org.sbs.goodcrawler.page.Page;
+import org.sbs.url.WebURL;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -63,7 +63,7 @@ public class DefaultExtractor extends Extractor {
 		                	url.setJobName(conf.jobName);
 		                	try {
 		                		// TODO 考虑队列容量，调整Url策略。
-								pendingUrls.addUrl(url);
+								pendingUrls.addElement(url);
 							} catch (QueueException e) {
 								 log.error(e.getMessage());
 							}
@@ -73,12 +73,12 @@ public class DefaultExtractor extends Extractor {
 		        // 抽取信息
 				try {
 					
-					epage = pendingStore.new ExtractedPage<String, Object>();
+					epage = new ExtractedPage<String, Object>();
 					Map<String, Object> result = conf.getContentSeprator(doc,page.getWebURL().getURL());
 					if(null!=result && result.size()>0){
 						epage.setUrl(page.getWebURL());
 						epage.setMessages((HashMap<String, Object>) result);
-						pendingStore.addExtracedPage(epage);
+						pendingStore.addElement(epage);
 						epage.setResult(ExtractResult.success);
 						return epage;
 					}

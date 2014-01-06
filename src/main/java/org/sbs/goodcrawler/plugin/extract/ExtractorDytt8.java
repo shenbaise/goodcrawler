@@ -17,24 +17,6 @@
  */
 package org.sbs.goodcrawler.plugin.extract;
 
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.extractor.Extractor;
-import org.sbs.goodcrawler.job.Page;
-import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.WebURL;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -42,19 +24,20 @@ import org.sbs.goodcrawler.urlmanager.WebURL;
  * extractor for 66ys
  * de precated . use defaultExtractor instead
  */
+/*
 @Deprecated
 public class ExtractorDytt8 extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
-	/**
+	*//**
 	 * @param conf
-	 */
+	 *//*
 	public ExtractorDytt8(ExtractConfig conf) {
 		super(conf);
 	}
 
-	/* (non-Javadoc)
+	 (non-Javadoc)
 	 * @see org.sbs.goodcrawler.extractor.Extractor#onExtract(org.sbs.goodcrawler.job.Page)
-	 */
+	 
 	@Override
 	public ExtractedPage<?, ?> onExtract(Page page) {
 		if(null!=page){
@@ -74,7 +57,7 @@ public class ExtractorDytt8 extends Extractor {
 		                		
 			                	url.setURL(linkHref);
 			                	url.setJobName(conf.jobName);
-								pendingUrls.addUrl(url);
+								pendingUrls.addElement(url);
 							} catch (QueueException e) {
 								 log.error(e.getMessage());
 							} catch (Exception e) {
@@ -208,26 +191,26 @@ public class ExtractorDytt8 extends Extractor {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	 (non-Javadoc)
 	 * @see org.sbs.goodcrawler.extractor.Extractor#beforeExtract(org.sbs.goodcrawler.job.Page)
-	 */
+	 
 	@Override
 	public ExtractedPage<?, ?> beforeExtract(Page page) {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	 (non-Javadoc)
 	 * @see org.sbs.goodcrawler.extractor.Extractor#afterExtract(org.sbs.goodcrawler.job.Page)
-	 */
+	 
 	@Override
 	public ExtractedPage<?, ?> afterExtract(Page page) {
 		return null;
 	}
 
-	/**
+	*//**
 	 * @param args
 	 * @desc 
-	 */
+	 *//*
 	public static void main(String[] args) {
 
 	}
@@ -330,3 +313,4 @@ public class ExtractorDytt8 extends Extractor {
 		return map;
 	}
 }
+*/

@@ -26,10 +26,10 @@ import java.util.List;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.sbs.goodcrawler.fetcher.FetcherInstance;
-import org.sbs.goodcrawler.fetcher.PageFetchResult;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
 import org.sbs.goodcrawler.fetcher.ResynchronizingAjaxController;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.goodcrawler.page.PageFetchResult;
+import org.sbs.url.WebURL;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;

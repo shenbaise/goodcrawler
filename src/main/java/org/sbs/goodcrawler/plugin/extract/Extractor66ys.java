@@ -34,10 +34,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.extractor.Extractor;
-import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.goodcrawler.page.ExtractedPage;
+import org.sbs.goodcrawler.page.Page;
+import org.sbs.url.WebURL;
 import org.sbs.util.BinaryDateDwonLoader;
 import org.sbs.util.CharUtil;
 import org.sbs.util.DateTimeUtil;
@@ -55,21 +55,21 @@ import com.google.common.collect.Sets;
  * extractor for 66ys
  * de precated . use defaultExtractor instead
  */
-@Deprecated
+/*@Deprecated
 public class Extractor66ys extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
 	private BinaryDateDwonLoader dwonLoader = BinaryDateDwonLoader.getInstance();
 	private int count = 0;
-	/**
+	*//**
 	 * @param conf
-	 */
+	 *//*
 	public Extractor66ys(ExtractConfig conf) {
 		super(conf);
 	}
 
-	/* (non-Javadoc)
+	 (non-Javadoc)
 	 * @see org.sbs.goodcrawler.extractor.Extractor#onExtract(org.sbs.goodcrawler.job.Page)
-	 */
+	 
 	@Override
 	public ExtractedPage<?, ?> onExtract(Page page) {
 		if(null!=page){
@@ -86,7 +86,7 @@ public class Extractor66ys extends Extractor {
 		                	url.setURL(linkHref);
 		                	url.setJobName(conf.jobName);
 		                	try {
-								pendingUrls.addUrl(url);
+								pendingUrls.addElement(url);
 							} catch (QueueException e) {
 								 log.error(e.getMessage());
 							}
@@ -306,26 +306,26 @@ public class Extractor66ys extends Extractor {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	 (non-Javadoc)
 	 * @see org.sbs.goodcrawler.extractor.Extractor#beforeExtract(org.sbs.goodcrawler.job.Page)
-	 */
+	 
 	@Override
 	public ExtractedPage<?, ?> beforeExtract(Page page) {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	 (non-Javadoc)
 	 * @see org.sbs.goodcrawler.extractor.Extractor#afterExtract(org.sbs.goodcrawler.job.Page)
-	 */
+	 
 	@Override
 	public ExtractedPage<?, ?> afterExtract(Page page) {
 		return null;
 	}
 
-	/**
+	*//**
 	 * @param args
 	 * @desc 
-	 */
+	 *//*
 	public static void main(String[] args) {
 		System.out.println(CharMatcher.anyOf("[]").removeFrom("shdflk [斯蒂芬] 斯蒂芬["));
 		System.out.println("2013.7.1央一、2013.7.7央八".split("[.]")[0]);
@@ -445,3 +445,4 @@ public class Extractor66ys extends Extractor {
 		return map;
 	}
 }
+*/

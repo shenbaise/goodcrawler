@@ -20,9 +20,9 @@ package org.sbs.goodcrawler.extractor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.page.ExtractedPage;
+import org.sbs.goodcrawler.page.Page;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -42,7 +42,7 @@ public class DefaultExtractWorker extends ExtractWorker {
 		Page page ;
 		while(!stop){
 			try {
-				while(null!=(page=pendingPages.getPage())){
+				while(null!=(page=pendingPages.getElementT())){
 					work(page);
 					if(stop)
 						break;
@@ -57,18 +57,18 @@ public class DefaultExtractWorker extends ExtractWorker {
 	public void onSuccessed(Page page) {
 		// ok
 		page = null;
-		pendingPages.success.incrementAndGet();
+		pendingPages.getSuccess().incrementAndGet();
 	}
 
 	@Override
 	public void onFailed(Page page) {
-		pendingPages.addFailedPage(page);
+//		pendingPages.addFailedPage(page);
+		pendingPages.getFailure().incrementAndGet();
 	}
 
 	@Override
 	public void onIgnored(Page page) {
-		pendingPages.ignored.incrementAndGet();
-		log.warn("忽略了一个链接："+ page.getWebURL().getURL());
+		pendingPages.getIgnored().incrementAndGet();
 	}
 
 	@Override

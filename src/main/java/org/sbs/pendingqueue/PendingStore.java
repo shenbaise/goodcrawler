@@ -1,5 +1,5 @@
 /**
- * ########################  SHENBAISE'S WORK  ##########################
+ * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,30 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.bootstrap;
+package org.sbs.pendingqueue;
 
-import org.sbs.pendingqueue.PendingPages;
-import org.sbs.pendingqueue.PendingStore;
-import org.sbs.pendingqueue.PendingUrls;
+import org.sbs.goodcrawler.page.ExtractedPage;
 
 /**
- * @author whiteme
- * @date 2013年7月31日
- * @desc 爬虫运行状态
+ * @author shenbaise(shenbaise@outlook.com)
+ * @date 2013-6-30
  */
-public class CrawlerStatus {
-	
-	public static boolean running = false;
-	
-	public static String getStatus(){
-		StringBuilder sb = new StringBuilder();
-//		sb.append(PendingUrls.getInstance().pendingStatus()).append("<br></br></br>")
-//		.append(PendingPages.getInstace().pendingStatus()).append("<br></br></br>")
-//		.append(PendingStore.getInstance().pendingStatus()).append("<br></br></br>");
-		return sb.toString();
-	}
-	
-	public static String getJobsNames(){
-		return BootStrap.getJobsNames();
+@SuppressWarnings("rawtypes")
+public class PendingStore extends AbsPendingQueue<ExtractedPage> {
+
+	private static final long serialVersionUID = 7211446103736928404L;
+
+	protected PendingStore(String jobName) {
+		super(jobName);
 	}
 }

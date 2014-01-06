@@ -1,5 +1,4 @@
 /**
- * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,34 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.storage;
-
-import org.sbs.goodcrawler.page.ExtractedPage;
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29
- * 爬虫的存储接口
  */
-public abstract class Storage<V, T> {
-	
-	public Storage(){
-	}
-	/**
-	 * @param object
-	 * @return
-	 * @desc 存储前
-	 */
-	public abstract StoreResult beforeStore();
-	/**
-	 * @param page
-	 * @return
-	 * @desc 存储时
-	 */
-	public abstract StoreResult onStore(ExtractedPage<V, T> page);
-	/**
-	 * @param page
-	 * @return
-	 * @desc 存储后
-	 */
-	public abstract StoreResult afterStore(ExtractedPage<V, T> page);
-}
+package org.sbs.url;

@@ -31,9 +31,9 @@ import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.conf.Configuration;
 import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.pendingqueue.PendingManager;
+import org.sbs.url.WebURL;
+import org.sbs.util.BloomfilterHelper;
 
 import com.google.common.collect.Lists;
 
@@ -432,7 +432,7 @@ public class FetchConfig extends Configuration{
 				this.seeds.add(seed);
 				url.setURL(seed);
 				try {
-					PendingUrls.getInstance().addUrl(url);
+					PendingManager.getPendingUlr(jobName).addElement(url);
 					BloomfilterHelper.getInstance().add(url.getURL());
 				} catch (QueueException e1) {
 					e1.printStackTrace();

@@ -52,10 +52,11 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParamBean;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
-import org.sbs.crawler.Configurable;
+import org.sbs.goodcrawler.conf.Configurable;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.goodcrawler.page.PageFetchResult;
 import org.sbs.url.URLCanonicalizer;
+import org.sbs.url.WebURL;
 
 
 /**

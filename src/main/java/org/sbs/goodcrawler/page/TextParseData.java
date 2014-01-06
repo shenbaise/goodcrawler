@@ -1,5 +1,4 @@
 /**
- * ########################  SHENBAISE'S WORK  ##########################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,30 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.bootstrap;
 
-import org.sbs.pendingqueue.PendingPages;
-import org.sbs.pendingqueue.PendingStore;
-import org.sbs.pendingqueue.PendingUrls;
+package org.sbs.goodcrawler.page;
 
-/**
- * @author whiteme
- * @date 2013年7月31日
- * @desc 爬虫运行状态
- */
-public class CrawlerStatus {
-	
-	public static boolean running = false;
-	
-	public static String getStatus(){
-		StringBuilder sb = new StringBuilder();
-//		sb.append(PendingUrls.getInstance().pendingStatus()).append("<br></br></br>")
-//		.append(PendingPages.getInstace().pendingStatus()).append("<br></br></br>")
-//		.append(PendingStore.getInstance().pendingStatus()).append("<br></br></br>");
-		return sb.toString();
+public class TextParseData implements ParseData {
+
+	private String textContent;
+
+	public String getTextContent() {
+		return textContent;
+	}
+
+	public void setTextContent(String textContent) {
+		this.textContent = textContent;
 	}
 	
-	public static String getJobsNames(){
-		return BootStrap.getJobsNames();
+	@Override
+	public String toString() {
+		return textContent;
 	}
+	
 }

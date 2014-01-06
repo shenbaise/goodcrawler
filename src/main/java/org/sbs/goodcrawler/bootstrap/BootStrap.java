@@ -22,25 +22,32 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.nodes.Document;
-import org.sbs.crawler.Worker;
 import org.sbs.goodcrawler.bootstrap.foreman.ExtractForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.bootstrap.foreman.StoreForeman;
 import org.sbs.goodcrawler.conf.JobConfigurationManager;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
+import org.sbs.goodcrawler.conf.Worker;
 import org.sbs.goodcrawler.exception.ConfigurationException;
-import org.sbs.goodcrawler.fetcher.PendingPages;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
 import org.sbs.goodcrawler.jobconf.StoreConfig;
-import org.sbs.goodcrawler.storage.PendingStore;
-import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
+import org.sbs.pendingqueue.PendingManager;
+import org.sbs.pendingqueue.PendingPages;
+import org.sbs.pendingqueue.PendingStore;
+import org.sbs.pendingqueue.PendingUrls;
+import org.sbs.util.BloomfilterHelper;
+import org.sbs.util.MD5Utils;
+
+import com.google.common.collect.Maps;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -49,8 +56,8 @@ import org.sbs.goodcrawler.urlmanager.PendingUrls;
  */
 public class BootStrap {
 	private static Log log = LogFactory.getLog("bootStrap");
-	private static PropertyConfigurationHelper conHelper = PropertyConfigurationHelper.getInstance();
-	private static String jobs = "";
+	private static PropertyConfigurationHelper propertyHelper = PropertyConfigurationHelper.getInstance();
+	private static Map<String, String> jobs = Maps.newConcurrentMap();
 	/**
 	 * @param args
 	 * @desc 
@@ -90,16 +97,13 @@ public class BootStrap {
 			StoreForeman storeForeman = new StoreForeman();
 			storeForeman.start(sConfig.loadConfig(doc));
 			log.info("Store加载完成");
-			BootStrap.jobs += sConfig.jobName + ";";
+			jobs.put(MD5Utils.createMD5(fConfig.jobName),fConfig.jobName);
 		}
 		
 		/**
 		 * 状态监听
 		 */
 		Runnable runnable = new Runnable() {
-			PendingUrls pendingUrls = PendingUrls.getInstance();
-			PendingPages pendingPages = PendingPages.getInstace();
-			PendingStore pendingStore = PendingStore.getInstance();
 			@Override
 			public void run() {
 				while(!Worker.stop){
@@ -107,9 +111,12 @@ public class BootStrap {
 						Thread.sleep(20000L);
 					} catch (InterruptedException e) {
 					}
-					System.out.println(pendingUrls.pendingStatus());
-					System.out.println(pendingPages.pendingStatus());
-					System.out.println(pendingStore.pendingStatus());
+					Collection<String> js = jobs.values();
+					for(String job:js){
+						System.out.println("job="+job+"\n"+PendingManager.getPendingUlr(job).pendingStatus());
+						System.out.println("job="+job+"\n"+PendingManager.getPendingPages(job).pendingStatus());
+						System.out.println("job="+job+"\n"+PendingManager.getPendingStore(job).pendingStatus());
+					}
 				}
 //				System.exit(0);
 			}
@@ -124,27 +131,35 @@ public class BootStrap {
 	/**
 	 * 停止抓取&保存状态
 	 */
-	public static void stop(){
+	public synchronized static void stop(String jobId){
 		Worker.stop();
-		saveStatus();
+		saveStatus(jobId);
+	}
+	/**
+	 * stop all
+	 */
+	public synchronized static void stopAll(){
+		for(String job:jobs.keySet()){
+			stop(job);
+		}
 		CrawlerStatus.running = false;
 	}
 	/**
 	 * 保存状态，下次启动时可恢复
 	 */
-	private static void saveStatus(){
-		PendingUrls urls = PendingUrls.getInstance();
-		PendingPages pages = PendingPages.getInstace();
-		PendingStore stores = PendingStore.getInstance();
+	private static void saveStatus(String jobId){
+		PendingUrls urls = PendingManager.getPendingUlr(jobs.get(jobId));
+		PendingPages pages = PendingManager.getPendingPages(jobs.get(jobId));
+		PendingStore stores = PendingManager.getPendingStore(jobs.get(jobId));
 		BloomfilterHelper bloomfilter = BloomfilterHelper.getInstance();
 		
-		File base = new File(conHelper.getString("status.save.path", "status"));
+		File base = new File(propertyHelper.getString("status.save.path", "status"));
 		if (!base.exists()) {
 			base.mkdir();
 		}
-		File urlsFile = new File(base, "urls.good");
-		File pagesFile = new File(base,"pages.good");
-		File storesFile = new File(base,"stores.good");
+		File urlsFile = new File(base, jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
+		File pagesFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
+		File storesFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
 		File filterFile = new File(base,"filter.good");
 		
 		try {
@@ -180,6 +195,11 @@ public class BootStrap {
 	}
 	
 	public static String getJobsNames(){
-		return jobs;
+		Collection<String> js = jobs.values();
+		return StringUtils.join(js, ",");
+	}
+	
+	public static String getJobids(){
+		return StringUtils.join(jobs.keySet(),",");
 	}
 }

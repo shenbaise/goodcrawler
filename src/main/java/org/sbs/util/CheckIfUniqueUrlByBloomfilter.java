@@ -15,34 +15,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.storage;
+package org.sbs.util;
 
-import org.sbs.goodcrawler.page.ExtractedPage;
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-6-29
- * 爬虫的存储接口
  */
-public abstract class Storage<V, T> {
+public class CheckIfUniqueUrlByBloomfilter implements CheckIfUniqueUrl {
+
+	/**
+	 * BloomFilter实例
+	 */
+	private static BloomFilter<String> bloomFilter = new BloomFilter<String>(0.001, 1024*1024);
+	/**
+	 * CheckIfUniqueUrlByBloomfilter单例
+	 */
+	private CheckIfUniqueUrlByBloomfilter instance = null;
 	
-	public Storage(){
+	private CheckIfUniqueUrlByBloomfilter(){};
+	
+	/**
+	 * @desc 返回单例
+	 */
+	public CheckIfUniqueUrlByBloomfilter getInstance(){
+		if(instance==null){
+			instance = new CheckIfUniqueUrlByBloomfilter();
+		}
+		return instance;
 	}
-	/**
-	 * @param object
-	 * @return
-	 * @desc 存储前
+	
+	/* (non-Javadoc)
+	 * @see org.sbs.goodcrawler.urlmanager.CheckIfUniqueUrl#isDuplicate(java.lang.String)
 	 */
-	public abstract StoreResult beforeStore();
-	/**
-	 * @param page
-	 * @return
-	 * @desc 存储时
-	 */
-	public abstract StoreResult onStore(ExtractedPage<V, T> page);
-	/**
-	 * @param page
-	 * @return
-	 * @desc 存储后
-	 */
-	public abstract StoreResult afterStore(ExtractedPage<V, T> page);
+	@Override
+	public boolean isDuplicate(String url) {
+		boolean b = bloomFilter.contains(url);
+		if(!b)
+			bloomFilter.add(url);
+		return b;
+	}
+	
 }

@@ -17,30 +17,6 @@
  */
 package org.sbs.goodcrawler.plugin.extract;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.extractor.Extractor;
-import org.sbs.goodcrawler.job.Page;
-import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.WebURL;
-import org.sbs.util.Submitor;
-
-import com.google.common.base.CharMatcher;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * @author whiteme
@@ -48,6 +24,7 @@ import com.google.common.collect.Sets;
  * @desc 
  * de precated . use defaultExtractor instead
  */
+/*
 @Deprecated
 public class ExtractYouku extends Extractor {
 	private Log log = LogFactory.getLog(this.getClass());
@@ -85,11 +62,11 @@ public class ExtractYouku extends Extractor {
 		return null;
 	}
 	
-	/**
+	*//**
 	 * 返回影视资源信息
 	 * @param url
 	 * @return
-	 */
+	 *//*
 	public HashMap<String, Object> getInformation(Page page){
 		HashMap<String, Object> map = Maps.newHashMap();
 		String url = page.getWebURL().getURL();
@@ -106,7 +83,7 @@ public class ExtractYouku extends Extractor {
 	                	WebURL weburl = new WebURL();
 	                	weburl.setURL(linkHref);
 	                	weburl.setJobName(conf.jobName);
-	                	Submitor.submitUrl(weburl);
+//	                	Submitor.submitUrl(weburl);
 	                }
 	            }
 	        }
@@ -192,7 +169,7 @@ public class ExtractYouku extends Extractor {
 		                	weburl.setURL(linkHref);
 		                	weburl.setJobName(conf.jobName);
 		                	try {
-								pendingUrls.addUrl(weburl);
+								pendingUrls.addElement(weburl);
 							} catch (QueueException e) {
 								 log.error(e.getMessage());
 							}
@@ -232,7 +209,7 @@ public class ExtractYouku extends Extractor {
 		                	weburl.setURL(linkHref);
 		                	weburl.setJobName(conf.jobName);
 		                	try {
-								pendingUrls.addUrl(weburl);
+								pendingUrls.addElement(weburl);
 							} catch (QueueException e) {
 								 log.error(e.getMessage());
 							}
@@ -322,3 +299,4 @@ public class ExtractYouku extends Extractor {
 		
 	}
 }
+*/

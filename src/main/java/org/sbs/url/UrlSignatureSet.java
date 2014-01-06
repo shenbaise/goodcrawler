@@ -1,5 +1,5 @@
 /**
- * ########################  SHENBAISE'S WORK  ##########################
+ * ##########################  GoodCrawler  ############################
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,30 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sbs.goodcrawler.bootstrap;
+package org.sbs.url;
 
-import org.sbs.pendingqueue.PendingPages;
-import org.sbs.pendingqueue.PendingStore;
-import org.sbs.pendingqueue.PendingUrls;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * @author whiteme
- * @date 2013年7月31日
- * @desc 爬虫运行状态
+ * @author shenbaise(shenbaise@outlook.com)
+ * @date 2013-6-29
+ * 保存Url的签名信息，md5或者simhash
+ * 已经废弃，去重复使用bloomfilter实现
  */
-public class CrawlerStatus {
+@Deprecated 
+public class UrlSignatureSet {
+	private static Set<String> signatureSet =  new HashSet<>(1024*1024*10);
 	
-	public static boolean running = false;
-	
-	public static String getStatus(){
-		StringBuilder sb = new StringBuilder();
-//		sb.append(PendingUrls.getInstance().pendingStatus()).append("<br></br></br>")
-//		.append(PendingPages.getInstace().pendingStatus()).append("<br></br></br>")
-//		.append(PendingStore.getInstance().pendingStatus()).append("<br></br></br>");
-		return sb.toString();
+	public static void add(String b){
+		signatureSet.add(b);
 	}
 	
-	public static String getJobsNames(){
-		return BootStrap.getJobsNames();
+	public static boolean duplicate(String b){	
+		return signatureSet.equals(b);
 	}
 }

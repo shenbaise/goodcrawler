@@ -32,10 +32,10 @@ import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.GCPage;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
 import org.sbs.goodcrawler.fetcher.CustomFetchStatus;
-import org.sbs.goodcrawler.fetcher.PageFetchResult;
-import org.sbs.goodcrawler.job.Page;
-import org.sbs.goodcrawler.job.Parser;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.goodcrawler.page.Page;
+import org.sbs.goodcrawler.page.PageFetchResult;
+import org.sbs.goodcrawler.page.Parser;
+import org.sbs.url.WebURL;
 import org.sbs.util.UrlUtils;
 
 import com.google.common.collect.Lists;

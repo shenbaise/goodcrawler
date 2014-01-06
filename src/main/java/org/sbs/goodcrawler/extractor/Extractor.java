@@ -18,13 +18,14 @@
 package org.sbs.goodcrawler.extractor;
 
 import org.sbs.goodcrawler.fetcher.FetchWorker;
-import org.sbs.goodcrawler.job.Page;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
-import org.sbs.goodcrawler.storage.PendingStore;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
-import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
+import org.sbs.goodcrawler.page.ExtractedPage;
+import org.sbs.goodcrawler.page.Page;
+import org.sbs.pendingqueue.PendingManager;
+import org.sbs.pendingqueue.PendingStore;
+import org.sbs.pendingqueue.PendingUrls;
 import org.sbs.robotstxt.RobotstxtServer;
+import org.sbs.util.BloomfilterHelper;
 import org.sbs.util.UrlUtils;
 
 /**
@@ -35,8 +36,8 @@ import org.sbs.util.UrlUtils;
 public abstract class Extractor {
 	
 	public ExtractConfig conf = null;
-	public PendingUrls pendingUrls = PendingUrls.getInstance();
-	public PendingStore pendingStore = PendingStore.getInstance();
+	public PendingUrls pendingUrls = null;
+	public PendingStore pendingStore = null;
 	public BloomfilterHelper bloomfilterHelper = BloomfilterHelper.getInstance();
 	public UrlUtils urlUtils = new UrlUtils();
 	protected RobotstxtServer robotstxtServer;
@@ -48,6 +49,8 @@ public abstract class Extractor {
 	public Extractor(ExtractConfig conf){
 		this.conf = conf;
 		robotstxtServer = FetchWorker.robotstxtServer;
+		this.pendingStore = PendingManager.getPendingStore(conf.jobName);
+		this.pendingUrls = PendingManager.getPendingUlr(conf.jobName);
 	}
 	
 	

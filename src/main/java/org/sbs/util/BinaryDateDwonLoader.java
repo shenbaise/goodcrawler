@@ -37,7 +37,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.sbs.goodcrawler.fetcher.CustomFetchStatus;
-import org.sbs.goodcrawler.fetcher.PageFetchResult;
+import org.sbs.goodcrawler.page.PageFetchResult;
 import org.sbs.url.URLCanonicalizer;
 
 /**

@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.jobconf.StoreConfig;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.page.ExtractedPage;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -45,7 +45,7 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 		while(!stop) {
 			try {
 				while(!pendingStore.isEmpty() && !stop){
-					page = pendingStore.getExtractedPage();
+					page = pendingStore.getElementT();
 					work(page);
 				}
 			} catch (QueueException e) {
@@ -57,19 +57,19 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	@Override
 	public void onSuccessed(ExtractedPage<V, T> page) {
 		page = null;
-		pendingStore.success.incrementAndGet();
+		pendingStore.getSuccess().incrementAndGet();
 	}
 
 	@Override
 	public void onFailed(ExtractedPage<V, T> page) {
 		page = null;
-		pendingStore.failure.incrementAndGet();
+		pendingStore.getFailure().incrementAndGet();
 	}
 
 	@Override
 	public void onIgnored(ExtractedPage<V, T> page) {
 		page = null;
-		pendingStore.ignored.incrementAndGet();
+		pendingStore.getIgnored().incrementAndGet();
 	}
 
 	@Override

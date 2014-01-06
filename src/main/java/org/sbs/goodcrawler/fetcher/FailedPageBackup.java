@@ -30,11 +30,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.crawler.Worker;
 import org.sbs.goodcrawler.conf.GlobalConstants;
 import org.sbs.goodcrawler.conf.PropertyConfigurationHelper;
+import org.sbs.goodcrawler.conf.Worker;
 import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.job.Page;
+import org.sbs.goodcrawler.page.Page;
 import org.sbs.util.DateTimeUtil;
 
 /**

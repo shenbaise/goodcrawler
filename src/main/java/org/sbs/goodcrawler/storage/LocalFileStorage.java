@@ -26,7 +26,7 @@ import net.sf.json.JsonConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sbs.goodcrawler.storage.PendingStore.ExtractedPage;
+import org.sbs.goodcrawler.page.ExtractedPage;
 import org.sbs.goodcrawler.storage.StoreResult.Status;
 
 

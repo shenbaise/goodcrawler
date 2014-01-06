@@ -30,16 +30,19 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.sbs.crawler.Worker;
+import org.sbs.goodcrawler.conf.Worker;
 import org.sbs.goodcrawler.exception.QueueException;
-import org.sbs.goodcrawler.job.Page;
-import org.sbs.goodcrawler.job.Parser;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
-import org.sbs.goodcrawler.urlmanager.BloomfilterHelper;
-import org.sbs.goodcrawler.urlmanager.PendingUrls;
-import org.sbs.goodcrawler.urlmanager.WebURL;
+import org.sbs.goodcrawler.page.Page;
+import org.sbs.goodcrawler.page.PageFetchResult;
+import org.sbs.goodcrawler.page.Parser;
+import org.sbs.pendingqueue.PendingManager;
+import org.sbs.pendingqueue.PendingPages;
+import org.sbs.pendingqueue.PendingUrls;
 import org.sbs.robotstxt.RobotstxtConfig;
 import org.sbs.robotstxt.RobotstxtServer;
+import org.sbs.url.WebURL;
+import org.sbs.util.BloomfilterHelper;
 import org.sbs.util.UrlUtils;
 
 import com.google.common.collect.Lists;
@@ -56,11 +59,11 @@ public abstract class FetchWorker extends Worker {
 	/**
 	 * url队列
 	 */
-	protected PendingUrls pendingUrls = PendingUrls.getInstance();
+	protected PendingUrls pendingUrls = null;
 	/**
 	 * Page队列
 	 */
-	protected PendingPages pendingPages = PendingPages.getInstace();
+	protected PendingPages pendingPages = null;
 	/**
 	 * 爬取器
 	 */
@@ -88,6 +91,10 @@ public abstract class FetchWorker extends Worker {
 	 */
 	public FetchWorker(FetchConfig conf){
 		this.conf = conf;
+		
+		pendingUrls = PendingManager.getPendingUlr(conf.jobName);
+		pendingPages = PendingManager.getPendingPages(conf.jobName);
+		
 		parser = new Parser(conf.isFetchBinaryContent());
 		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
 		robotstxtConfig.setCacheSize(1000);
@@ -211,7 +218,7 @@ public abstract class FetchWorker extends Worker {
 						}
 						// 是否加入抽取队列
 						if(extractFilter(url.getURL())){
-							pendingPages.addPage(page);
+							pendingPages.addElement(page);
 						}
 						
 						// 提取Url，放入待抓取Url队列
@@ -227,7 +234,7 @@ public abstract class FetchWorker extends Worker {
 				                	purl.setURL(linkHref);
 				                	purl.setJobName(conf.jobName);
 				                	try {
-										if(!pendingUrls.addUrl(purl,1000)){
+										if(!pendingUrls.addElement(purl,1000)){
 											FileUtils.writeStringToFile(new File("status/_urls.good"), url.getURL()+"\n", true);
 										}
 									} catch (QueueException e) {
