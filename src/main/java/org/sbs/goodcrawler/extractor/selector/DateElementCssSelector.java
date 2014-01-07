@@ -90,10 +90,10 @@ public class DateElementCssSelector extends AbstractElementCssSelector<Date> {
 				String temp;
 				switch ($Attr) {
 				case text:
-					temp = CharMatcher.DIGIT.retainFrom(elements.text());
+					temp = CharMatcher.DIGIT.retainFrom(elements.first().text());
 					break;
 				default:
-					temp = CharMatcher.DIGIT.retainFrom(elements.attr(attr));
+					temp = CharMatcher.DIGIT.retainFrom(elements.first().attr(attr));
 					break;
 				}
 				if(StringUtils.isNotBlank(temp)){

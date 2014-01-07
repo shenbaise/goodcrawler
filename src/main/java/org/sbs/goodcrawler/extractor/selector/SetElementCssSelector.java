@@ -61,6 +61,9 @@ public class SetElementCssSelector extends AbstractElementCssSelector<Set<String
 				Elements elements = super.document.select(value);
 				if(elements.isEmpty())
 					return null;
+				if($Attr==null){
+					System.out.println(toString());
+				}
 				switch ($Attr) {
 				case text:
 					for (Element e : elements) {
@@ -117,4 +120,31 @@ public class SetElementCssSelector extends AbstractElementCssSelector<Set<String
 	public void setActions(List<StringSelectorAction> actions) {
 		this.actions = actions;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SetElementCssSelector [content=");
+		builder.append(content);
+		builder.append(", actions=");
+		builder.append(actions);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append(", value=");
+		builder.append(value);
+		builder.append(", attr=");
+		builder.append(attr);
+		builder.append(", $Attr=");
+		builder.append($Attr);
+		builder.append(", isRequired=");
+		builder.append(isRequired);
+		builder.append(", document=");
+		builder.append(document);
+		builder.append(", newDoc=");
+		builder.append(newDoc);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+	
 }

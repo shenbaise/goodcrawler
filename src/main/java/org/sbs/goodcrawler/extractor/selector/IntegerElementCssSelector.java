@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.selector.action.IntegerSelectorAction;
@@ -36,7 +38,7 @@ import com.google.common.collect.Lists;
  * @desc 整型抽取器，如果抽取内容不正确则返回null
  */
 public class IntegerElementCssSelector extends AbstractElementCssSelector<Integer> {
-	
+	private Log log = LogFactory.getLog(IntegerElementCssSelector.class);
 	private Integer content;
 	private List<IntegerSelectorAction> actions = Lists.newArrayList();
 	
@@ -51,22 +53,23 @@ public class IntegerElementCssSelector extends AbstractElementCssSelector<Intege
 
 	@Override
 	public Integer getContent() throws ExtractException{
+		Elements elements = null;
 		try {
 			// 如果content不为空且不是新文档，则表示是同一个document的2+次调用，不用重新计算
 			if(null!=content && !newDoc){
 				return content;
 			}
 			if(null!=document){
-				Elements elements = super.document.select(value);
+				elements = super.document.select(value);
 				if(elements.isEmpty())
 					return null;
 				String temp;
 				switch ($Attr) {
 				case text:
-					temp = CharMatcher.DIGIT.retainFrom(elements.text());
+					temp = CharMatcher.DIGIT.retainFrom(elements.first().text());
 					break;
 				default:
-					temp = CharMatcher.DIGIT.retainFrom(elements.attr(attr));
+					temp = CharMatcher.DIGIT.retainFrom(elements.first().attr(attr));
 					break;
 				}
 				
@@ -85,6 +88,7 @@ public class IntegerElementCssSelector extends AbstractElementCssSelector<Intege
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			log.error(elements.toString());
 			throw new ExtractException("信息提取错误:"+e.getMessage());
 		}
 		return null;
