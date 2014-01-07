@@ -89,7 +89,7 @@ public abstract class FetchWorker extends Worker {
 	 * @param conf
 	 * 构造函数，未提供爬取器，需通过setFetcher方法设置Fetcher
 	 */
-	public FetchWorker(FetchConfig conf){
+	private FetchWorker(FetchConfig conf){
 		this.conf = conf;
 		
 		pendingUrls = PendingManager.getPendingUlr(conf.jobName);
@@ -119,6 +119,8 @@ public abstract class FetchWorker extends Worker {
 	public FetchWorker(FetchConfig conf,PageFetcher fetcher){
 		this.fetcher = fetcher;
 		this.conf = conf;
+		pendingUrls = PendingManager.getPendingUlr(conf.jobName);
+		pendingPages = PendingManager.getPendingPages(conf.jobName);
 		parser = new Parser(conf.isFetchBinaryContent());
 		RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
 		robotstxtConfig.setCacheSize(1000);
@@ -134,8 +136,8 @@ public abstract class FetchWorker extends Worker {
 		for(String s:urls2){
 			extractFilters.add(Pattern.compile(s));
 		}
-		
 	}
+	
 	public FetchWorker setFetcher(final PageFetcher fetcher){
 		this.fetcher = fetcher;
 		return this;

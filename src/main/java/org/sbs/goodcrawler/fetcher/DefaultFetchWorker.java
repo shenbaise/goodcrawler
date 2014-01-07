@@ -30,10 +30,6 @@ import org.sbs.url.WebURL;
  */
 public class DefaultFetchWorker extends FetchWorker {
 	
-	public DefaultFetchWorker(FetchConfig conf) {
-		super(conf);
-	}
-
 	public DefaultFetchWorker(FetchConfig conf, PageFetcher fetcher) {
 		super(conf, fetcher);
 	}
@@ -86,8 +82,10 @@ public class DefaultFetchWorker extends FetchWorker {
 				}
 			}
 		} catch (QueueException e) {
+			e.printStackTrace();
 			 log.error(e.getMessage());
 		} catch (InterruptedException e) {
+			e.printStackTrace();
 			 log.error(e.getMessage());
 		}
 	}
