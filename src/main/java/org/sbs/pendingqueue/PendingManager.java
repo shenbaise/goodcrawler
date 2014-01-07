@@ -25,6 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PendingManager {
 	
+	private static final String urlPrefix = "url_";
+	private static final String storePrefix = "store_";
+	private static final String pagePrefix = "page_";
 	private static ConcurrentHashMap<String, AbsPendingQueue<?>> CM = new ConcurrentHashMap<>();
 	
 	/**
@@ -33,13 +36,14 @@ public class PendingManager {
 	 * @return
 	 */
 	public static PendingUrls getPendingUlr(String jobName){
-		Object p = CM.get(jobName);
+		String pendingUrlName = urlPrefix + jobName;
+		Object p = CM.get(pendingUrlName);
 		if(p!=null){
 			return (PendingUrls)p;
 		}else {
-			PendingUrls pu = new PendingUrls(jobName);
-			CM.put(jobName, pu);
-			return (PendingUrls) CM.get(jobName);
+			PendingUrls pu = new PendingUrls(pendingUrlName);
+			CM.put(pendingUrlName, pu);
+			return (PendingUrls) CM.get(pendingUrlName);
 		}
 	}
 	
@@ -49,13 +53,14 @@ public class PendingManager {
 	 * @return
 	 */
 	public static PendingPages getPendingPages(String jobName){
-		Object p = CM.get(jobName);
+		String pendingPageName = pagePrefix + jobName;
+		Object p = CM.get(pendingPageName);
 		if(p!=null){
 			return (PendingPages)p;
 		}else {
-			PendingPages pu = new PendingPages(jobName);
-			CM.put(jobName, pu);
-			return (PendingPages) CM.get(jobName);
+			PendingPages pu = new PendingPages(pendingPageName);
+			CM.put(pendingPageName, pu);
+			return (PendingPages) CM.get(pendingPageName);
 		}
 	}
 	
@@ -65,13 +70,14 @@ public class PendingManager {
 	 * @return
 	 */
 	public static PendingStore getPendingStore(String jobName){
-		Object p = CM.get(jobName);
+		String pendStoreName = storePrefix + jobName;
+		Object p = CM.get(pendStoreName);
 		if(p!=null){
 			return (PendingStore)p;
 		}else {
-			PendingStore pu = new PendingStore(jobName);
-			CM.put(jobName, pu);
-			return (PendingStore) CM.get(jobName);
+			PendingStore pu = new PendingStore(pendStoreName);
+			CM.put(pendStoreName, pu);
+			return (PendingStore) CM.get(pendStoreName);
 		}
 	}
 	

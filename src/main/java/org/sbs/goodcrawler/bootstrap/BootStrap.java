@@ -65,6 +65,7 @@ public class BootStrap {
 	public static void main(String[] args) {
 		try {
 			start();
+			
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -157,7 +158,7 @@ public class BootStrap {
 		if (!base.exists()) {
 			base.mkdir();
 		}
-		File urlsFile = new File(base, jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
+		File urlsFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
 		File pagesFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
 		File storesFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
 		File filterFile = new File(base,"filter.good");

@@ -237,7 +237,7 @@ public abstract class AbsPendingQueue<T> implements Serializable{
 	 */
 	public String pendingStatus() {
 		StringBuilder sb = new StringBuilder(32);
-		sb.append("队列中等待处理的元素有").append(Queue.size()).append("个，")
+		sb.append(this.getClass().getSimpleName() + ":队列中等待处理的元素有").append(Queue.size()).append("个，")
 				.append("截至目前共接收到").append(count).append("个元素。\n已成功处理")
 				.append(success.get()).append("个，失败").append(failure.get())
 				.append("个，忽略").append(ignored()).append("个");
