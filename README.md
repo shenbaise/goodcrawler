@@ -1,9 +1,10 @@
 goodcrawler(web crawler) 网络爬虫
 ===========
 
-this project is under development.
-
-it wanna to be a good crawler for java.
+	此版本为独立运行版，es加入了工程。用户不需要自己安装es。
+	独立版内部包含一个优酷的模板。
+	下载解压后执行 ``mvn jetty:run``
+	浏览器打开 http://localhost:8080 ，点击启动链接，程序就开始自动爬取优酷视频了。
 
 LICENSE
 -------------------
