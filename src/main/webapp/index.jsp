@@ -8,6 +8,7 @@
 </head>
 <body>
 <p></p>
+<a href="/ehm/index.html">go to es</a>
 <p></p>
 <p>
 	<table style="width:100%;background-color:#DFC5A4;" cellpadding="2" cellspacing="0" border="1" bordercolor="#000000">

@@ -40,6 +40,7 @@ import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
 import org.sbs.goodcrawler.jobconf.StoreConfig;
+import org.sbs.goodcrawler.plugin.EsClient;
 import org.sbs.pendingqueue.PendingManager;
 import org.sbs.pendingqueue.PendingPages;
 import org.sbs.pendingqueue.PendingStore;
@@ -65,17 +66,23 @@ public class BootStrap {
 	public static void main(String[] args) {
 		try {
 			start();
-			
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	
 	/**
 	 * 启动任务
 	 * @param jobConf
 	 * @throws ConfigurationException 
 	 */
 	public static void start() throws ConfigurationException{
+		// start es
+		EsClient.startES();
+		if(!EsClient.isEsStarted()){
+			log.warn("local elasticsearch service can not start....");
+		}
 		JobConfigurationManager.init();
 		JobConfigurationManager manager = JobConfigurationManager.getInstance();
 		List<Document> configDocs = manager.getConfigDoc();
@@ -203,4 +210,5 @@ public class BootStrap {
 	public static String getJobids(){
 		return StringUtils.join(jobs.keySet(),",");
 	}
+	
 }

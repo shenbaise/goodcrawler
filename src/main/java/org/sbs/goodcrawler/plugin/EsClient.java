@@ -21,13 +21,21 @@ package org.sbs.goodcrawler.plugin;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
+import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
+import org.elasticsearch.action.admin.cluster.node.shutdown.NodesShutdownRequest;
+import org.elasticsearch.action.admin.cluster.state.ClusterStateRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -42,7 +50,9 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
  * @date 2013-7-6 es cilent
  */
 public class EsClient {
-
+//	http://localhost:9200/_cluster/nodes/ZECZJwWNRRKOhEL6mlJdBg/_shutdown
+	private static Log log = LogFactory.getLog(EsClient.class);
+	
 	static Settings settings = ImmutableSettings.settingsBuilder()
 	// .put("cluster.name", "ES-index")
 			.put("client.transport.sniff", true).build();
@@ -50,14 +60,17 @@ public class EsClient {
 	private static Client client = null;
 	
 	private static String mapping = "{  \"0\": {    \"_all\": {      \"enabled\": true    },    \"index_analyzer\": \"ik\",    \"search_analyzer\": \"ik\",    \"_timestamp\": {      \"enabled\": true,      \"format\": \"YYYY-MM-dd\"    },    \"dynamic_templates\": [      {        \"string_template\": {          \"match\": \"*\",          \"mapping\": {            \"type\": \"string\",            \"index\": \"not_analyzed\"          },          \"match_mapping_type\": \"string\"        }      }    ],    \"properties\": {      \"title\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"actors\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"director\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"summary\": {        \"type\": \"string\",        \"include_in_all\": false,        \"index\": \"not_analyzed\"      },      \"type\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      },      \"category\": {        \"type\": \"string\",        \"include_in_all\": true,        \"index\": \"analyzed\"      }    }  }}";
-
+	private static String esPath = null;
 	static {
+		String basePath = new File("").getAbsolutePath();
+		esPath = basePath + "/" + "elasticsearch/bin";
+		
 		client = new TransportClient(settings)
 				.addTransportAddress(new InetSocketTransportAddress(
 						"127.0.0.1", 9300));
 	}
 
-	public static Client getClient() {
+	public static synchronized Client getClient() {
 		if (null == client) {
 			client = new TransportClient(settings)
 			.addTransportAddress(new InetSocketTransportAddress(
@@ -65,7 +78,10 @@ public class EsClient {
 		}
 		return client;
 	}
-
+	
+	public static void resetClient(){
+		client = null;
+	}
 	public static void index(String index, String type, Map<String, Object> data) {
 		try {
 			XContentBuilder xBuilder = jsonBuilder().startObject();
@@ -210,12 +226,88 @@ public class EsClient {
 		
 	}
 	
+	
+	/**
+	 * es 是否可用
+	 * @return
+	 */
+	public static boolean isEsStarted(){
+		ClusterStateRequest csr = new ClusterStateRequest();
+		try {
+			boolean b = false;
+			for(int i=0;i<10;){
+				b = false;
+				EsClient.getClient().admin().cluster().state(csr).get();
+				b = true;
+				if(b){
+					return b;
+				}
+				i++;
+				Thread.sleep(3000L);
+			}
+		} catch (Exception e) {
+			EsClient.resetClient();
+		}
+		return false;
+	}
+	
+	/**
+	 * start local es node
+	 */
+	public synchronized static void startES(){
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				ClusterStateRequest csr = new ClusterStateRequest();
+				try {
+					EsClient.getClient().admin().cluster().state(csr).get();
+				} catch (Exception e) {
+					try {
+						EsClient.resetClient();
+						String cmd = "elasticsearch";
+						if(SystemUtils.OS_NAME.toLowerCase().contains("windows")){
+							cmd += cmd+".bat";
+						}
+						Process process = Runtime.getRuntime().exec(esPath+"/elasticsearch.bat");
+						System.out.println("hello");
+						process.waitFor();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		}, "es start").start();
+		try {
+			log.info("wait es to start up ...");
+			Thread.sleep(3000L);
+		} catch (InterruptedException e) {
+		}
+	}
+	
+	/**
+	 * stop es cluster
+	 */
+	public synchronized static void stopES(){
+		try {
+			Map<String, NodeInfo> m = EsClient.getClient().admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet().getNodesMap();
+			for(NodeInfo node:m.values()){
+				log.info(node.getNode().getId() + " is shutdown !");
+				EsClient.getClient().admin().cluster().nodesShutdown(new NodesShutdownRequest(node.getNode().getId())).actionGet();
+			}
+			EsClient.getClient().admin().cluster().nodesShutdown(new NodesShutdownRequest());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		SearchResponse response = EsClient.search("movie", "魔境仙踪[国语高清]");
-//		System.out.println(response.toString());
+		System.out.println(response.toString());
 //		response.getHits().getTotalHits();
 //		createIndexAndMapping("movie", "0", mapping);
 		GetResponse get =client.prepareGet("movie", "0","魔境仙踪[国语高清]" )
