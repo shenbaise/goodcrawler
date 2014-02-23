@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -37,6 +38,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.sbs.util.MD5Utils;
 /**
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-6 es cilent
@@ -76,7 +78,7 @@ public class EsClient {
 			xBuilder.endObject();
 //			IndexResponse response = 
 					client.prepareIndex(index, type)
-					.setId((String)data.get("title"))
+					.setId(MD5Utils.createMD5((String)data.get("url")))
 					.setSource(xBuilder).execute().actionGet();
 			// what does respose contains?
 		} catch (ElasticSearchException e) {
@@ -100,6 +102,16 @@ public class EsClient {
 		} catch (ElasticSearchException e) {
 			e.printStackTrace();
 		} 
+	}
+	
+	public static void delete(String index,String id){
+		try {
+			DeleteResponse r = client.prepareDelete(index, "0", id).execute()
+			.get();
+			System.out.println(r.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static SearchResponse search(String index,String id){
@@ -214,15 +226,16 @@ public class EsClient {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		SearchResponse response = EsClient.search("movie", "魔境仙踪[国语高清]");
+//		SearchResponse response = EsClient.search("movie", "魔境仙踪[国语高清]");
 //		System.out.println(response.toString());
 //		response.getHits().getTotalHits();
 //		createIndexAndMapping("movie", "0", mapping);
-		GetResponse get =client.prepareGet("movie", "0","魔境仙踪[国语高清]" )
-		.execute()
-		.actionGet();
+//		GetResponse get =client.prepareGet("movie", "0","魔境仙踪[国语高清]" )
+//		.execute()
+//		.actionGet();
 		
-		System.out.println(get.toString());
+//		System.out.println(get.toString());
+		delete("update", "72947ecbd3c8125df908dc9340b10551");
 	}
 
 }
