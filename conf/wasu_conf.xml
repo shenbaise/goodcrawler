@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<job name="wasu" indexName="movie">
+	<!-- 表示爬虫运行指定的时间长度后自动结束  -->
+	<jobtime>-1</jobtime>
+	<!-- 表示抓取指定数量的Url后结束  -->
+	<urlNum>-1</urlNum>
+	<!-- 定义 Fetcher -->
+	<fetch>
+		<!-- 默认为Default，如果有其他实现，填写类的全路径 -->
+		<type>default</type>
+		<agent>Kindle</agent>
+		<!-- 爬取线程数 -->
+		<threadNum>10</threadNum>
+		<!-- 同一线程两次请求之间的间隔 -->
+		<delayBetweenRequests>200</delayBetweenRequests>
+		<!-- Url爬取深度 -1表示不限深度 -->
+		<maxDepthOfCrawling>-1</maxDepthOfCrawling>
+		
+		<maxOutgoingLinksToFollow>1000</maxOutgoingLinksToFollow>
+		<!-- 是否下载二进制数据 -->
+		<fetchBinaryContent>false</fetchBinaryContent>
+		<!-- 下载文件的后缀 -->
+		<fileSuffix>gif,jpg,png,zip,rar,aiv,mtk</fileSuffix>
+		<maxDownloadSizePerPage>1048576</maxDownloadSizePerPage>
+		<!-- 是否支持https -->
+		<https>true</https>
+		<!-- 是否仅爬取当前域名 -->
+		<onlyDomain>true</onlyDomain>
+		<connection>
+			<!-- http链接超时时间 -->
+			<socketTimeoutMilliseconds>20000</socketTimeoutMilliseconds>
+			<!-- 从http链接池中获取到可用链接的超时时间 -->
+			<connectionTimeout>0</connectionTimeout>
+			<maxTotalConnections>600</maxTotalConnections>
+			<maxConnectionsPerHost>600</maxConnectionsPerHost>
+		</connection>
+		<!-- 代理设置 -->
+		<proxy>
+			<proxyHost></proxyHost>
+			<proxyPort></proxyPort>
+			<proxyUsername></proxyUsername>
+			<proxyPassword></proxyPassword>
+		</proxy>
+		<!-- url种子 -->
+		<seeds>
+			<seed>http://www.wasu.cn/</seed>
+		</seeds>
+		<!-- 加入Url待处理队列的策略 -->
+		<fetchUrlFilters>
+			<!-- 
+			<filter>http://.+[.]youku[.]com/.*[.]html$</filter>
+			 -->
+			<!-- 种子需要加入过滤策略 -->
+			<filter>http://.*.wasu.cn/.*</filter>
+		</fetchUrlFilters>
+		<!-- 加入待抽取信息页队列的策略 -->
+		<extractUrlfilters>
+			<filter>http://.*.wasu.cn/Tele/index/id/\d+</filter>
+			<filter>http://.*.wasu.cn/Play/show/id/\d+</filter>
+		</extractUrlfilters>
+	</fetch>
+
+	<!-- 定义extract -->
+	<extract> 
+		<type>default</type>
+		<threadNum>15</threadNum>
+		<template name="movie">
+			<!-- 模板对应的Url规则 -->
+			<urls>
+				<!-- 电影 -->
+				<url>http://.*.wasu.cn/Play/show/id/\d+</url>
+			</urls>
+			<elements>
+				<element name="title" type="string" value=".m_play_info a" attr="text" required="true"/>
+				<element name="category" type="string" value=".m_area a" attr="text" required="true" index="1"/>
+				<if test="category=电影 or category=微电影">
+					<element name="type" type="string" value=".m_area a" attr="text" required="true" index="2"/>
+					<element name="year" type="date" value=".m_play_info p" attr="tostring" regex="(\d{4}-\d{1,2}-\d{1,2})"/>
+					<element name="score" type="int" value=".m_play_info p" attr="text" regex="(\d{1}[.]\d{1,2})"/>
+					<element name="director" type="string" value="#infoL a" attr="text"	required="true" index="2" />
+					<element name="actors" type="string" value="#infoL p" attr="text">
+						<action operation="split" split="：" index="3"/>
+					</element>
+					<element name="summary" type="string" value="#infoL p" attr="text" index="1"/>
+					<element name="thumbnail" type="file" value="#infoL img" attr="src" required="true">
+							<action operation="download" dir="./{category}/{year}/"
+								fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
+					</element>
+					<element name="play_url" type="set" value="#playUrl_2" attr="value"/>
+				</if>
+			</elements>
+		</template>
+		
+		<template name="tv">
+			<!-- 模板对应的Url规则 -->
+			<urls>
+				<!-- 电视剧、动漫 -->
+				<url>http://.*.wasu.cn/Tele/index/id/\d+</url>
+			</urls>
+			<elements>
+				<element name="title" type="string" value=".teleplay_img img" attr="title" required="true"/>
+				<element name="category" type="string" value=".play_seat a" attr="text" required="true" index="1"/>
+				<if test="category=动漫 or category=电视剧">
+					<element name="type" type="string" value=".teleplay_tit p" attr="text" required="true">
+						<action operation="split" split="：" index="2"/>
+					</element>
+					<element name="update" type="string" value=".teleplay_tit p" attr="text" required="true">
+					</element>
+					<element name="year" type="date" value=".inner .play_seat" attr="tostring" regex="(\d{4}-\d{1,2}-\d{1,2})"/>
+					<element name="score" type="int" value=".tele_r p:eq(0)" attr="text" regex="(\d{1}[.]\d{1,2})"/>
+					<element name="director" type="string" value=".tele_l p" attr="text" required="true" index="1" >
+						<action operation="between" exp="：,　" />
+					</element>
+					<element name="actors" type="string" value=".tele_l p" attr="text" index="2" required="true">
+						<action operation="after" split="："/>
+					</element>
+					<element name="summary" type="string" value="#infoL" attr="text"/>
+					<element name="thumbnail" type="file" value=".teleplay_img img" attr="src" required="true">
+							<action operation="download" dir="./{category}/{year}/"
+								fileName="{md5}" asyn="true"></action>
+					</element>
+					<element name="s" type="url" value=".teleplay_gather ul li a" attr="href">
+						<element name="play_url" type="set" value="#playUrl_2" attr="value"/>
+					</element>
+				</if>
+			</elements>
+		</template>
+		
+	</extract>
+	<!-- 存储配置 -->
+	<store>
+		<type>elasticsearch</type>
+		<threadNum>1</threadNum>
+		<type>wasu</type>
+		<plugin>org.sbs.goodcrawler.plugin.storage.p.WasuEsStorePlugin</plugin>
+	</store>
+</job>
