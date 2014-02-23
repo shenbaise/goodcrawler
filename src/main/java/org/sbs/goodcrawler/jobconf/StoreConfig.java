@@ -37,6 +37,7 @@ public class StoreConfig extends Configuration {
 	private Log log = LogFactory.getLog(this.getClass());
 	private String type = "default";
 	private int threadNum = 2;
+	private String pluginClass = null;
 	
 	public StoreConfig() {
 	}
@@ -44,11 +45,15 @@ public class StoreConfig extends Configuration {
 	public StoreConfig loadConfig(Document confDoc){
 		Document doc = confDoc;
 		jobName = doc.select("job").attr("name");
-		
+		indexName = doc.select("job").attr("indexName");
 		Elements e = doc.select("store");
 		this.type = e.select("type").text();
 		if(StringUtils.isNotBlank(e.select("threadNum").text())){
 			this.threadNum = Integer.parseInt(e.select("threadNum").text());
+		}
+		String className = e.select("plugin").text();
+		if(StringUtils.isNotBlank(className)){
+			this.pluginClass = className;
 		}
 		return this;
 	}
@@ -76,16 +81,24 @@ public class StoreConfig extends Configuration {
 	public void setThreadNum(int threadNum) {
 		this.threadNum = threadNum;
 	}
+	
+	public String getPluginClass() {
+		return pluginClass;
+	}
 
+	public void setPluginClass(String pluginClass) {
+		this.pluginClass = pluginClass;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("StoreConfig [log=").append(log).append(", type=")
 				.append(type).append(", threadNum=").append(threadNum)
-				.append(", jobName=").append(jobName).append("]");
+				.append(", pluginClass=").append(pluginClass).append("]");
 		return builder.toString();
 	}
-	
+
 	public static void main(String[] args) {
 		StoreConfig extractConfig = new StoreConfig();
 		Document document;

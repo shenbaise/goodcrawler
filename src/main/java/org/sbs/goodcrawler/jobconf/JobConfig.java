@@ -55,6 +55,7 @@ public class JobConfig extends Configuration {
 		try {
 			this.confDoc = Jsoup.parse(new File("conf/youku_conf.xml"), "utf-8");
 			super.jobName = confDoc.select("job name").text();
+			super.indexName = confDoc.select("job").attr("indexName");
 			this.jobTime = Integer.parseInt(confDoc.select("jobtime").text());
 			this.urlNum = Integer.parseInt(confDoc.select("urlNum").text());
 //			this.fetchConfig = FetchConfig

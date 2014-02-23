@@ -88,8 +88,10 @@ public class ExtractConfig extends Configuration {
 		for(ExtractTemplate template : templates){
 			if(template.urlFilter(url)){
 				Map<String, Object> m = template.getConten(document);
-				if(m!=null && m.size()>0)
-					content.put(template.getName(), m);
+				if(m!=null && m.size()>0){
+					content.put(indexName, m);
+					return content;
+				}
 			}
 		}
 		return content;
@@ -103,6 +105,7 @@ public class ExtractConfig extends Configuration {
 	public ExtractConfig loadConfig(Document doc) throws ConfigurationException{
 		Elements extractElement = doc.select("extract");
 		super.jobName = doc.select("job").attr("name");
+		super.indexName = doc.select("job").attr("indexName");
 		String temp = extractElement.select("threadNum").text();
 		if(StringUtils.isNotBlank(temp)){
 			this.threadNum = Integer.parseInt(temp);
@@ -233,6 +236,7 @@ class ExtractTemplate{
 					Map<String, Object> m = s.setResult(content)
 							.setDocument(document)
 							.getContentMap();
+					//System.out.println(m);
 					if((null==m || m.size()==0) && s.isRequired()){
 						return null;
 					}else {
@@ -241,6 +245,7 @@ class ExtractTemplate{
 					}
 				}else if(selector instanceof AbstractElementCssSelector){
 					Map<String, Object> m = ((AbstractElementCssSelector)selector).setDocument(document).getContentMap();
+					//System.out.println(m);
 					if((null==m || m.size()==0) && ((AbstractElementCssSelector)selector).isRequired()){
 						return null;
 					}else {
@@ -251,18 +256,12 @@ class ExtractTemplate{
 			}
 			for(IFConditions con:conditions){
 				if(con.test(content)){
-					if(con.getConditions().contains("电视剧")){
-						System.out.println("..");
-					}
 					for(AbstractElementCssSelector<?> selector:con.getSelectors()){
-//						if("play1".equals(selector.getName())){
-//							System.out.println("断点哦");
-//						}
-						
 						if(selector instanceof FileElementCssSelector){
 							Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
 									.setDocument(document)
 									.getContentMap();
+							//System.out.println(m);
 							if((null==m || m.size()==0) && selector.isRequired()){
 								return null;
 							}else {
@@ -271,6 +270,7 @@ class ExtractTemplate{
 							}
 						}else{
 							Map<String, Object> m = selector.setDocument(document).getContentMap();
+							//System.out.println(m);
 							if((null==m || m.size()==0) && selector.isRequired()){
 								return null;
 							}else {

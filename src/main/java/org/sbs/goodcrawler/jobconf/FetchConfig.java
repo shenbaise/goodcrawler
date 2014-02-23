@@ -336,6 +336,7 @@ public class FetchConfig extends Configuration{
 		try {
 			Document doc = confDoc;
 			super.jobName = doc.select("job").attr("name");
+			super.indexName = doc.select("job").attr("indexName");
 			Elements e = doc.select("fetch");
 			this.type = e.select("type").text();
 			this.agent = e.select("agent").text();

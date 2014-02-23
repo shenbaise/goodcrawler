@@ -23,12 +23,16 @@ package org.sbs.goodcrawler.conf;
  * 工人
  */
 public abstract class Worker implements Runnable{
-	public static  boolean stop = false;
+	private static  boolean stop = false;
 	
 	/**
 	 * 停工
 	 */
 	public static synchronized void stop(){
 		stop = true;
+	}
+	
+	public static synchronized boolean isStop(){
+		return stop;
 	}
 }

@@ -24,6 +24,8 @@ package org.sbs.goodcrawler.conf;
 public abstract class Configuration {
 
 	public String jobName;
+	
+	public String indexName;
 
 	public abstract String toString();
 }
