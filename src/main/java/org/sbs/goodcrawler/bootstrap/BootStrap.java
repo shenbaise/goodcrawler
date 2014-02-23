@@ -40,6 +40,7 @@ import org.sbs.goodcrawler.exception.ConfigurationException;
 import org.sbs.goodcrawler.jobconf.ExtractConfig;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
 import org.sbs.goodcrawler.jobconf.StoreConfig;
+import org.sbs.goodcrawler.plugin.classloader.PluginClassLoader;
 import org.sbs.pendingqueue.PendingManager;
 import org.sbs.pendingqueue.PendingPages;
 import org.sbs.pendingqueue.PendingStore;
@@ -77,6 +78,11 @@ public class BootStrap {
 	 */
 	public static void start() throws ConfigurationException{
 		JobConfigurationManager.init();
+		try {
+			PluginClassLoader.init();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		JobConfigurationManager manager = JobConfigurationManager.getInstance();
 		List<Document> configDocs = manager.getConfigDoc();
 		
@@ -107,7 +113,7 @@ public class BootStrap {
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
-				while(!Worker.stop){
+				while(!Worker.isStop()){
 					try {
 						Thread.sleep(20000L);
 					} catch (InterruptedException e) {

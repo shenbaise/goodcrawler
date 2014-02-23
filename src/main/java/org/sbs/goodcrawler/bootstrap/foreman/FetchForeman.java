@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.fetcher.DefaultFetchWorker;
 import org.sbs.goodcrawler.fetcher.PageFetcher;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
+import org.sbs.goodcrawler.schedule.RecrawFetherWorkor;
 
 /**
  * @author shenbaise(shenbaise@outlook.com)
@@ -41,6 +42,9 @@ public class FetchForeman extends Foreman{
 		for(int i=0;i<threadNum;i++){
 			executor.submit(new DefaultFetchWorker(conf,fetcher));
 		}
+		// url重爬机制
+		RecrawFetherWorkor recrawFetherWorkor = new RecrawFetherWorkor(conf, fetcher);
+		executor.submit(recrawFetherWorkor);
 		executor.shutdown();
 	}
 }

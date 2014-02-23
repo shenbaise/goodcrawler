@@ -40,11 +40,11 @@ public class DefaultExtractWorker extends ExtractWorker {
 	@Override
 	public void run() {
 		Page page ;
-		while(!stop){
+		while(!isStop()){
 			try {
 				while(null!=(page=pendingPages.getElementT())){
 					work(page);
-					if(stop)
+					if(isStop())
 						break;
 				}
 			} catch (QueueException e) {

@@ -21,7 +21,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.sbs.goodcrawler.jobconf.StoreConfig;
+import org.sbs.goodcrawler.plugin.classloader.PluginClassLoader;
 import org.sbs.goodcrawler.plugin.storage.ElasticSearchStorage;
+import org.sbs.goodcrawler.plugin.storage.p.IESStoragePlugin;
 import org.sbs.goodcrawler.storage.DefaultStoreWorker;
 
 /**
@@ -39,7 +41,13 @@ public class StoreForeman {
 		int threadNum = conf.getThreadNum();
 		ExecutorService executor = Executors.newFixedThreadPool(threadNum);
 		for(int i=0;i<threadNum;i++){
-			executor.submit(new DefaultStoreWorker(conf,new ElasticSearchStorage(conf.jobName)));
+			try {
+				IESStoragePlugin p = (IESStoragePlugin) PluginClassLoader.loadClass(conf.getPluginClass()).newInstance();
+				p.setConfig(conf);
+				executor.submit(new DefaultStoreWorker(conf,new ElasticSearchStorage(conf,p)));
+			} catch (InstantiationException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 		executor.shutdown();
 	}
