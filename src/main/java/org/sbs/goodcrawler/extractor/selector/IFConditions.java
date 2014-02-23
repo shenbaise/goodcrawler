@@ -194,14 +194,24 @@ public class IFConditions {
 	}
 	
 	public static void main(String[] args) {
-		String exp = "a= sd ea and  c= c bc d  and c=e and x=y";
+//		String exp = "a= sd ea and  c= c bc d  and c=e and x=y";
+//		
+//		IFConditions ic = new IFConditions(exp);
+//		try {
+//			Map<String, Object> map = Maps.newHashMap();
+//			map.put("a", "sd");
+//			map.put("c", "c bc d");
+////			map.put("x", "y");
+//			System.out.println(ic.test(map));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
+		String exp = "category=电视剧 or category=微電影";
 		IFConditions ic = new IFConditions(exp);
 		try {
 			Map<String, Object> map = Maps.newHashMap();
-			map.put("a", "sd");
-			map.put("c", "c bc d");
-//			map.put("x", "y");
+			map.put("category", "微電影");
 			System.out.println(ic.test(map));
 		} catch (Exception e) {
 			e.printStackTrace();

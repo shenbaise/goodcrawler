@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.bootstrap.foreman.FetchForeman;
 import org.sbs.goodcrawler.exception.ExtractException;
@@ -36,6 +37,7 @@ import org.sbs.goodcrawler.page.Page;
 import org.sbs.goodcrawler.page.PageFetchResult;
 import org.sbs.goodcrawler.page.Parser;
 import org.sbs.url.WebURL;
+import org.sbs.util.MapUtils;
 import org.sbs.util.UrlUtils;
 
 import com.google.common.collect.Lists;
@@ -55,10 +57,7 @@ public class PageElementSelector extends AbstractElementCssSelector<HashMap<Stri
 	 * 该Url选择器下提取到的内容
 	 */
 	HashMap<String, Object> content;
-	/**
-	 * 选择器提取的URL
-	 */
-	private String url = "";
+	
 	private Parser parser = new Parser(false);
 	private UrlUtils urlUtils = new UrlUtils();
 	/**
@@ -69,8 +68,8 @@ public class PageElementSelector extends AbstractElementCssSelector<HashMap<Stri
 	}
 
 	public PageElementSelector(String name, String value, String attr,
-			boolean isRequired) {
-		super(name, value, attr, isRequired);
+			boolean isRequired,int index,String regex) {
+		super(name, value, attr, isRequired, index, regex);
 	}
 	
 	
@@ -92,75 +91,82 @@ public class PageElementSelector extends AbstractElementCssSelector<HashMap<Stri
 			return content;
 		}
 		// 获取连接，然后拿到document。
-		if(StringUtils.isNotBlank(this.url) && !newDoc){
+		if(!newDoc){
 			return content;
 		}
 		// 抽取document中对应的Selector
+		List<String> urls = Lists.newArrayList();
 		if (super.document != null) {
 			Elements elements = super.document.select(value);
 			if(elements.isEmpty())
 				return null;
 			switch ($Attr) {
 			case text:
-				this.url = elements.first().text();
+				for(Element e:elements){
+					urls.add(e.text());
+				}
 				break;
 			default:
-				this.url = elements.first().attr(attr);
+				for(Element e:elements){
+					urls.add(e.attr(attr));
+				}
 				break;
 			}
 		}
-		if(StringUtils.isNotBlank(this.url)){
-			Document doc = null;
-			PageFetchResult result = null;
-			try {
-				WebURL webUrl = new WebURL();
-				webUrl.setURL(this.url);
-				result = FetchForeman.fetcher.fetchHeader(webUrl);
-				// 获取状态
-				int statusCode = result.getStatusCode();
-				if (statusCode == CustomFetchStatus.PageTooBig) {
-					return null;
-				}
-				if (statusCode != HttpStatus.SC_OK){
-					return null;
-				}else {
-					Page page = new Page(webUrl);
-					if (!result.fetchContent(page)) {
+		if(urls.size()>0){
+			for(String url:urls){
+				Document doc = null;
+				PageFetchResult result = null;
+				try {
+					WebURL webUrl = new WebURL();
+					webUrl.setURL(url);
+					result = FetchForeman.fetcher.fetchHeader(webUrl);
+					// 获取状态
+					int statusCode = result.getStatusCode();
+					if (statusCode == CustomFetchStatus.PageTooBig) {
 						return null;
 					}
-					if (!parser.parse(page, webUrl.getURL())) {
-						return null;
-					}
-				doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw new ExtractException(e.getMessage());
-			}finally{
-				if(result!=null)
-					result.discardContentIfNotConsumed();
-			}
-					
-			content = Maps.newHashMap();
-			if(selectors!=null)
-			for(AbstractElementCssSelector<?> selector :selectors){
-				if(selector instanceof FileElementCssSelector){
-					Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
-							.setDocument(doc)
-							.getContentMap();
-					if((null==m || m.size()==0) && selector.isRequired()){
+					if (statusCode != HttpStatus.SC_OK){
 						return null;
 					}else {
-						if(null!=m && m.size()>0)
-							content.putAll(m);
+						Page page = new Page(webUrl);
+						if (!result.fetchContent(page)) {
+							return null;
+						}
+						if (!parser.parse(page, webUrl.getURL())) {
+							return null;
+						}
+					doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
 					}
-				}else{
-					Map<String, Object> m = selector.setDocument(doc).getContentMap();
-					if((null==m || m.size()==0) && selector.isRequired()){
-						return null;
-					}else {
-						if(null!=m && m.size()>0)
-							content.putAll(m);
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new ExtractException(e.getMessage());
+				}finally{
+					if(result!=null)
+						result.discardContentIfNotConsumed();
+				}
+						
+				content = Maps.newHashMap();
+				if(selectors!=null)
+				for(AbstractElementCssSelector<?> selector :selectors){
+					if(selector instanceof FileElementCssSelector){
+						Map<String, Object> m = ((FileElementCssSelector)selector).setResult(content)
+								.setDocument(doc)
+								.getContentMap();
+						if((null==m || m.size()==0) && selector.isRequired()){
+							return null;
+						}else {
+							if(null!=m && m.size()>0)
+								content = MapUtils.mager(content, (HashMap<String, Object>) m);
+						}
+					}else{
+						Map<String, Object> m = selector.setDocument(doc).getContentMap();
+						if((null==m || m.size()==0) && selector.isRequired()){
+							return null;
+						}else {
+							if(null!=m && m.size()>0)
+								content = MapUtils.mager(content, (HashMap<String, Object>) m);
+						}
 					}
 				}
 			}

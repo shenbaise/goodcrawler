@@ -47,32 +47,33 @@ public class ElementCssSelectorFactory {
 	 * @param value
 	 * @param attr
 	 * @param isRequired
+	 * @param regex
 	 * @return
 	 */
 	private static AbstractElementCssSelector<?> create(String name, String type,String value, String attr,
-			boolean isRequired){
+			boolean isRequired,int index,String regex,String pattenr){
 		SelectorType $type = SelectorType.valueOf("$"+type);
 		switch ($type) {
 		case $int:
-			return new IntegerElementCssSelector(name, value, attr, isRequired);
+			return new IntegerElementCssSelector(name, value, attr, isRequired, index,regex);
 		case $string:
-			return new StringElementCssSelector(name, value, attr, isRequired);
+			return new StringElementCssSelector(name, value, attr, isRequired, index,regex);
 		case $list:
-			return new ListElementCssSelector(name, value, attr, isRequired);
+			return new ListElementCssSelector(name, value, attr, isRequired, index,regex);
 		case $set:
-			return new SetElementCssSelector(name, value, attr, isRequired);
+			return new SetElementCssSelector(name, value, attr, isRequired, index,regex);
 		case $url:
-			return new PageElementSelector(name, value, attr, isRequired);
+			return new PageElementSelector(name, value, attr, isRequired, index,regex);
 		case $numerica:
-			return new NumericaElementCssSelector(name, value, attr, isRequired);
+			return new NumericaElementCssSelector(name, value, attr, isRequired, index,regex);
 		case $date:
-			return new DateElementCssSelector(name, value, attr, isRequired);
+			return new DateElementCssSelector(name, value, attr, isRequired, index,regex,pattenr);
 		case $file:
-			return new FileElementCssSelector(name, value, attr, isRequired);
+			return new FileElementCssSelector(name, value, attr, isRequired, index,regex);
 		case $ajax:
 //			return new AjaxElementCssSelector(name, value, attr, isRequired);
 		default:
-			return new StringElementCssSelector(name, value, attr, isRequired);
+			return new StringElementCssSelector(name, value, attr, isRequired, index,regex);
 		}
 	}
 	/**
@@ -86,12 +87,19 @@ public class ElementCssSelectorFactory {
 		String value = element.attr("value");
 		String type = element.attr("type");
 		String attr = element.attr("attr");
+		String pattern = element.attr("pattern");
+		String regex = element.attr("regex");
 		String required = element.attr("required");
+		String sIndex = element.attr("index");
 		boolean isRequired = false;
 		if(StringUtils.isNotBlank(required)){
 			isRequired = Boolean.parseBoolean(required);
 		}
-		AbstractElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired);
+		int index = 0;
+		if(StringUtils.isNotBlank(sIndex)){
+			index = Integer.parseInt(sIndex);
+		}
+		AbstractElementCssSelector selector = ElementCssSelectorFactory.create(name, type, value, attr, isRequired,index,regex,pattern);
 		// 检测子元素
 		Elements children = element.children();
 		for(Element e : children){

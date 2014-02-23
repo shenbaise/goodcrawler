@@ -47,8 +47,8 @@ public class IntegerElementCssSelector extends AbstractElementCssSelector<Intege
 	}
 
 	public IntegerElementCssSelector(String name, String value, String attr,
-			boolean isRequired) {
-		super(name, value, attr, isRequired);
+			boolean isRequired, int index,String regex) {
+		super(name, value, attr, isRequired, index, regex);
 	}
 
 	@Override
@@ -66,10 +66,10 @@ public class IntegerElementCssSelector extends AbstractElementCssSelector<Intege
 				String temp;
 				switch ($Attr) {
 				case text:
-					temp = CharMatcher.DIGIT.retainFrom(elements.first().text());
+					temp = CharMatcher.DIGIT.retainFrom(getExtractText(elements));
 					break;
 				default:
-					temp = CharMatcher.DIGIT.retainFrom(elements.first().attr(attr));
+					temp = CharMatcher.DIGIT.retainFrom(getExtractAttr(elements, attr));
 					break;
 				}
 				

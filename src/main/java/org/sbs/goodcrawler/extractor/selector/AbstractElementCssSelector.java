@@ -18,8 +18,12 @@
 package org.sbs.goodcrawler.extractor.selector;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.sbs.goodcrawler.exception.ExtractException;
 import org.sbs.goodcrawler.extractor.GCElement;
 import org.sbs.goodcrawler.extractor.selector.action.SelectorAction;
@@ -53,6 +57,8 @@ public abstract class AbstractElementCssSelector<T> implements GCElement{
 	 * 是否required
 	 */
 	protected boolean isRequired;
+	
+	protected Pattern pattern = null;
 	/**
 	 * 选择器要处理的文档
 	 */
@@ -62,6 +68,11 @@ public abstract class AbstractElementCssSelector<T> implements GCElement{
 	 * false表示该document已经处理过
 	 */
 	protected boolean newDoc = true;
+	
+	/**
+	 * 选择器提取出多个结果时选择哪个.默认第一个
+	 */
+	protected int index = 0;
 	/**
 	 * 该element之上的action
 	 */
@@ -79,6 +90,42 @@ public abstract class AbstractElementCssSelector<T> implements GCElement{
 	 * @param atrr
 	 * @param isRequired
 	 * @param document
+	 */
+	public AbstractElementCssSelector(String name, String value, String attr,
+			boolean isRequired,int index,String regex) {
+		super();
+		this.name = name;
+		this.value = value;
+		this.attr = attr;
+		this.$Attr = org.apache.commons.lang3.EnumUtils.getEnum(SelectorAttr.class, this.attr);
+		this.isRequired = isRequired;
+		this.index = index;
+		if(StringUtils.isNotBlank(regex))
+			this.pattern = Pattern.compile(regex);
+	}
+	/**
+	 * @param name
+	 * @param value
+	 * @param attr
+	 * @param isRequired
+	 * @param index
+	 */
+	public AbstractElementCssSelector(String name, String value, String attr,
+			boolean isRequired,int index) {
+		super();
+		this.name = name;
+		this.value = value;
+		this.attr = attr;
+		this.$Attr = org.apache.commons.lang3.EnumUtils.getEnum(SelectorAttr.class, this.attr);
+		this.isRequired = isRequired;
+		this.index = index;
+	}
+	/**
+	 * 构造器
+	 * @param name
+	 * @param value
+	 * @param attr
+	 * @param isRequired
 	 */
 	public AbstractElementCssSelector(String name, String value, String attr,
 			boolean isRequired) {
@@ -110,6 +157,14 @@ public abstract class AbstractElementCssSelector<T> implements GCElement{
 	public AbstractElementCssSelector setName(String name) {
 		this.name = name;
 		return this;
+	}
+	
+	public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
 	}
 
 	public String getValue() {
@@ -170,4 +225,63 @@ public abstract class AbstractElementCssSelector<T> implements GCElement{
 	protected void isNewDoc(){
 		this.newDoc = true;
 	}
+	/**
+	 * 返回提取结果中多个值中指定位置的值
+	 * @param elements
+	 * @return
+	 */
+	protected String getExtractText(Elements elements){
+		if(elements.size()==0)
+			return "";
+		String temp = "";
+		
+		if(attr.equals("tostring")){
+			if(index==0 || index>elements.size())
+				temp = elements.first().toString();
+			else
+				temp = elements.get(index).toString();
+		}else{
+			if(index==0 || index>elements.size())
+				temp = elements.first().text();
+			else
+				temp = elements.get(index).text();
+		}
+		
+		if(null!=pattern){
+			Matcher m = pattern.matcher(temp);
+			if(m.find()){
+				temp = m.group(1);
+			}
+		}
+		return temp;
+	}
+	/**
+	 * 返回某个提取位置多值中指定位置的属性的值
+	 * @param elements
+	 * @param attr
+	 * @return
+	 */
+	protected String getExtractAttr(Elements elements,String attr){
+		String temp = "";
+		if(attr.equals("tostring")){
+			if(index==0 || index>elements.size())
+				temp = elements.first().toString();
+			else
+				temp = elements.get(index).toString();
+		}else{
+			if(index==0 || index>elements.size())
+				temp = elements.first().attr(attr);
+			else
+				temp = elements.get(index).attr(attr);
+		}
+		if(null!=pattern){
+			Matcher m = pattern.matcher(temp);
+			if(m.find()){
+				temp = m.group(1);
+			}
+		}
+		return temp;
+	}
+	
+	
 }

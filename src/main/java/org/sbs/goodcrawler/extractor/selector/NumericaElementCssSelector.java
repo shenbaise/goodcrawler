@@ -45,13 +45,13 @@ public class NumericaElementCssSelector extends AbstractElementCssSelector<Numbe
 	private List<IntegerSelectorAction> actions = Lists.newArrayList();
 
 	public NumericaElementCssSelector(String name, String value, String attr,
-			boolean isRequired) {
-		super(name, value, attr, isRequired);
+			boolean isRequired,int index,String regex) {
+		super(name, value, attr, isRequired, index, regex);
 	}
 	
 	public NumericaElementCssSelector(String name, String value, String attr,
 			boolean isRequired,String parttern) {
-		super(name, value, attr, isRequired);
+		super(name, value, attr, isRequired,0);
 		format = new DecimalFormat(parttern);
 	}
 	
@@ -69,10 +69,10 @@ public class NumericaElementCssSelector extends AbstractElementCssSelector<Numbe
 				String temp;
 				switch ($Attr) {
 				case text:
-					temp = CharMatcher.DIGIT.retainFrom(elements.first().text());
+					temp = CharMatcher.DIGIT.retainFrom(getExtractText(elements));
 					break;
 				default:
-					temp = CharMatcher.DIGIT.retainFrom(elements.first().attr(attr));
+					temp = CharMatcher.DIGIT.retainFrom(getExtractAttr(elements, attr));
 					break;
 				}
 

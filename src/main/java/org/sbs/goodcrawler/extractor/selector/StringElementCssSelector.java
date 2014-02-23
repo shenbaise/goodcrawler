@@ -45,8 +45,8 @@ public class StringElementCssSelector extends AbstractElementCssSelector<String>
 	}
 
 	public StringElementCssSelector(String name, String value, String attr,
-			boolean isRequired) {
-		super(name, value, attr, isRequired);
+			boolean isRequired, int index,String regex) {
+		super(name, value, attr, isRequired, index,regex);
 	}
 
 	/**
@@ -67,25 +67,21 @@ public class StringElementCssSelector extends AbstractElementCssSelector<String>
 				StringBuilder sb = new StringBuilder();
 				switch ($Attr) {
 				case text:
-					for (Element e : elements) {
-						sb.append(e.text()).append("\n");
-					}
+					sb.append(getExtractText(elements));
 					break;
 				default:
-					for (Element e : elements) {
-						sb.append(e.attr(attr));
-					}
+					sb.append(getExtractAttr(elements, attr));
 					break;
 				}
 				if(StringUtils.isNotBlank(sb)){
 					if(null!=actions && actions.size()>0){
-						String temp = sb.substring(0,sb.length()-1);
+						String temp = sb.substring(0,sb.length());
 						for(StringSelectorAction action:actions){
 							temp = action.doAction(temp);
 						}
 						this.content = temp;
 					}else {
-						this.content = sb.substring(0, sb.length()-1);
+						this.content = sb.toString();
 					}
 					newDoc = false;
 					return this.content;

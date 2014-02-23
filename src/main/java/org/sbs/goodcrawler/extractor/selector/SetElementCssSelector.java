@@ -46,8 +46,8 @@ public class SetElementCssSelector extends AbstractElementCssSelector<Set<String
 	}
 
 	public SetElementCssSelector(String name, String value, String attr,
-			boolean isRequired) {
-		super(name, value, attr, isRequired);
+			boolean isRequired,int index,String regex) {
+		super(name, value, attr, isRequired, index,regex);
 	}
 
 	@Override
@@ -61,9 +61,6 @@ public class SetElementCssSelector extends AbstractElementCssSelector<Set<String
 				Elements elements = super.document.select(value);
 				if(elements.isEmpty())
 					return null;
-				if($Attr==null){
-					System.out.println(toString());
-				}
 				switch ($Attr) {
 				case text:
 					for (Element e : elements) {

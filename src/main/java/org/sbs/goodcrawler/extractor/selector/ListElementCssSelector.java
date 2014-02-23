@@ -44,8 +44,8 @@ public class ListElementCssSelector extends AbstractElementCssSelector<List<Stri
 	public ListElementCssSelector(){}
 	
 	public ListElementCssSelector(String name, String value, String attr,
-			boolean isRequired) {
-		super(name, value, attr, isRequired);
+			boolean isRequired,int index,String regex) {
+		super(name, value, attr, isRequired, index, regex);
 	}
 
 	@SuppressWarnings("unchecked")

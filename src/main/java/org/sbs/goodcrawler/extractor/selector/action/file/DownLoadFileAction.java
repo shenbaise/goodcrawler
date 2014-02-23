@@ -20,12 +20,17 @@ package org.sbs.goodcrawler.extractor.selector.action.file;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.elasticsearch.common.joda.time.DateTimeUtils;
 import org.sbs.goodcrawler.extractor.selector.action.FileSelectAction;
 import org.sbs.goodcrawler.extractor.selector.exception.DownLoadException;
+import org.sbs.util.DateTimeUtil;
 import org.sbs.util.MD5Utils;
 import org.sbs.util.download.MultiThreadDownload;
 
@@ -151,7 +156,12 @@ public class DownLoadFileAction extends FileSelectAction {
 			}else if(null!=dynamicPath){
 				StringBuilder sb = new StringBuilder();
 				for(String p:dynamicPath){
-					sb.append(String.valueOf(map.get(p))).append(File.separator);
+					Object o = map.get(p);
+					if(null!=o && o instanceof Date){
+						sb.append(DateTimeUtil.getYearOfDate((Date)o)).append(File.separator);
+					}else {
+						sb.append(String.valueOf(map.get(p))).append(File.separator);
+					}
 				}
 				return sb.toString();
 			}

@@ -67,13 +67,21 @@ public class DateElementCssSelector extends AbstractElementCssSelector<Date> {
 	}
 
 	public DateElementCssSelector(String name, String value, String attr,
-			boolean isRequired) {
-		super(name, value, attr, isRequired);
+			boolean isRequired,int index) {
+		super(name, value, attr, isRequired, index);
 	}
-	
+	/**
+	 * @param name
+	 * @param value
+	 * @param attr
+	 * @param isRequired
+	 * @param index
+	 * @param regex
+	 * @param parrtarn
+	 */
 	public DateElementCssSelector(String name, String value, String attr,
-			boolean isRequired,String parrtarn) {
-		super(name, value, attr, isRequired);
+			boolean isRequired,int index,String regex,String parrtarn) {
+		super(name, value, attr, isRequired,index,regex);
 		this.patterns.add(parrtarn);
 	}
 
@@ -90,10 +98,10 @@ public class DateElementCssSelector extends AbstractElementCssSelector<Date> {
 				String temp;
 				switch ($Attr) {
 				case text:
-					temp = CharMatcher.DIGIT.retainFrom(elements.first().text());
+					temp = getExtractText(elements);
 					break;
 				default:
-					temp = CharMatcher.DIGIT.retainFrom(elements.first().attr(attr));
+					temp = getExtractAttr(elements, attr);
 					break;
 				}
 				if(StringUtils.isNotBlank(temp)){

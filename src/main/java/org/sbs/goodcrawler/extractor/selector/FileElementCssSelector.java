@@ -42,8 +42,8 @@ public class FileElementCssSelector extends AbstractElementCssSelector<String> {
 	private List<FileSelectAction> actions = Lists.newArrayList();
 	
 	public FileElementCssSelector(String name, String value, String attr,
-			boolean isRequired) {
-		super(name, value, attr, isRequired);
+			boolean isRequired, int index,String regex) {
+		super(name, value, attr, isRequired, index, regex);
 	}
 	
 	private Map<String, Object> result = null;
@@ -65,10 +65,10 @@ public class FileElementCssSelector extends AbstractElementCssSelector<String> {
 					return null;
 				switch ($Attr) {
 				case text:
-					this.content = elements.first().text();
+					this.content = getExtractText(elements);
 					break;
 				default:
-					this.content = elements.first().attr(attr);
+					this.content = getExtractAttr(elements, attr);
 					break;
 				}
 				newDoc = false;
