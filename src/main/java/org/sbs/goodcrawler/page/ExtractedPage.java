@@ -27,6 +27,7 @@ import org.sbs.url.WebURL;
  * @author shenbaise(shenbaise@outlook.com)
  * @date 2013-7-2 从Page中提取到信息
  */
+@SuppressWarnings("rawtypes")
 public class ExtractedPage<V, T> implements Serializable {
 	private static final long serialVersionUID = 3965488944964575676L;
 	/**
@@ -40,7 +41,7 @@ public class ExtractedPage<V, T> implements Serializable {
 	/**
 	 * 提取到信息，与job配置中的select对应，内容可以在扩展接口中重新修改和定义。
 	 */
-	HashMap<V, T> messages = new HashMap<>();
+	HashMap<Object, Object> messages = new HashMap<>();
 
 	ExtractResult result;
 
@@ -79,13 +80,18 @@ public class ExtractedPage<V, T> implements Serializable {
 		return this;
 	}
 
-	public HashMap<V, T> getMessages() {
+	public HashMap getMessages() {
 		return messages;
 	}
 
-	public ExtractedPage<V, T> setMessages(HashMap<V, T> messages) {
+	@SuppressWarnings("unchecked")
+	public ExtractedPage<V, T> setMessages(HashMap messages) {
 		this.messages = messages;
 		return this;
+	}
+	
+	public void setMessage(String k,Object v){
+		this.messages.put(k,v);
 	}
 
 	public ExtractedPage<V, T> addMessage(V key, T value) {
