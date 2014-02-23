@@ -190,7 +190,7 @@ public abstract class FetchWorker extends Worker {
 	}
 	/**
 	 * @param url
-	 * @desc 爬网页
+	 * @desc 爬网页，新链接加入到爬取队列
 	 */
 	public void fetchPage(WebURL url){
 		PageFetchResult result = null;
@@ -248,6 +248,47 @@ public abstract class FetchWorker extends Worker {
 					}
 				} else {
 					onIgnored(url);
+				}
+			}
+		} catch (Exception e) {
+			onFailed(url);
+		} catch (QueueException e) {
+			onFailed(url);
+		}finally{
+			if(null!=result)
+				result.discardContentIfNotConsumed();
+		}
+	}
+	/**
+	 * 爬取网页，不提取url
+	 * @param url
+	 */
+	public void fetchPageWhitoutExtractUrl(WebURL url){
+		PageFetchResult result = null;
+		try {
+			if(null!=url && StringUtils.isNotBlank(url.getURL())){
+				result = fetcher.fetchHeader(url);
+				// 获取状态
+				int statusCode = result.getStatusCode();
+				if (statusCode == CustomFetchStatus.PageTooBig) {
+					onIgnored(url);
+					return ;
+				}
+				if (statusCode != HttpStatus.SC_OK){
+					onFailed(url);
+				}else {
+					Page page = new Page(url);
+					pendingUrls.processedSuccess();
+					if (!result.fetchContent(page)) {
+						onFailed(url);
+						return;
+					}
+					if (!parser.parse(page, url.getURL())) {
+						onFailed(url);
+						return;
+					}
+					// 加入待提取队列
+					pendingPages.addElement(page);
 				}
 			}
 		} catch (Exception e) {

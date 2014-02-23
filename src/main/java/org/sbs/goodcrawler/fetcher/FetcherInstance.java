@@ -18,6 +18,8 @@
 package org.sbs.goodcrawler.fetcher;
 
 import org.sbs.goodcrawler.jobconf.FetchConfig;
+import org.sbs.goodcrawler.page.PageFetchResult;
+import org.sbs.url.WebURL;
 
 /**
  * @author whiteme
@@ -41,5 +43,13 @@ public class FetcherInstance {
 			fetcher = new PageFetcher(conf);
 		}
 		return fetcher;
+	}
+	
+	public static void main(String[] args) {
+		getFetcher();
+		WebURL webUrl = new WebURL();
+		webUrl.setAnchor("www.wasu.cn/Play/show/id/1220535");
+		PageFetchResult r = fetcher.fetchHeader(webUrl);
+		System.out.println(r.getEntity().toString());
 	}
 }

@@ -131,7 +131,7 @@ public class FailedPageBackup {
 			File backFile = null;
 			FileChannel fc = null;
 			byte[] b = new byte[] { (byte) 1, (byte) 1 };
-			if (Worker.stop)
+			if (Worker.isStop())
 				if (!ignoreFailedPage) {
 					backFile = new File(config.getString(
 							GlobalConstants.failedPagesBackupPath, "")

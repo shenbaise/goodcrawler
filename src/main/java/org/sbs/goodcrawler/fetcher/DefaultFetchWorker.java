@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.exception.QueueException;
 import org.sbs.goodcrawler.jobconf.FetchConfig;
+import org.sbs.pendingqueue.PendingManager;
 import org.sbs.url.WebURL;
 
 /**
@@ -68,11 +69,11 @@ public class DefaultFetchWorker extends FetchWorker {
 		int c = 0;
 		WebURL url ;
 		try {
-			while(!stop){
+			while(!isStop()){
 				while(null!=(url=pendingUrls.getElementT())){
 					fetchPage(url);
 					// 确保当前任务完成后跳出
-					if(stop)
+					if(isStop())
 						break;
 					c++;
 					if(c>10000){
