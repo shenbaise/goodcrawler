@@ -28,6 +28,7 @@ public class PendingManager {
 	private static final String urlPrefix = "url_";
 	private static final String storePrefix = "store_";
 	private static final String pagePrefix = "page_";
+	private static final String reCrawPrefix = "recraw_";
 	private static ConcurrentHashMap<String, AbsPendingQueue<?>> CM = new ConcurrentHashMap<>();
 	
 	/**
@@ -78,6 +79,18 @@ public class PendingManager {
 			PendingStore pu = new PendingStore(pendStoreName);
 			CM.put(pendStoreName, pu);
 			return (PendingStore) CM.get(pendStoreName);
+		}
+	}
+	
+	public static PendRecraw getUrlsToRecraw(String jobName){
+		String pendRecrawName = reCrawPrefix + jobName;
+		Object p = CM.get(pendRecrawName);
+		if(p!=null){
+			return (PendRecraw)p;
+		}else {
+			PendRecraw urlsToRecraw = new PendRecraw(pendRecrawName);
+			CM.put(pendRecrawName, urlsToRecraw);
+			return (PendRecraw)CM.get(pendRecrawName);
 		}
 	}
 	
