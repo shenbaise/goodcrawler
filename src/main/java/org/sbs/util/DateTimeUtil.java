@@ -39,6 +39,8 @@ public class DateTimeUtil {
 	 * 缺省的日期时间显示格式：yyyy-MM-dd HH:mm:ss
 	 */
 	public static final String DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	
+	public static final String DEFAULT_YEAR_FORMT = "yyyy";
 
 	/**
 	 * 私有构造方法，禁止对该类进行实例化
@@ -155,7 +157,12 @@ public class DateTimeUtil {
 	public static int getCurrentYear() {
 		return Calendar.getInstance().get(Calendar.YEAR);
 	}
-
+	
+	public static int getYearOfDate(Date date){
+		 Calendar cal = Calendar.getInstance();
+		 cal.setTime(date);
+		 return cal.get(Calendar.YEAR);
+	}
 	/**
 	 * 得到当前月份
 	 * 

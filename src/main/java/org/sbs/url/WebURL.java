@@ -39,6 +39,7 @@ public class WebURL implements Serializable {
 	private String path;
 	private String anchor;
 	private byte priority;
+	boolean recraw = false;
 
 	/**
 	 * Returns the unique document id assigned to this Url.
@@ -212,6 +213,14 @@ public class WebURL implements Serializable {
 
 	public void setJobName(String jobName) {
 		this.jobName = jobName;
+	}
+
+	public boolean isRecraw() {
+		return recraw;
+	}
+
+	public void setRecraw(boolean recraw) {
+		this.recraw = recraw;
 	}
 	
 }

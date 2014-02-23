@@ -42,16 +42,19 @@ public class DefaultStoreWorker<V, T> extends StoreWorker<V, T>{
 	@Override
 	public void run() {
 		ExtractedPage page ;
-		while(!stop) {
+		while(!isStop()) {
 			try {
-				while(!pendingStore.isEmpty() && !stop){
+				while(!pendingStore.isEmpty() && !isStop()){
 					page = pendingStore.getElementT();
+					System.out.println("get one ");
 					work(page);
+					System.out.println("over");
 				}
 			} catch (QueueException e) {
 				 log.error(e.getMessage());
 			}
 		}
+		System.err.println("###### out");
 	}
 
 	@Override

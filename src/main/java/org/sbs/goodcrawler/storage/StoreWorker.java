@@ -69,6 +69,7 @@ public abstract class StoreWorker<V, T> extends Worker{
 	
 	public void work(ExtractedPage<V, T> page) {
 		StoreResult result = store(page);
+		System.out.println("end ...");
 		if (null != result && null!=result.status){
 			switch (result.status) {
 			case ignored:
