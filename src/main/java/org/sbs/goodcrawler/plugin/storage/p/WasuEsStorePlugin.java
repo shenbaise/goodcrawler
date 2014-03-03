@@ -6,16 +6,12 @@ package org.sbs.goodcrawler.plugin.storage.p;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sbs.goodcrawler.page.ExtractedPage;
-import org.sbs.goodcrawler.plugin.EsClient;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
@@ -33,10 +29,10 @@ public class WasuEsStorePlugin extends IESStoragePlugin {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ExtractedPage<?, ?> process(ExtractedPage<?, ?> page) {
-//		log.info(page.getMessages());
-		HashMap map = ((HashMap)(page.getMessages().get(config.indexName)));
-		if(page!=null && null!=map && map.size()>2){
-			try {
+		try {
+			log.info(page.getMessages());
+			HashMap map = ((HashMap)(page.getMessages().get(config.indexName)));
+			if(page!=null && null!=map && map.size()>2){
 				String type = (String) map.get("type");
 				Object o = map.get("year");
 				Date year =  (Date) o;
@@ -45,9 +41,9 @@ public class WasuEsStorePlugin extends IESStoragePlugin {
 				map.put("year", Integer.parseInt(sdf.format(year)));
 				map.put("actors", Sets.newHashSet(StringUtils.split(actors," ")));
 				return page;
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

@@ -71,6 +71,7 @@ public class ElasticSearchStorage extends Storage {
 		if(null!=plugin){
 			page=plugin.process(page);
 		}
+		System.out.println("x1");
 		try {
 			storeResult = new StoreResult();
 			// 处理Result
@@ -81,11 +82,13 @@ public class ElasticSearchStorage extends Storage {
 			HashMap<String, Object> data = page.getMessages();
 			HashMap<String, Object> content = (HashMap<String, Object>) data.get(config.indexName);
 			content.put("url", page.getUrl().getURL());
-			
+			System.out.println("x2");
 			// 判断是否需要更新url--重新爬去
 			String update = (String) content.get("update");
 			if(null!=update){
+				System.out.println("x3");
 				if(update.contains("更新")){
+					System.out.println("x4");
 					// 发送到update url index
 					HashMap<String, Object> m = Maps.newHashMap();
 					m.put("url", page.getUrl().getURL());
@@ -99,8 +102,10 @@ public class ElasticSearchStorage extends Storage {
 					if("电影".equals((String)content.get("category"))){
 						System.out.println("no");
 					}
+					System.out.println("x5");
 				}
 			}
+			System.out.println("start..2");
 			// 判断重爬url是否已经完全更新
 			if(StringUtils.isBlank(update) && page.getUrl().isRecraw()){
 				EsClient.delete(config.indexName, MD5Utils.createMD5(page.getUrl().getURL()));
@@ -118,7 +123,7 @@ public class ElasticSearchStorage extends Storage {
 				// index不存在？？
 				EsClient.index(config.indexName, "0", content);
 			}
-			
+			System.out.println("start..3");
 			if(null!=get && get.isExists()){
 				Map<String, Object> m = get.getSource();
 				m = MapUtils.mager((HashMap<String, Object>) m, content);
@@ -128,11 +133,13 @@ public class ElasticSearchStorage extends Storage {
 			}
 			data.clear();
 			storeResult.setStatus(Status.success);
+			System.out.println("start..4");
 			return storeResult;
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info(e.getMessage());
 			storeResult.setStatus(Status.failed);
+			System.out.println("start..5");
 			return storeResult;
 		}
 	}

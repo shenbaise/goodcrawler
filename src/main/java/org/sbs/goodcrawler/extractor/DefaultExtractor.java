@@ -61,6 +61,7 @@ public class DefaultExtractor extends Extractor {
 		                	WebURL url = new WebURL();
 		                	url.setURL(linkHref);
 		                	url.setJobName(conf.jobName);
+		                	url.setDepth((short) (url.getDepth()+1));
 		                	try {
 		                		// TODO 考虑队列容量，调整Url策略。
 								pendingUrls.addElement(url);

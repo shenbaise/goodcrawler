@@ -79,7 +79,9 @@ public class EsClient {
 //			IndexResponse response = 
 					client.prepareIndex(index, type)
 					.setId(MD5Utils.createMD5((String)data.get("url")))
-					.setSource(xBuilder).execute().actionGet();
+					.setSource(xBuilder).execute()
+//					.actionGet()
+					;
 			// what does respose contains?
 		} catch (ElasticSearchException e) {
 			e.printStackTrace();

@@ -432,6 +432,8 @@ public class FetchConfig extends Configuration{
 				String seed = element.text();
 				this.seeds.add(seed);
 				url.setURL(seed);
+				url.setJobName(jobName);
+				url.setDepth((short) 0);
 				try {
 					PendingManager.getPendingUlr(jobName).addElement(url);
 					BloomfilterHelper.getInstance().add(url.getURL());

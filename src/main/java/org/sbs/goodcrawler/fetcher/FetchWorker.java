@@ -190,7 +190,7 @@ public abstract class FetchWorker extends Worker {
 	}
 	/**
 	 * @param url
-	 * @desc 爬网页，新链接加入到爬取队列
+	 * @desc 爬网页
 	 */
 	public void fetchPage(WebURL url){
 		PageFetchResult result = null;
@@ -222,6 +222,10 @@ public abstract class FetchWorker extends Worker {
 						if(extractFilter(url.getURL())){
 							pendingPages.addElement(page);
 						}
+						// 检测depth
+						if(url.getDepth()>conf.getMaxDepthOfCrawling()){
+							return;
+						}
 						
 						// 提取Url，放入待抓取Url队列
 						Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
@@ -235,6 +239,10 @@ public abstract class FetchWorker extends Worker {
 				                	WebURL purl = new WebURL();
 				                	purl.setURL(linkHref);
 				                	purl.setJobName(conf.jobName);
+				                	purl.setDepth((short) (url.getDepth()+1));
+				                	if(purl.getDepth()>conf.getMaxDepthOfCrawling())
+				                		return;
+				                	
 				                	try {
 										if(!pendingUrls.addElement(purl,1000)){
 											FileUtils.writeStringToFile(new File("status/_urls.good"), url.getURL()+"\n", true);
@@ -259,36 +267,45 @@ public abstract class FetchWorker extends Worker {
 				result.discardContentIfNotConsumed();
 		}
 	}
+	
+	
 	/**
-	 * 爬取网页，不提取url
+	 * 爬取网页，不抽取url。用于重新爬去链接
 	 * @param url
 	 */
 	public void fetchPageWhitoutExtractUrl(WebURL url){
 		PageFetchResult result = null;
 		try {
 			if(null!=url && StringUtils.isNotBlank(url.getURL())){
-				result = fetcher.fetchHeader(url);
-				// 获取状态
-				int statusCode = result.getStatusCode();
-				if (statusCode == CustomFetchStatus.PageTooBig) {
+				// 是否需要爬
+				if(fetchFilter(url.getURL())){
+					result = fetcher.fetchHeader(url);
+					// 获取状态
+					int statusCode = result.getStatusCode();
+					if (statusCode == CustomFetchStatus.PageTooBig) {
+						onIgnored(url);
+						return ;
+					}
+					if (statusCode != HttpStatus.SC_OK){
+						onFailed(url);
+					}else {
+						Page page = new Page(url);
+						pendingUrls.processedSuccess();
+						if (!result.fetchContent(page)) {
+							onFailed(url);
+							return;
+						}
+						if (!parser.parse(page, url.getURL())) {
+							onFailed(url);
+							return;
+						}
+						// 是否加入抽取队列
+						if(extractFilter(url.getURL())){
+							pendingPages.addElement(page);
+						}
+					}
+				} else {
 					onIgnored(url);
-					return ;
-				}
-				if (statusCode != HttpStatus.SC_OK){
-					onFailed(url);
-				}else {
-					Page page = new Page(url);
-					pendingUrls.processedSuccess();
-					if (!result.fetchContent(page)) {
-						onFailed(url);
-						return;
-					}
-					if (!parser.parse(page, url.getURL())) {
-						onFailed(url);
-						return;
-					}
-					// 加入待提取队列
-					pendingPages.addElement(page);
 				}
 			}
 		} catch (Exception e) {
@@ -300,7 +317,6 @@ public abstract class FetchWorker extends Worker {
 				result.discardContentIfNotConsumed();
 		}
 	}
-	
 	public static void main(String[] args) {
 	}
 }
