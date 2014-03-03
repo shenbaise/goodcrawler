@@ -53,6 +53,7 @@ public class DefaultExtractor extends Extractor {
 			try {
 				Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
 				// 提取Url，放入待抓取Url队列
+				/* fetch的时候已经提取过链接，此处不需要在提取（在extractor中无法确定url的深度）。
 				Elements links = doc.getElementsByTag("a"); 
 		        if (!links.isEmpty()) { 
 		            for (Element link : links) { 
@@ -71,6 +72,7 @@ public class DefaultExtractor extends Extractor {
 		                }
 		            }
 		        }
+		        */
 		        // 抽取信息
 				try {
 					

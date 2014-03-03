@@ -14,7 +14,7 @@
 		<!-- 同一线程两次请求之间的间隔 -->
 		<delayBetweenRequests>200</delayBetweenRequests>
 		<!-- Url爬取深度 -1表示不限深度 -->
-		<maxDepthOfCrawling>-1</maxDepthOfCrawling>
+		<maxDepthOfCrawling>2</maxDepthOfCrawling>
 		
 		<maxOutgoingLinksToFollow>1000</maxOutgoingLinksToFollow>
 		<!-- 是否下载二进制数据 -->
@@ -122,6 +122,7 @@
 					<element name="s" type="url" value=".teleplay_gather ul li a" attr="href">
 						<element name="play_url" type="set" value="#playUrl_2" attr="value"/>
 					</element>
+					<element name="title" type="string" value=".teleplay_gather ul li a" attr="text"/>
 				</if>
 			</elements>
 		</template>

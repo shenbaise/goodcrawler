@@ -222,11 +222,11 @@ public abstract class FetchWorker extends Worker {
 						if(extractFilter(url.getURL())){
 							pendingPages.addElement(page);
 						}
+						
 						// 检测depth
 						if(url.getDepth()>conf.getMaxDepthOfCrawling()){
 							return;
 						}
-						
 						// 提取Url，放入待抓取Url队列
 						Document doc = Jsoup.parse(new String(page.getContentData(),page.getContentCharset()), urlUtils.getBaseUrl(page.getWebURL().getURL()));
 						Elements links = doc.getElementsByTag("a"); 
@@ -242,7 +242,6 @@ public abstract class FetchWorker extends Worker {
 				                	purl.setDepth((short) (url.getDepth()+1));
 				                	if(purl.getDepth()>conf.getMaxDepthOfCrawling())
 				                		return;
-				                	
 				                	try {
 										if(!pendingUrls.addElement(purl,1000)){
 											FileUtils.writeStringToFile(new File("status/_urls.good"), url.getURL()+"\n", true);
