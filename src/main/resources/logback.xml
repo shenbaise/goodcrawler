@@ -4,7 +4,7 @@
 		<prudent>true</prudent>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>
-				logs/jk-log-%d{yyyy-MM-dd}.%i.log
+				logs/gc-log-%d{yyyy-MM-dd}.%i.log
 			</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>3</maxIndex>
