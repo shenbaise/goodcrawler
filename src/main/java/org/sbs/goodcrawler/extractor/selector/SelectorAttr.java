@@ -23,5 +23,5 @@ package org.sbs.goodcrawler.extractor.selector;
  * @desc 
  */
 public enum SelectorAttr {
-	src,href,text,value,id,title,tostring
+	src,href,text,value,id,title,tostring,alt,other
 }

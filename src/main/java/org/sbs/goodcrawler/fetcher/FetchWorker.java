@@ -224,7 +224,7 @@ public abstract class FetchWorker extends Worker {
 						}
 						
 						// 检测depth
-						if(url.getDepth()>conf.getMaxDepthOfCrawling()){
+						if(url.getDepth()>conf.getMaxDepthOfCrawling() && conf.getMaxDepthOfCrawling()!=-1){
 							return;
 						}
 						// 提取Url，放入待抓取Url队列
@@ -240,7 +240,7 @@ public abstract class FetchWorker extends Worker {
 				                	purl.setURL(linkHref);
 				                	purl.setJobName(conf.jobName);
 				                	purl.setDepth((short) (url.getDepth()+1));
-				                	if(purl.getDepth()>conf.getMaxDepthOfCrawling())
+				                	if(purl.getDepth()>conf.getMaxDepthOfCrawling() && conf.getMaxDepthOfCrawling()!=-1)
 				                		return;
 				                	try {
 										if(!pendingUrls.addElement(purl,1000)){

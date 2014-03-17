@@ -66,7 +66,27 @@ public class BootStrap {
 	public static void main(String[] args) {
 		try {
 			start();
-			
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					byte[] b = new byte[128];
+					while(true){
+						try {
+							System.in.read(b);
+							String input = new String(b);
+							input = input.replace("\n", "").replace("\r", "").trim();
+							if(input.equalsIgnoreCase("quit")){
+								stopAll();
+								System.exit(0);
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+					
+				}
+			}).start();
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -165,10 +185,23 @@ public class BootStrap {
 			base.mkdir();
 		}
 		File urlsFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
+		if(!urlsFile.exists()){
+			urlsFile.getParentFile().mkdirs();
+		}
 		File pagesFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
-		File storesFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
-		File filterFile = new File(base,"filter.good");
+		if(!pagesFile.exists()){
+			pagesFile.getParentFile().mkdirs();
+		}
 		
+		File storesFile = new File(base,jobs.get(jobId) + "/"+urls.getClass().getSimpleName()+".good");
+		if(!storesFile.exists()){
+			storesFile.getParentFile().mkdirs();
+		}
+		File filterFile = new File(base,"filter.good");
+		if(!filterFile.exists()){
+			filterFile.getParentFile().exists();
+		}
+			
 		try {
 			FileOutputStream fosUrl = new FileOutputStream(urlsFile);
 			ObjectOutputStream oosUrl = new ObjectOutputStream(fosUrl);

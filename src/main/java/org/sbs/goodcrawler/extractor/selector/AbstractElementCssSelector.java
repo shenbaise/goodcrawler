@@ -98,6 +98,9 @@ public abstract class AbstractElementCssSelector<T> implements GCElement{
 		this.value = value;
 		this.attr = attr;
 		this.$Attr = org.apache.commons.lang3.EnumUtils.getEnum(SelectorAttr.class, this.attr);
+		if(this.$Attr==null){
+			this.$Attr = SelectorAttr.other;
+		}
 		this.isRequired = isRequired;
 		this.index = index;
 		if(StringUtils.isNotBlank(regex))

@@ -57,6 +57,7 @@ public class PageElementSelector extends AbstractElementCssSelector<HashMap<Stri
 	 * 该Url选择器下提取到的内容
 	 */
 	HashMap<String, Object> content;
+	private Object lock = new Object();
 	
 	private Parser parser = new Parser(false);
 	private UrlUtils urlUtils = new UrlUtils();
@@ -114,6 +115,7 @@ public class PageElementSelector extends AbstractElementCssSelector<HashMap<Stri
 			}
 		}
 		if(urls.size()>0){
+			content = Maps.newHashMap();
 			for(String url:urls){
 				Document doc = null;
 				PageFetchResult result = null;
@@ -146,7 +148,7 @@ public class PageElementSelector extends AbstractElementCssSelector<HashMap<Stri
 						result.discardContentIfNotConsumed();
 				}
 						
-				content = Maps.newHashMap();
+				
 				if(selectors!=null)
 				for(AbstractElementCssSelector<?> selector :selectors){
 					if(selector instanceof FileElementCssSelector){
@@ -179,7 +181,9 @@ public class PageElementSelector extends AbstractElementCssSelector<HashMap<Stri
 	@Override
 	public Map<String, HashMap<String, Object>> getContentMap() throws ExtractException{
 		if(newDoc){
-			getContent();
+			synchronized(lock){
+				getContent();
+			}
 		}
 		if(content == null || content.size()==0)
 			return null;

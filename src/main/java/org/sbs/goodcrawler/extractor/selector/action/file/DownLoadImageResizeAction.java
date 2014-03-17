@@ -58,7 +58,7 @@ public class DownLoadImageResizeAction extends FileSelectAction {
 	 */
 	long blockSize = 1024*1024L;
 	
-	private int w = 200;
+	private int w = 180;
 	private int h = 240;
 	private float quality = 0.6f;
 	private boolean deleteOldFile = true;

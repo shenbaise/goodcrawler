@@ -27,6 +27,11 @@
         "include_in_all": true,
         "index": "analyzed"
       },
+      "year": {
+        "type": "date",
+        "include_in_all": true,
+        "index": "not_analyzed"
+      },
       "actors": {
         "type": "string",
         "include_in_all": true,
@@ -40,17 +45,17 @@
       "summary": {
         "type": "string",
         "include_in_all": false,
-        "index": "not_analyzed"
+        "index": "analyzed"
       },
       "type": {
         "type": "string",
         "include_in_all": true,
-        "index": "analyzed"
+        "index": "not_analyzed"
       },
       "category": {
         "type": "string",
         "include_in_all": true,
-        "index": "analyzed"
+        "index": "not_analyzed"
       }
     }
   }

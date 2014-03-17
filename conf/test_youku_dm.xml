@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<job name="dm-test">
+	<jobtime>-1</jobtime>
+	<urlNum>-1</urlNum>
+	<!-- 定义 Fetcher -->
+	<fetch>
+		<type>default</type>
+		<agent>Kindle</agent>
+		<threadNum>10</threadNum>
+		<delayBetweenRequests>200</delayBetweenRequests>
+		<maxDepthOfCrawling>-1</maxDepthOfCrawling>
+		<https>true</https>
+		<onlyDomain>true</onlyDomain>
+		<connection>
+			<socketTimeoutMilliseconds>20000</socketTimeoutMilliseconds>
+			<connectionTimeout>0</connectionTimeout>
+			<maxTotalConnections>600</maxTotalConnections>
+			<maxConnectionsPerHost>600</maxConnectionsPerHost>
+		</connection>
+		<!-- url种子 -->
+		<seeds>
+			<seed>http://v.youku.com/v_show/id_XNDc2MDkzMTIw.html</seed>
+		</seeds>
+		<!-- 加入Url待处理队列的策略 -->
+		<fetchUrlFilters>
+			<!-- 种子需要加入过滤策略 -->
+			<filter>http://.*.youku.com/show_page/.*</filter>
+			<filter>http://.*.youku.com/star_page/.*</filter>
+			<filter>http://.*.youku.com/v_olist/.*</filter>
+			<filter>http://www.youku.com/</filter>
+		</fetchUrlFilters>
+		<!-- 加入待抽取信息页队列的策略 -->
+		<extractUrlfilters>
+			<filter>http://.*.youku.com/show_page/.*</filter>
+			<filter>http://.*.youku.com/star_page/.*</filter>
+			<filter>http://.*.youku.com/v_show/.*</filter>
+		</extractUrlfilters>
+	</fetch>
+
+	<!-- 定义extract -->
+	<extract> 
+		<type>default</type>
+		<threadNum>15</threadNum>
+		<template name="movie">
+			<urls>
+				<url>http://.*.youku.com/v_show/.*</url>
+			</urls>
+			<elements>
+				<element name="title" type="string" value=".title .name" attr="text" required="true" />
+				<element name="category" type="string" value=".title .type a" attr="text" required="true"/>
+				<if test="category=动漫">
+					<element name="year" type="int" value=".title .pub" attr="text" required="true"/>
+					<element name="score" type="int" value=".ratingstar .num" attr="text"/>
+					<element name="alias" type="string" value=".alias" attr="text">
+						<action operation="split" split=":" index="1"></action>
+					</element>
+					<element name="area" type="string" value=".row2 .area a" attr="text"/>
+					<element name="type" type="set" value=".row2 .type a" attr="text" required="true" />
+					<element name="hot" type="int" value=".row2 .vr .num" attr="text" />
+					<element name="summary" type="string" value=".detail .long" attr="text" />
+					<element name="thumbnail" type="file" value=".baseinfo .thumb img" attr="src" required="true">
+						<action operation="download_resize" dir="./{category}/{year}/" fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
+					</element>
+					<element name="play1" type="url" value="#mvPlayList a" attr="href">
+						<element name="youku_url" type="set" value="li.item" attr="id" >
+							<action operation="sub" exp="5"/>
+							<action operation="perfix" perfix="http://player.youku.com/player.php/sid/"/>
+							<action operation="suffix" suffix="/v.swf"/>
+						</element>
+						<element name="youku_title" type="set" value="li.item" attr="title" >
+						</element>
+					</element>
+				</if>
+			</elements>
+		</template>
+	</extract>
+	<!-- 存储配置 -->
+	<store>
+		<type>elasticsearch</type>
+		<threadNum>2</threadNum>
+	</store>
+</job>

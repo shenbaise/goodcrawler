@@ -20,7 +20,7 @@ public class GcElementTest {
 	
 	@Test
 	public void insTest(){
-		StringElementCssSelector secsCssSelector = new StringElementCssSelector("", "", "", true);
+		StringElementCssSelector secsCssSelector = new StringElementCssSelector("", "", "", true, 0,"");
 		System.out.println(secsCssSelector instanceof GCElement);
 		assert secsCssSelector instanceof AbstractElementCssSelector;
 		assert secsCssSelector instanceof GCElement;

@@ -14,7 +14,7 @@
 		<!-- 同一线程两次请求之间的间隔 -->
 		<delayBetweenRequests>200</delayBetweenRequests>
 		<!-- Url爬取深度 -1表示不限深度 -->
-		<maxDepthOfCrawling>2</maxDepthOfCrawling>
+		<maxDepthOfCrawling>-1</maxDepthOfCrawling>
 		
 		<maxOutgoingLinksToFollow>1000</maxOutgoingLinksToFollow>
 		<!-- 是否下载二进制数据 -->
@@ -71,20 +71,19 @@
 				<url>http://.*.wasu.cn/Play/show/id/\d+</url>
 			</urls>
 			<elements>
-				<element name="title" type="string" value=".m_play_info a" attr="text" required="true"/>
-				<element name="category" type="string" value=".m_area a" attr="text" required="true" index="1"/>
+				<element name="title" type="string" value=".play_information .information_img img" attr="alt" required="true"/>
+				<element name="category" type="string" value=".play_seat a" attr="text" required="true" index="1"/>
 				<if test="category=电影 or category=微电影">
-					<element name="type" type="string" value=".m_area a" attr="text" required="true" index="2"/>
+					<element name="type" type="set" value=".play_information_t .r .three a" attr="text" required="true"/>
+					<element name="area" type="string" value=".play_information_t .r .two a" attr="text" />
 					<element name="year" type="date" value=".m_play_info p" attr="tostring" regex="(\d{4}-\d{1,2}-\d{1,2})"/>
 					<element name="score" type="int" value=".m_play_info p" attr="text" regex="(\d{1}[.]\d{1,2})"/>
-					<element name="director" type="string" value="#infoL a" attr="text"	required="true" index="2" />
-					<element name="actors" type="string" value="#infoL p" attr="text">
-						<action operation="split" split="：" index="3"/>
-					</element>
-					<element name="summary" type="string" value="#infoL p" attr="text" index="1"/>
-					<element name="thumbnail" type="file" value="#infoL img" attr="src" required="true">
+					<element name="director" type="set" value=".play_information_t .r .four a" attr="text" required="true" />
+					<element name="actors" type="set" value=".play_information_t .r .five .r a" attr="text"/>
+					<element name="summary" type="string" value=".play_information_b .one b" attr="text"/>
+					<element name="thumbnail" type="file" value=".play_information .information_img img" attr="data-original" required="true">
 							<action operation="download" dir="./{category}/{year}/"
-								fileName="{md5}" width="200" quality="0.6" asyn="true"></action>
+								fileName="{md5}" width="180" height="240" quality="0.6" asyn="true"></action>
 					</element>
 					<element name="play_url" type="set" value="#playUrl_2" attr="value"/>
 				</if>
@@ -101,28 +100,24 @@
 				<element name="title" type="string" value=".teleplay_img img" attr="title" required="true"/>
 				<element name="category" type="string" value=".play_seat a" attr="text" required="true" index="1"/>
 				<if test="category=动漫 or category=电视剧">
-					<element name="type" type="string" value=".teleplay_tit p" attr="text" required="true">
-						<action operation="split" split="：" index="2"/>
+					<element name="type" type="set" value=".teleplay_tit p:contains(分类：) a" attr="text" required="true">
 					</element>
 					<element name="update" type="string" value=".teleplay_tit p" attr="text" required="true">
 					</element>
 					<element name="year" type="date" value=".inner .play_seat" attr="tostring" regex="(\d{4}-\d{1,2}-\d{1,2})"/>
 					<element name="score" type="int" value=".tele_r p:eq(0)" attr="text" regex="(\d{1}[.]\d{1,2})"/>
-					<element name="director" type="string" value=".tele_l p" attr="text" required="true" index="1" >
-						<action operation="between" exp="：,　" />
+					<element name="director" type="set" value=".tele_l p:eq(3) a" attr="text" required="true" >
 					</element>
-					<element name="actors" type="string" value=".tele_l p" attr="text" index="2" required="true">
-						<action operation="after" split="："/>
+					<element name="actors" type="set" value=".tele_l p:eq(4) a" attr="text" required="true">
 					</element>
 					<element name="summary" type="string" value="#infoL" attr="text"/>
 					<element name="thumbnail" type="file" value=".teleplay_img img" attr="src" required="true">
 							<action operation="download" dir="./{category}/{year}/"
-								fileName="{md5}" asyn="true"></action>
+								fileName="{md5}" width="180" height="240" quality="0.6" asyn="true"></action>
 					</element>
 					<element name="s" type="url" value=".teleplay_gather ul li a" attr="href">
 						<element name="play_url" type="set" value="#playUrl_2" attr="value"/>
 					</element>
-					<element name="title" type="string" value=".teleplay_gather ul li a" attr="text"/>
 				</if>
 			</elements>
 		</template>
@@ -133,6 +128,8 @@
 		<type>elasticsearch</type>
 		<threadNum>1</threadNum>
 		<type>wasu</type>
+		<idPolicy>md5</idPolicy>
+		<ref>title</ref>
 		<plugin>org.sbs.goodcrawler.plugin.storage.p.WasuEsStorePlugin</plugin>
 	</store>
 </job>
