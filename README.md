@@ -1,7 +1,7 @@
 goodcrawler(web crawler) 网络爬虫
 ===========
 
----- standalone  https://github.com/shenbaise/goodcrawler/tree/standalone
+---- standalone version https://github.com/shenbaise/goodcrawler/tree/standalone
 
 this project is under development.
 
